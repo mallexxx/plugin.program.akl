@@ -59,7 +59,11 @@ class AppService(object):
         db_version = uow.get_database_version()
         logger.debug(f'db.version       "{db_version}"')
         if db_version is None or LooseVersion(db_version) < LooseVersion(globals.addon_version):
-            self._do_version_upgrade(uow, LooseVersion(db_version))
+            try:
+                self._do_version_upgrade(uow, LooseVersion(db_version))
+            except:
+                logger.exception("Failure while doing database migration")
+                kodi.notify_error("Failure while doing database migration.")
         
         if self._last_time_scanned_is_too_long_ago():
             self._perform_scans()
