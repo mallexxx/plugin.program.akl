@@ -713,10 +713,10 @@ def cmd_add_rom(args):
                 parent_category = grand_parent_category
         
         rom_name = ""
-        is_file_based = kodi.dialog_yesno("Is it a file based ROM/executable?")
+        is_file_based = kodi.dialog_yesno(kodi.translate(40952))
         file_path = None
         if is_file_based:
-            file_path = kodi.dialog_get_file("Select file")
+            file_path = kodi.dialog_get_file(kodi.translate(40953))
             if file_path is not None:
                 path = io.FileName(file_path)
                 rom_name = path.getBaseNoExt()

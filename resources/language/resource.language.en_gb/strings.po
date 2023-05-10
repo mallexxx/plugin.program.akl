@@ -335,6 +335,14 @@ msgctxt "#40951"
 msgid "Invalid parameters supplied."
 msgstr ""
 
+msgctxt "#40952"
+msgid "Is it a directly launchable file/executable?\nChoose no if you want to assign a separate launcher afterwards."
+msgstr ""
+
+msgctxt "#40953"
+msgid "Select file"
+msgstr ""
+
 ############################
 # Scraping settings
 ############################
