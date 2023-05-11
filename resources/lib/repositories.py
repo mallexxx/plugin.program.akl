@@ -369,9 +369,11 @@ class UnitOfWork(object):
             
         self.open_session(temp_filepath)
         
+        check_version = LooseVersion("1.3.99")
         any_failed = False
         for migration_file in migration_files:
             self.logger.info(f'Executing migration script: {migration_file.getPath()}')
+            file_version = self.get_version_from_migration_file(migration_file)
             sql_statements = migration_file.loadFileToStr()
             failed = False
             try:
@@ -382,9 +384,10 @@ class UnitOfWork(object):
                 kodi.notify_error(kodi.translate(40954))
                 failed = True
                 any_failed = True
-            self.conn.execute(qry.AKL_INSERT_MIGRATION,[ 
-                              migration_file.getBase(), str(new_db_version),
-                              datetime.datetime.now(), not failed])        
+            if file_version > check_version:
+                self.conn.execute(qry.AKL_INSERT_MIGRATION,[ 
+                                migration_file.getBase(), str(new_db_version),
+                                datetime.datetime.now(), not failed])        
 
         self.logger.info(f'Updating database schema version of app {globals.addon_id} to {new_db_version}')     
         self.conn.execute(qry.AKL_UPDATE_VERSION, [globals.addon_version, str(new_db_version)])
@@ -406,7 +409,7 @@ class UnitOfWork(object):
             self.execute(qry.AKL_SELECT_MIGRATIONS)
             migrations_data_set = self.result_set()
         except:
-            self.logger.exception("Failure getting executed migrations")
+            self.logger.error("Failure getting executed migrations")
         finally:
             self.close_session()
         return migrations_data_set

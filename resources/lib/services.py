@@ -115,6 +115,8 @@ class AppService(object):
         new_migration_files_to_execute = [f for f in migrations_files_to_execute if f.getBase() not in executed_files]
 
         logger.info(f"Found {len(new_migration_files_to_execute)} migration files to process.")
+        if len(new_migration_files_to_execute) == 0:
+            return
         version_to_store = LooseVersion(globals.addon_version)
         file_version = uow.get_version_from_migration_file(new_migration_files_to_execute[-1])
         if file_version > version_to_store:
