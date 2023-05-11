@@ -1,8 +1,8 @@
 -- CREATE NEW TABLES
 CREATE TABLE IF NOT EXISTS akl_migrations(
     migration_file TEXT UNIQUE, 
-    at_version TEXT,
-    execution_data TIMESTAMP,
+    applied_version TEXT,
+    execution_date TIMESTAMP,
     applied INTEGER DEFAULT 0 
 );
 
