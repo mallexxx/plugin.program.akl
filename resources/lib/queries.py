@@ -1,3 +1,7 @@
+# App Queries
+AKL_UPDATE_VERSION = "UPDATE akl_version SET version=? WHERE app=?"
+AKL_INSERT_MIGRATION = "INSERT OR REPLACE INTO akl_migrations (migration_file, applied_version, execution_date, applied) VALUES(?,?,?,?)"
+AKL_SELECT_MIGRATIONS = "SELECT * FROM akl_migrations"
 
 # Shared Queries
 INSERT_METADATA = "INSERT INTO metadata (id,year,genre,developer,rating,plot,assets_path,finished) VALUES (?,?,?,?,?,?,?,?)"

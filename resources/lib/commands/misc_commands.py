@@ -225,17 +225,20 @@ def cmd_execute_reset_db(args):
     kodi.notify('Finished resetting the database')
 
 @AppMediator.register('RUN_DB_MIGRATIONS')
-def cmd_execute_reset_db(args):
+def cmd_execute_migrations(args):
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
-    if not globals.g_PATHS.DATABASE_MIGRATIONS_PATH.exists():
-        globals.g_PATHS.DATABASE_MIGRATIONS_PATH.makedirs()
+    
+    db_version = LooseVersion(uow.get_database_version())
+    migrations_in_database = uow.get_migrations_history()
 
     options = collections.OrderedDict()
-    db_version = LooseVersion(uow.get_database_version())
-    migrations_files_available  = globals.g_PATHS.DATABASE_MIGRATIONS_PATH.scanFilesInPath("*.sql")
+    migrations_files_available  = uow.get_migration_files(LooseVersion("0.0.0"))
     
     for migration_file in migrations_files_available:
-        options[migration_file.getPath()] = migration_file.getBase()
+        file_name = migration_file.getBase()
+        existing_migration = next((m for m in migrations_in_database if m["migration_file"] == file_name), None)
+        state = "NEW" if existing_migration is None else ("DONE" if existing_migration["applied"] else "FAILED")
+        options[migration_file.getPath()] = f"{migration_file.getBase()} [{state}]"
             
     dialog = kodi.OrdDictionaryDialog()
     selected_file = dialog.select(f"Select migrations to execute (Current version {db_version})", options)
@@ -245,13 +248,25 @@ def cmd_execute_reset_db(args):
     
     migration_file = io.FileName(selected_file)
     version_to_store = LooseVersion(globals.addon_version)
-    file_version = LooseVersion(migration_file.getBaseNoExt())
+    file_version = uow.get_version_from_migration_file(migration_file)
     if file_version > version_to_store:
         version_to_store = file_version
     if db_version > version_to_store:
         version_to_store = db_version
-
-    uow.migrate_database([migration_file], version_to_store)
+    
+    dialog = kodi.ListDialog()
+    selected_index = dialog.select(f"Migration {migration_file.getBaseNoExt()}",[
+        "Run migration",
+        "Mark as executed without running"
+    ])
+    if not selected_index:
+        return
+    
+    if selected_index == 0:
+        if not kodi.dialog_yesno(f"Run migration {migration_file.getBaseNoExt()}?"):
+            return
+        
+    uow.migrate_database([migration_file], version_to_store, selected_index==1)
     kodi.notify('Done running migrations on the database')
 
 @AppMediator.register('CHECK_DUPLICATE_ASSET_DIRS')

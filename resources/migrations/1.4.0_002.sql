@@ -1,33 +1,6 @@
--- CREATE NEW TABLES
-CREATE TABLE IF NOT EXISTS assetmappings (
-    id TEXT PRIMARY KEY,
-    mapped_asset_type TEXT NOT NULL,
-    to_asset_type TEXT NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS metadata_assetmappings(
-    metadata_id TEXT,
-    assetmapping_id TEXT,
-    FOREIGN KEY (metadata_id) REFERENCES metadata (id) 
-        ON DELETE CASCADE ON UPDATE NO ACTION,
-    FOREIGN KEY (assetmapping_id) REFERENCES assetmappings (id) 
-        ON DELETE CASCADE ON UPDATE NO ACTION
-);
-
-CREATE TABLE IF NOT EXISTS romcollection_roms_assetmappings(
-    romcollection_id TEXT,
-    assetmapping_id TEXT,
-    FOREIGN KEY (romcollection_id) REFERENCES romcollections (id) 
-        ON DELETE CASCADE ON UPDATE NO ACTION,
-    FOREIGN KEY (assetmapping_id) REFERENCES assetmappings (id) 
-        ON DELETE CASCADE ON UPDATE NO ACTION
-);
 --------------------- UPDATE ROWS
-DELETE FROM assetmappings;
-DELETE FROM metadata_assetmappings;
-DELETE FROM romcollection_roms_assetmappings;
-
 -- Category default mappings
+
 INSERT INTO assetmappings (id, mapped_asset_type, to_asset_type)
     SELECT c.id || 'ico', 'icon', substr(c.default_icon, 3)
     FROM categories as c WHERE c.default_icon != 's_icon';

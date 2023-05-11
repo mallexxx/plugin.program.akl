@@ -2,10 +2,13 @@
 import logging
 import typing
 
+import datetime
+from distutils.version import LooseVersion
+
 import sqlite3
 from sqlite3.dbapi2 import Cursor
 
-from akl.utils import text, io
+from akl.utils import text, io, kodi
 from akl import constants
 
 from resources.lib import globals
@@ -349,27 +352,88 @@ class UnitOfWork(object):
             
         self.create_empty_database(schema_file_path)
 
-    def migrate_database(self, migration_files:typing.List[io.FileName], new_db_version):
-        # make copy for backup
-        backup_filepath = self._db_path.changeExtension(".db.bak")
-        if backup_filepath.exists():
-            backup_filepath.unlink()
-        self._db_path.copy(backup_filepath)
+    def migrate_database(self, migration_files:typing.List[io.FileName], new_db_version, skip_scripts_execution=False):
+        if not skip_scripts_execution:
+            # make copy of existing database file to execute migration on.
+            temp_filepath = self._db_path.changeExtension(f".{new_db_version}.db")
+            backup_filepath = self._db_path.changeExtension(f".db.bak")
+            if temp_filepath.exists():
+                temp_filepath.unlink()
+            else:
+                if backup_filepath.exists():
+                    backup_filepath.unlink()
+                self._db_path.copy(backup_filepath)
+            self._db_path.copy(temp_filepath)
+        else:
+            temp_filepath = self._db_path
+            
+        self.open_session(temp_filepath)
         
-        self.open_session()
-        
+        any_failed = False
         for migration_file in migration_files:
             self.logger.info(f'Executing migration script: {migration_file.getPath()}')
             sql_statements = migration_file.loadFileToStr()
-            self.execute_script(sql_statements)
+            failed = False
+            try:
+                if not skip_scripts_execution:
+                    self.execute_script(sql_statements)
+            except:
+                self.logger.exception(f"Failure with database migration '{migration_file.getBase()}'")
+                kodi.notify_error(kodi.translate(40954))
+                failed = True
+                any_failed = True
+            self.conn.execute(qry.AKL_INSERT_MIGRATION,[ 
+                              migration_file.getBase(), str(new_db_version),
+                              datetime.datetime.now(), not failed])        
 
         self.logger.info(f'Updating database schema version of app {globals.addon_id} to {new_db_version}')     
-        self.conn.execute("UPDATE akl_version SET version=? WHERE app=?", [globals.addon_version, str(new_db_version)])
+        self.conn.execute(qry.AKL_UPDATE_VERSION, [globals.addon_version, str(new_db_version)])
         self.commit()
         self.close_session()
 
-    def open_session(self):
-        self.conn = sqlite3.connect(self._db_path.getPathTranslated())
+        # restore file after migrations
+        if not skip_scripts_execution:
+            self._db_path.unlink()
+            temp_filepath.copy(self._db_path)
+            if not any_failed:
+                temp_filepath.unlink()
+
+    def get_migrations_history(self):
+        self.open_session()
+        
+        migrations_data_set = []
+        try:
+            self.execute(qry.AKL_SELECT_MIGRATIONS)
+            migrations_data_set = self.result_set()
+        except:
+            self.logger.exception("Failure getting executed migrations")
+        finally:
+            self.close_session()
+        return migrations_data_set
+
+    def get_migration_files(self, db_version):
+        if not globals.g_PATHS.DATABASE_MIGRATIONS_PATH.exists():
+            globals.g_PATHS.DATABASE_MIGRATIONS_PATH.makedirs()
+            
+        migrations_files_available  = globals.g_PATHS.DATABASE_MIGRATIONS_PATH.scanFilesInPath("*.sql")
+        migrations_files_to_execute = []
+        for migration_file in migrations_files_available:
+            file_version = self.get_version_from_migration_file(migration_file)
+            if file_version > db_version:
+                migrations_files_to_execute.append(migration_file)
+
+        migrations_files_to_execute.sort(key = lambda f: f.getBaseNoExt())
+        return migrations_files_to_execute
+
+    def get_version_from_migration_file(self, file: io.FileName):
+        if "_" not in file.getBaseNoExt():
+            return LooseVersion(file.getBaseNoExt())
+        return LooseVersion(file.getBaseNoExt().split("_")[0])
+
+    def open_session(self, db_path: io.FileName = None):
+        if db_path is None:
+            db_path = self._db_path
+        self.conn = sqlite3.connect(db_path.getPathTranslated())
         self.conn.row_factory = UnitOfWork.dict_factory
         self.cursor = self.conn.cursor()
 

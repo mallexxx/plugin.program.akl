@@ -392,7 +392,17 @@ CREATE VIEW IF NOT EXISTS vw_rom_launchers AS SELECT
 FROM rom_launchers AS l
     INNER JOIN akl_addon AS a ON l.akl_addon_id = a.id;
 
-CREATE TABLE IF NOT EXISTS akl_version(app TEXT, version TEXT);
+CREATE TABLE IF NOT EXISTS akl_version(
+    app TEXT, 
+    version TEXT
+);
+
+CREATE TABLE IF NOT EXISTS akl_migrations(
+    migration_file TEXT UNIQUE, 
+    applied_version TEXT,
+    execution_date TIMESTAMP,
+    applied INTEGER DEFAULT 0 
+);
 
 -- STATIC VALUES
 INSERT INTO akl_addon (id, name, addon_id, version, addon_type)

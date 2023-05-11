@@ -343,6 +343,10 @@ msgctxt "#40953"
 msgid "Select file"
 msgstr ""
 
+msgctxt "#40954"
+msgid "Failure while doing database migration."
+msgstr ""
+
 ############################
 # Scraping settings
 ############################
