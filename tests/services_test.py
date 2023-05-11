@@ -15,6 +15,7 @@ sys.modules['routing'] = module
 
 from resources.lib import globals
 from resources.lib.services import AppService
+from resources.lib.repositories import UnitOfWork
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(format = '%(asctime)s %(module)s %(levelname)s: %(message)s',
@@ -47,21 +48,27 @@ class Test_services(unittest.TestCase):
         file_mock.return_value = [
             FakeFile('1.2.1.sql'),
             FakeFile('1.1.0.sql'), 
+            FakeFile('1.3.0_004.sql'),
+            FakeFile('1.3.0_001.sql'),
+            FakeFile('1.3.0_002.sql'),
             FakeFile('/files/1.3.0.sql'),
             FakeFile('1.1.5.sql'),
-            FakeFile('/migrations/with/1.2.7.sql')]
-        uow_mock = FakeUnitOfWork()
+            FakeFile('/migrations/with/1.2.7.sql')
+        ]
         
-        service = AppService()
+        target = UnitOfWork(FakeFile("/x.db"))
         start_version = LooseVersion('1.1.1')
         globals.addon_version = '1.0.0'
         
         # act
-        service._do_version_upgrade(uow_mock, start_version)
+        actual = target.get_migration_files(start_version)
         
         # assert
-        self.assertIsNotNone(uow_mock.executed_files)
-        self.assertEqual(uow_mock.executed_files[0], '1.1.5.sql')
-        self.assertEqual(uow_mock.executed_files[1], '1.2.1.sql')
-        self.assertEqual(uow_mock.executed_files[2], '/migrations/with/1.2.7.sql')
-        self.assertEqual(uow_mock.executed_files[3], '/files/1.3.0.sql')
+        self.assertIsNotNone(actual)
+        self.assertEqual(actual[0].getPath(), '1.1.5.sql')
+        self.assertEqual(actual[1].getPath(), '1.2.1.sql')
+        self.assertEqual(actual[2].getPath(), '/migrations/with/1.2.7.sql')
+        self.assertEqual(actual[3].getPath(), '/files/1.3.0.sql')
+        self.assertEqual(actual[4].getPath(), '1.3.0_001.sql')
+        self.assertEqual(actual[5].getPath(), '1.3.0_002.sql')
+        self.assertEqual(actual[6].getPath(), '1.3.0_004.sql')
