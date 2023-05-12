@@ -471,7 +471,7 @@ class UnitOfWork(object):
             self.logger.error(f'Used arguments: {sql_args_str}')
             raise
 
-    def execute_single_session(self, db_path, sql, *args):
+    def execute_single_session(self, db_path, sql, args):
         self.open_session(db_path)
         self.execute(sql, args)
         self.commit()
