@@ -367,8 +367,6 @@ class UnitOfWork(object):
         else:
             temp_filepath = self._db_path
             
-        self.open_session(temp_filepath)
-        
         check_version = LooseVersion("1.3.99")
         any_failed = False
         for migration_file in migration_files:
@@ -376,23 +374,29 @@ class UnitOfWork(object):
             file_version = self.get_version_from_migration_file(migration_file)
             sql_statements = migration_file.loadFileToStr()
             failed = False
+
+            self.open_session(temp_filepath)
             try:
                 if not skip_scripts_execution:
                     self.execute_script(sql_statements)
+                self.commit()
             except:
                 self.logger.exception(f"Failure with database migration '{migration_file.getBase()}'")
                 kodi.notify_error(kodi.translate(40954))
                 failed = True
                 any_failed = True
-            if file_version > check_version:
-                self.conn.execute(qry.AKL_INSERT_MIGRATION,[ 
-                                migration_file.getBase(), str(new_db_version),
-                                datetime.datetime.now(), not failed])        
+                self.rollback()
+            finally:
+                self.close_session()
 
-        self.logger.info(f'Updating database schema version of app {globals.addon_id} to {new_db_version}')     
-        self.conn.execute(qry.AKL_UPDATE_VERSION, [globals.addon_version, str(new_db_version)])
-        self.commit()
-        self.close_session()
+            if file_version > check_version:
+                self.execute_single_session(temp_filepath, qry.AKL_INSERT_MIGRATION,[ 
+                                migration_file.getBase(), str(new_db_version),
+                                datetime.datetime.now(), not failed])
+
+        self.logger.info(f'Updating database schema version of app {globals.addon_id} to {new_db_version}')        
+        self.execute_single_session(temp_filepath, qry.AKL_UPDATE_VERSION, [
+            globals.addon_version, str(new_db_version)])
 
         # restore file after migrations
         if not skip_scripts_execution:
@@ -466,7 +470,13 @@ class UnitOfWork(object):
             sql_args_str = ','.join(map(str, args))
             self.logger.error(f'Used arguments: {sql_args_str}')
             raise
-    
+
+    def execute_single_session(self, db_path, sql, *args):
+        self.open_session(db_path)
+        self.execute(sql, args)
+        self.commit()
+        self.close_session()
+
     def execute_script(self, sql_statements):
         self.conn.executescript(sql_statements)
             
