@@ -111,7 +111,7 @@ class AppService(object):
             return
         
         migrations_executed = uow.get_migrations_history()
-        executed_files = [f["migration_file"] for f in migrations_executed]
+        executed_files = [f["migration_file"] for f in migrations_executed if f["applied"] == 1]
         new_migration_files_to_execute = [f for f in migrations_files_to_execute if f.getBase() not in executed_files]
 
         logger.info(f"Found {len(new_migration_files_to_execute)} migration files to process.")
