@@ -396,7 +396,7 @@ class UnitOfWork(object):
 
         self.logger.info(f'Updating database schema version of app {globals.addon_id} to {new_db_version}')        
         self.execute_single_session(temp_filepath, qry.AKL_UPDATE_VERSION, [
-            globals.addon_version, str(new_db_version)])
+            str(new_db_version), globals.addon_id])
 
         # restore file after migrations
         if not skip_scripts_execution:
