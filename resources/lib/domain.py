@@ -1101,9 +1101,11 @@ class ROMCollection(MetaDataItemABC):
     def get_parent_id(self) -> str:
         return self.entity_data['parent_id'] if 'parent_id' in self.entity_data else None
         
-    def get_platform(self): return self.entity_data['platform'] if 'platform' in self.entity_data else None
+    def get_platform(self):
+        return self.entity_data['platform'] if 'platform' in self.entity_data else None
 
-    def set_platform(self, platform): self.entity_data['platform'] = platform
+    def set_platform(self, platform):
+        self.entity_data['platform'] = platform
 
     def get_box_sizing(self):
         return self.entity_data['box_size'] if 'box_size' in self.entity_data else constants.BOX_SIZE_POSTER
@@ -1418,7 +1420,6 @@ class ROM(MetaDataItemABC):
         
         return f'ROM_{self.get_id()}'
           
-    # inherited value from ROMCollection
     def get_platform(self):
         return self.entity_data['platform'] if 'platform' in self.entity_data else None
     

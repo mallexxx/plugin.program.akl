@@ -86,7 +86,8 @@ def edit_field_by_list(obj_instance: MetaDataItemABC, metadata_name:str, str_lis
         preselect_idx = 0
     dialog_title = 'Edit {0} {1}'.format(object_name, metadata_name)
     selected = kodi.ListDialog().select(dialog_title, str_list, preselect_idx)
-    if selected is None: return
+    if selected is None:
+        return
     new_value = str_list[selected]
     if old_value == new_value:
         kodi.notify('{0} {1} not changed'.format(object_name, metadata_name))

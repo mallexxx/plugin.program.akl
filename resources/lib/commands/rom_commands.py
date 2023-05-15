@@ -20,7 +20,7 @@ from __future__ import division
 import logging
 import collections
 
-from akl import constants
+from akl import constants, platforms
 from akl.utils import kodi, text, io
 
 from resources.lib.commands.mediator import AppMediator
@@ -90,8 +90,9 @@ def cmd_rom_metadata(args):
     NFO_found_str = 'NFO found' if NFO_FileName and NFO_FileName.exists() else 'NFO not found'
 
     options = collections.OrderedDict()
-    options['ROM_EDIT_METADATA_TITLE']       = "Edit Title: '{}'".format(rom.get_name())
-    options['ROM_EDIT_METADATA_RELEASEYEAR'] = "Edit Release Year: {}".format(rom.get_releaseyear())
+    options['ROM_EDIT_METADATA_TITLE']       = f"{kodi.translate(40863)}: '{rom.get_name()}'"
+    options['ROM_EDIT_METADATA_PLATFORM']    = f"{kodi.translate(40864)}: {rom.get_platform()}"
+    options['ROM_EDIT_METADATA_RELEASEYEAR'] = f"{kodi.translate(40865)}: {rom.get_releaseyear()}"
     options['ROM_EDIT_METADATA_GENRE']       = "Edit Genre: '{}'".format(rom.get_genre())
     options['ROM_EDIT_METADATA_DEVELOPER']   = "Edit Developer: '{}'".format(rom.get_developer())
     options['ROM_EDIT_METADATA_NPLAYERS']    = "Edit NPlayers: '{}'".format(rom.get_number_of_players())
@@ -236,6 +237,22 @@ def cmd_rom_metadata_title(args):
             AppMediator.async_cmd('RENDER_ROM_VIEWS', {'rom_id': rom.get_id()})
             AppMediator.async_cmd('RENDER_VCATEGORY_VIEW', {'vcategory_id': constants.VCATEGORY_TITLE_ID})
             
+    AppMediator.sync_cmd('ROM_EDIT_METADATA', args)
+
+@AppMediator.register('ROM_EDIT_METADATA_PLATFORM')
+def cmd_rom_metadata_platform(args):
+    rom_id = args['rom_id'] if 'rom_id' in args else None    
+    uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
+    with uow:
+        repository = ROMsRepository(uow)
+        rom = repository.find_rom(rom_id)
+
+        if editors.edit_field_by_list(rom, 'Platform', platforms.AKL_platform_list,
+                                    rom.get_platform, rom.set_platform):
+            repository.update_rom(rom)
+            uow.commit()
+            AppMediator.async_cmd('RENDER_ROM_VIEWS', {'rom_id': rom.get_id()})
+                        
     AppMediator.sync_cmd('ROM_EDIT_METADATA', args)
 
 @AppMediator.register('ROM_EDIT_METADATA_ESRB')

@@ -324,6 +324,18 @@ msgctxt "#40862"
 msgid "Delete Category"
 msgstr ""
 
+msgctxt "#40863"
+msgid "Edit Title"
+msgstr ""
+
+msgctxt "#40864"
+msgid "Edit Platform"
+msgstr ""
+
+msgctxt "#40865"
+msgid "Edit Release Year"
+msgstr ""
+
 ############################
 # Headers and texts / notifications
 ############################
