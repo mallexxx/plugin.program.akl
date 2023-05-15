@@ -473,7 +473,7 @@ class UnitOfWork(object):
 
     def execute_single_session(self, db_path, sql, args):
         self.open_session(db_path)
-        self.execute(sql, args)
+        self.execute(sql, *args)
         self.commit()
         self.close_session()
 
