@@ -359,6 +359,10 @@ msgctxt "#40954"
 msgid "Failure while doing database migration."
 msgstr ""
 
+msgctxt "#40955"
+msgid "Should new platform be applied to existing ROMs in this collection?"
+msgstr ""
+
 ############################
 # Scraping settings
 ############################
@@ -406,7 +410,7 @@ msgid "Clones"
 msgstr "settings.xml"
 
 ############################
-# Advaced Enum values
+# Advanced Enum values
 ############################
 
 msgctxt "#30911"

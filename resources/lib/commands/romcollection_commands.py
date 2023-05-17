@@ -25,7 +25,7 @@ from akl.utils import kodi, text, io
 
 from resources.lib.commands.mediator import AppMediator
 from resources.lib import globals, editors
-from resources.lib.repositories import UnitOfWork, CategoryRepository, ROMCollectionRepository
+from resources.lib.repositories import UnitOfWork, CategoryRepository, ROMCollectionRepository, ROMsRepository
 from resources.lib.domain import ROMCollection, Category, g_assetFactory
 
 logger = logging.getLogger(__name__)
@@ -308,6 +308,16 @@ def cmd_romcollection_metadata_platform(args):
         if editors.edit_field_by_list(romcollection, 'Platform', platforms.AKL_platform_list,
                                     romcollection.get_platform, romcollection.set_platform):
             repository.update_romcollection(romcollection)
+            update_roms_too = kodi.dialog_yesno(kodi.translate(40955))
+            
+            if update_roms_too:
+                roms_repository = ROMsRepository(uow)
+                roms_to_update = roms_repository.find_roms_by_romcollection(romcollection)
+                platform_to_apply = romcollection.get_platform()
+                for rom in roms_to_update:
+                    rom.set_platform(platform_to_apply)
+                    roms_repository.update_rom(rom)
+
             uow.commit()
             AppMediator.async_cmd('RENDER_ROMCOLLECTION_VIEW', {'romcollection_id': romcollection.get_id()})
             AppMediator.async_cmd('RENDER_CATEGORY_VIEW', {'category_id': romcollection.get_parent_id()})            
