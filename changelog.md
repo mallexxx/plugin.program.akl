@@ -4,6 +4,7 @@
 - Added setting to disable view rendering notifications
 - Changed database migrations system
 - Added 'edit platform' to ROMs
+- Changed platform can be applied to all ROMs in a collection
 
 ## Previous
 - Custom skin view for View ROM
