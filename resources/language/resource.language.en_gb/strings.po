@@ -165,6 +165,10 @@ msgctxt "#40416"
 msgid "Launch ROM directly by default on item action"
 msgstr "settings.xml"
 
+msgctxt "#40417"
+msgid "Hide rendering notifications"
+msgstr "settings.xml"
+
 ############################
 # Setting options - Paths
 ############################
@@ -296,6 +300,69 @@ msgctxt "#40856"
 msgid "Rebuild all views"
 msgstr ""
 
+msgctxt "#40857"
+msgid "Run database migrations"
+msgstr ""
+
+msgctxt "#40858"
+msgid "Reset database (warning!)"
+msgstr ""
+
+msgctxt "#40859"
+msgid "Choose default Assets/Artwork"
+msgstr ""
+
+msgctxt "#40860"
+msgid "Category status:"
+msgstr ""
+
+msgctxt "#40861"
+msgid "Export Category XML configuration"
+msgstr ""
+
+msgctxt "#40862"
+msgid "Delete Category"
+msgstr ""
+
+msgctxt "#40863"
+msgid "Edit Title"
+msgstr ""
+
+msgctxt "#40864"
+msgid "Edit Platform"
+msgstr ""
+
+msgctxt "#40865"
+msgid "Edit Release Year"
+msgstr ""
+
+############################
+# Headers and texts / notifications
+############################
+msgctxt "#40950"
+msgid "Select action for Category"
+msgstr ""
+
+msgctxt "#40951"
+msgid "Invalid parameters supplied."
+msgstr ""
+
+msgctxt "#40952"
+msgid "Is it a directly launchable file/executable?\nChoose no if you want to assign a separate launcher afterwards."
+msgstr ""
+
+msgctxt "#40953"
+msgid "Select file"
+msgstr ""
+
+msgctxt "#40954"
+msgid "Failure while doing database migration."
+msgstr ""
+
+msgctxt "#40955"
+msgid "Should new platform be applied to existing ROMs in this collection?"
+msgstr ""
+
 ############################
 # Scraping settings
 ############################
@@ -343,7 +410,7 @@ msgid "Clones"
 msgstr "settings.xml"
 
 ############################
-# Advaced Enum values
+# Advanced Enum values
 ############################
 
 msgctxt "#30911"

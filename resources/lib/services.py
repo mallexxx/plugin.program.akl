@@ -57,10 +57,13 @@ class AppService(object):
             self._initial_setup(uow)
             
         db_version = uow.get_database_version()
-        current_version = kodi.get_addon_version()
-        logger.debug(f'db.id            "{db_version}"')
-        if db_version is None or LooseVersion(db_version) < LooseVersion(current_version):
-            self._do_version_upgrade(uow, LooseVersion(db_version))
+        logger.debug(f'db.version       "{db_version}"')
+        if db_version is None or LooseVersion(db_version) < LooseVersion(globals.addon_version):
+            try:
+                self._do_version_upgrade(uow, LooseVersion(db_version))
+            except:
+                logger.exception("Failure while doing database migration")
+                kodi.notify_error(kodi.translate(40954))
         
         if self._last_time_scanned_is_too_long_ago():
             self._perform_scans()
@@ -103,17 +106,23 @@ class AppService(object):
         self._perform_scans()
 
     def _do_version_upgrade(self, uow:UnitOfWork, db_version:LooseVersion):
-        if not globals.g_PATHS.DATABASE_MIGRATIONS_PATH.exists():
-            globals.g_PATHS.DATABASE_MIGRATIONS_PATH.makedirs()
-            
-        migrations_files_available  = globals.g_PATHS.DATABASE_MIGRATIONS_PATH.scanFilesInPath("*.sql")
-        migrations_files_to_execute = []
-        for migration_file in migrations_files_available:
-            if LooseVersion(migration_file.getBaseNoExt()) > db_version:
-                migrations_files_to_execute.append(migration_file)
+        migrations_files_to_execute = uow.get_migration_files(db_version)
+        if len(migrations_files_to_execute) == 0:
+            return
         
-        migrations_files_to_execute.sort(key = lambda f: (LooseVersion(f.getBaseNoExt())))
-        uow.migrate_database(migrations_files_to_execute)
+        migrations_executed = uow.get_migrations_history()
+        executed_files = [f["migration_file"] for f in migrations_executed if f["applied"] == 1]
+        new_migration_files_to_execute = [f for f in migrations_files_to_execute if f.getBase() not in executed_files]
+
+        logger.info(f"Found {len(new_migration_files_to_execute)} migration files to process.")
+        if len(new_migration_files_to_execute) == 0:
+            return
+        version_to_store = LooseVersion(globals.addon_version)
+        file_version = uow.get_version_from_migration_file(new_migration_files_to_execute[-1])
+        if file_version > version_to_store:
+            version_to_store = file_version
+
+        uow.migrate_database(new_migration_files_to_execute, version_to_store)
     
     def _perform_scans(self):
         # SCAN FOR ADDONS

@@ -19,10 +19,12 @@ from __future__ import division
 
 import logging
 import typing
+import collections
 
 from datetime import datetime
 from xml.etree import cElementTree as ET
 from xml.dom import minidom
+from distutils.version import LooseVersion
 
 from akl.utils import kodi, io
 from akl import constants
@@ -152,7 +154,7 @@ def cmd_export_to_xml(args):
                 ET.SubElement(category_xml,'plot').text = category.get_plot()
                 ET.SubElement(category_xml,'Asset_Prefix').text = category.get_custom_attribute('Asset_Prefix')
                 for asset in category.get_assets():
-                    ET.SubElement(category_xml,asset.get_asset_info().key).text = asset.get_path()
+                    ET.SubElement(category_xml, f"s_{asset.get_asset_info().id}").text = asset.get_path()
             
             # --- Export Launchers and add XML tail ---
             # Data which is not string must be converted to string
@@ -199,7 +201,7 @@ def cmd_export_to_xml(args):
                     ET.SubElement(launcher_xml, path.get_asset_info().path_key).text = path.get_path()
 
                 for asset in collection.get_assets():
-                    ET.SubElement(launcher_xml,asset.get_asset_info().key).text = asset.get_path()
+                    ET.SubElement(launcher_xml, f"s_{asset.get_asset_info().id}").text = asset.get_path()
 
             result_xml = ET.tostring(root, 'utf-8')
             parsed_xml = minidom.parseString(result_xml)
@@ -221,6 +223,51 @@ def cmd_execute_reset_db(args):
     AppMediator.async_cmd('RENDER_VIEWS')
     AppMediator.async_cmd('SCAN_FOR_ADDONS')
     kodi.notify('Finished resetting the database')
+
+@AppMediator.register('RUN_DB_MIGRATIONS')
+def cmd_execute_migrations(args):
+    uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
+    
+    db_version = LooseVersion(uow.get_database_version())
+    migrations_in_database = uow.get_migrations_history()
+
+    options = collections.OrderedDict()
+    migrations_files_available  = uow.get_migration_files(LooseVersion("0.0.0"))
+    
+    for migration_file in migrations_files_available:
+        file_name = migration_file.getBase()
+        existing_migration = next((m for m in migrations_in_database if m["migration_file"] == file_name), None)
+        state = "NEW" if existing_migration is None else ("DONE" if existing_migration["applied"] else "FAILED")
+        options[migration_file.getPath()] = f"{migration_file.getBase()} [{state}]"
+            
+    dialog = kodi.OrdDictionaryDialog()
+    selected_file = dialog.select(f"Select migrations to execute (Current version {db_version})", options)
+
+    if selected_file is None:
+        return
+    
+    migration_file = io.FileName(selected_file)
+    version_to_store = LooseVersion(globals.addon_version)
+    file_version = uow.get_version_from_migration_file(migration_file)
+    if file_version > version_to_store:
+        version_to_store = file_version
+    if db_version > version_to_store:
+        version_to_store = db_version
+    
+    dialog = kodi.ListDialog()
+    selected_index = dialog.select(f"Migration {migration_file.getBaseNoExt()}",[
+        "Run migration",
+        "Mark as executed without running"
+    ])
+    if not selected_index:
+        return
+    
+    if selected_index == 0:
+        if not kodi.dialog_yesno(f"Run migration {migration_file.getBaseNoExt()}?"):
+            return
+        
+    uow.migrate_database([migration_file], version_to_store, selected_index==1)
+    kodi.notify('Done running migrations on the database')
 
 @AppMediator.register('CHECK_DUPLICATE_ASSET_DIRS')
 def cmd_check_duplicate_asset_dirs(args):

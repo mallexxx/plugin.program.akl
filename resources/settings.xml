@@ -200,6 +200,11 @@
                     <default>false</default>
                     <control type="toggle"/>
                 </setting>
+                <setting id="display_hide_rendering_notifications" type="boolean" label="40417" help="">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
             </group>
         </category>
         <category id="paths" label="40015">
@@ -313,6 +318,26 @@
                     </constraints>
                     <control type="button" format="action">
                         <data>RunPlugin(plugin://plugin.program.akl/execute/command/render_views)</data>
+                    </control>
+                </setting>
+                <setting id="run_database_migrations" type="string" label="40857" help="">
+                    <level>3</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <data>RunPlugin(plugin://plugin.program.akl/execute/command/run_db_migrations)</data>
+                    </control>
+                </setting>
+                <setting id="reset_db" type="string" label="40858" help="">
+                    <level>3</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <data>RunPlugin(plugin://plugin.program.akl/execute/command/reset_database)</data>
                     </control>
                 </setting>
             </group>

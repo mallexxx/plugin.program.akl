@@ -82,6 +82,9 @@ class FakeUnitOfWork():
     def __init__(self):
         self.executed_files = []
     
-    def migrate_database(self, migration_files):
+    def migrate_database(self, migration_files, new_db_version):
         for f in migration_files:
             self.executed_files.append(f.getPath())
+
+    def get_migrations_history(self):
+        return []
