@@ -415,3 +415,6 @@ INSERT INTO tags (id, tag) VALUES
     ('1c67d7a0cccb47dfb1b36839a4bb1c1f', '4k'),
     ('ccd62da94f7a4bf4ba593670329c2690', '720'),
     ('bf62ca2ffb0347559b1a52ec70b0b189', '1080');
+
+INSERT INTO akl_migrations (migration_file, applied_version, execution_date, applied)
+     VALUES('1.2.0.sql','1.4.0',CURRENT_TIMESTAMP,1)

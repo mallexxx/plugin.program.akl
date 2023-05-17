@@ -78,5 +78,8 @@ CREATE VIEW IF NOT EXISTS vw_romcollections AS SELECT
 FROM romcollections AS r 
     INNER JOIN metadata AS m ON r.metadata_id = m.id;    
 
+INSERT INTO akl_migrations (migration_file, applied_version, execution_date, applied)
+     VALUES('1.2.0.sql','1.4.0',CURRENT_TIMESTAMP,1)
+
 PRAGMA foreign_keys=ON;
 PRAGMA legacy_alter_table=OFF;
