@@ -25,7 +25,7 @@ from akl.utils import kodi, text, io
 
 from resources.lib.commands.mediator import AppMediator
 from resources.lib import globals, editors
-from resources.lib.repositories import CategoryRepository, ROMsRepository, ROMCollectionRepository, UnitOfWork
+from resources.lib.repositories import CategoryRepository, ROMsRepository, ROMCollectionRepository, AelAddonRepository, UnitOfWork
 from resources.lib.domain import g_assetFactory, ROM
 
 logger = logging.getLogger(__name__)
@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 @AppMediator.register('EDIT_ROM')
 def cmd_edit_rom(args):
     logger.debug('EDIT_ROM: cmd_edit_rom() BEGIN')
-    rom_id:str = args['rom_id'] if 'rom_id' in args else None
+    rom_id: str = args['rom_id'] if 'rom_id' in args else None
     
     if rom_id is None:
         logger.warning('cmd_edit_rom(): No ROM id supplied.')
@@ -76,7 +76,7 @@ def cmd_edit_rom(args):
 # --- Submenu commands ---
 @AppMediator.register('ROM_EDIT_METADATA')
 def cmd_rom_metadata(args):
-    rom_id:str = args['rom_id'] if 'rom_id' in args else None
+    rom_id: str = args['rom_id'] if 'rom_id' in args else None
     selected_option = None
     
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
@@ -84,30 +84,30 @@ def cmd_rom_metadata(args):
         repository = ROMsRepository(uow)
         rom = repository.find_rom(rom_id)
         
-    plot_str      = text.limit_string(rom.get_plot(), constants.PLOT_STR_MAXSIZE)
-    rating        = rom.get_rating() if rom.get_rating() != -1 else 'not rated'
-    NFO_FileName  = rom.get_nfo_file()
+    plot_str = text.limit_string(rom.get_plot(), constants.PLOT_STR_MAXSIZE)
+    rating = rom.get_rating() if rom.get_rating() != -1 else 'not rated'
+    NFO_FileName = rom.get_nfo_file()
     NFO_found_str = 'NFO found' if NFO_FileName and NFO_FileName.exists() else 'NFO not found'
 
     options = collections.OrderedDict()
-    options['ROM_EDIT_METADATA_TITLE']       = f"{kodi.translate(40863)}: '{rom.get_name()}'"
-    options['ROM_EDIT_METADATA_PLATFORM']    = f"{kodi.translate(40864)}: {rom.get_platform()}"
+    options['ROM_EDIT_METADATA_TITLE'] = f"{kodi.translate(40863)}: '{rom.get_name()}'"
+    options['ROM_EDIT_METADATA_PLATFORM'] = f"{kodi.translate(40864)}: {rom.get_platform()}"
     options['ROM_EDIT_METADATA_RELEASEYEAR'] = f"{kodi.translate(40865)}: {rom.get_releaseyear()}"
-    options['ROM_EDIT_METADATA_GENRE']       = "Edit Genre: '{}'".format(rom.get_genre())
-    options['ROM_EDIT_METADATA_DEVELOPER']   = "Edit Developer: '{}'".format(rom.get_developer())
-    options['ROM_EDIT_METADATA_NPLAYERS']    = "Edit NPlayers: '{}'".format(rom.get_number_of_players())
-    options['ROM_EDIT_METADATA_NPLAYERS_ONL']= "Edit NPlayers online: '{}'".format(rom.get_number_of_players_online())
-    options['ROM_EDIT_METADATA_ESRB']        = "Edit ESRB rating: '{}'".format(rom.get_esrb_rating())
-    options['ROM_EDIT_METADATA_PEGI']        = "Edit PEGI rating: '{}'".format(rom.get_pegi_rating())
-    options['ROM_EDIT_METADATA_RATING']      = "Edit Rating: '{}'".format(rating)
-    options['ROM_EDIT_METADATA_PLOT']        = "Edit Plot: '{}'".format(plot_str)
-    options['ROM_EDIT_METADATA_TAGS']        = "Edit Tags"
-    options['ROM_EDIT_METADATA_BOXSIZE']     = "Edit Box Size: '{}'".format(rom.get_box_sizing())
-    options['ROM_LOAD_PLOT']                 = "Load Plot from TXT file ..."
-    options['ROM_IMPORT_NFO_FILE_DEFAULT']   = 'Import NFO file (default {})'.format(NFO_found_str)
-    options['ROM_IMPORT_NFO_FILE_BROWSE']    = 'Import NFO file (browse NFO file) ...'
-    options['ROM_SAVE_NFO_FILE_DEFAULT']     = 'Save NFO file (default location)'
-    options['SCRAPE_ROM_METADATA']           = 'Scrape Metadata'
+    options['ROM_EDIT_METADATA_GENRE'] = "Edit Genre: '{}'".format(rom.get_genre())
+    options['ROM_EDIT_METADATA_DEVELOPER'] = "Edit Developer: '{}'".format(rom.get_developer())
+    options['ROM_EDIT_METADATA_NPLAYERS'] = "Edit NPlayers: '{}'".format(rom.get_number_of_players())
+    options['ROM_EDIT_METADATA_NPLAYERS_ONL'] = "Edit NPlayers online: '{}'".format(rom.get_number_of_players_online())
+    options['ROM_EDIT_METADATA_ESRB'] = "Edit ESRB rating: '{}'".format(rom.get_esrb_rating())
+    options['ROM_EDIT_METADATA_PEGI'] = "Edit PEGI rating: '{}'".format(rom.get_pegi_rating())
+    options['ROM_EDIT_METADATA_RATING'] = "Edit Rating: '{}'".format(rating)
+    options['ROM_EDIT_METADATA_PLOT'] = "Edit Plot: '{}'".format(plot_str)
+    options['ROM_EDIT_METADATA_TAGS'] = "Edit Tags"
+    options['ROM_EDIT_METADATA_BOXSIZE'] = "Edit Box Size: '{}'".format(rom.get_box_sizing())
+    options['ROM_LOAD_PLOT'] = "Load Plot from TXT file ..."
+    options['ROM_IMPORT_NFO_FILE_DEFAULT'] = 'Import NFO file (default {})'.format(NFO_found_str)
+    options['ROM_IMPORT_NFO_FILE_BROWSE'] = 'Import NFO file (browse NFO file) ...'
+    options['ROM_SAVE_NFO_FILE_DEFAULT'] = 'Save NFO file (default location)'
+    options['SCRAPE_ROM_METADATA'] = 'Scrape Metadata'
 
     s = 'Edit ROM "{0}" metadata'.format(rom.get_name())
     selected_option = kodi.OrdDictionaryDialog().select(s, options)
@@ -675,7 +675,7 @@ def cmd_manage_rom_tags(args):
         options = collections.OrderedDict()
         options['ADD_TAG'] = "[Add tag]"
         if available_tags is not None and len(available_tags) > 0:
-            options.update({value:key for key, value in available_tags.items()})
+            options.update({value: key for key, value in available_tags.items()})
 
         selected_option = 'ADD_TAG'
         did_tag_change = False
@@ -720,7 +720,7 @@ def cmd_add_rom(args):
         category_repository = CategoryRepository(uow)
         roms_repository = ROMsRepository(uow)
         
-        parent_category       = category_repository.find_category(parent_id) if parent_id is not None else None
+        parent_category = category_repository.find_category(parent_id) if parent_id is not None else None
         grand_parent_category = category_repository.find_category(grand_parent_id) if grand_parent_id is not None else None
         
         if grand_parent_category is not None:
@@ -731,22 +731,37 @@ def cmd_add_rom(args):
         
         rom_name = ""
         is_file_based = kodi.dialog_yesno(kodi.translate(40952))
-        file_path = None
+        file_path = path = None
         if is_file_based:
             file_path = kodi.dialog_get_file(kodi.translate(40953))
             if file_path is not None:
                 path = io.FileName(file_path)
                 rom_name = path.getBaseNoExt()
-        
+            
         rom_name = kodi.dialog_keyboard("Name", rom_name)
         if rom_name is None:
             return
         
+        dialog = kodi.ListDialog()
+        selected_idx = dialog.select('Select the platform', platforms.AKL_platform_list)
+        platform = platforms.AKL_platform_list[selected_idx]
+        
         rom_obj = ROM()
         rom_obj.set_name(rom_name)
+        rom_obj.set_platform(platform)
         if file_path:
             rom_obj.set_scanned_data_element("file", file_path)
-
+        if is_file_based:
+            addon_repository = AelAddonRepository(uow)
+            addon_id = "script.akl.defaults"
+            addon = addon_repository.find_by_addon_id(addon_id, constants.AddonType.LAUNCHER)
+            rom_obj.add_launcher(addon, {
+                "addon_id": addon_id,
+                "application": file_path,
+                "args": "",
+                "secname": path.getBase()
+            })
+        
         roms_repository.insert_rom(rom_obj)
         category_repository.add_rom_to_category(parent_category.get_id(), rom_obj.get_id())
         uow.commit()
@@ -755,4 +770,3 @@ def cmd_add_rom(args):
     AppMediator.async_cmd('RENDER_VCATEGORY_VIEW', {'vcategory_id': constants.VCATEGORY_TITLE_ID})
     kodi.notify(f"Created new standalone ROM '{rom_name}'")
     kodi.refresh_container()
-    
