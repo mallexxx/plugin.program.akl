@@ -84,14 +84,15 @@ def cmd_set_launcher_args(args) -> bool:
     kodi.notify(f'Configured launcher {addon.get_name()}')
     return True
 
+
 # -------------------------------------------------------------------------------------------------
 # ROMCollection scanner API commands
 # -------------------------------------------------------------------------------------------------
 def cmd_set_scanner_settings(args) -> bool:
-    romcollection_id:str = args['romcollection_id'] if 'romcollection_id' in args else None
-    scanner_id:str       = args['akl_addon_id'] if 'akl_addon_id' in args else None
-    addon_id:str         = args['addon_id'] if 'addon_id' in args else None
-    settings:dict        = args['settings'] if 'settings' in args else None
+    romcollection_id: str = args['romcollection_id'] if 'romcollection_id' in args else None
+    scanner_id: str = args['akl_addon_id'] if 'akl_addon_id' in args else None
+    addon_id: str = args['addon_id'] if 'addon_id' in args else None
+    settings: dict = args['settings'] if 'settings' in args else None
     
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
@@ -103,7 +104,7 @@ def cmd_set_scanner_settings(args) -> bool:
         
         if scanner_id is None:
             romcollection.add_scanner(addon, settings)       
-        else: 
+        else:
             scanner = romcollection.get_scanner(scanner_id)
             scanner.set_settings(settings)
             

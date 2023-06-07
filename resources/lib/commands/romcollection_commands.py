@@ -38,25 +38,31 @@ def cmd_add_collection(args):
     
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
-        repository              = CategoryRepository(uow)
-        parent_category         = repository.find_category(parent_id) if parent_id is not None else None
-        grand_parent_category  =  repository.find_category(grand_parent_id) if grand_parent_id is not None else None
+        repository = CategoryRepository(uow)
+        parent_category = repository.find_category(parent_id) if parent_id is not None else None
+        grand_parent_category = repository.find_category(grand_parent_id) if grand_parent_id is not None else None
         
         if grand_parent_category is not None:
             options_dialog = kodi.ListDialog()
-            selected_option = options_dialog.select('Add ROM collection in?',[parent_category.get_name(), grand_parent_category.get_name()])
-            if selected_option is None: return
-            if selected_option > 0: parent_category = grand_parent_category
+            selected_option = options_dialog.select('Add ROM collection in?', [
+                parent_category.get_name(), 
+                grand_parent_category.get_name()
+            ])
+            if selected_option is None:
+                return
+            if selected_option > 0:
+                parent_category = grand_parent_category
     
         wizard = kodi.WizardDialog_Selection(None, 'platform', 'Select the platform', platforms.AKL_platform_list)
         wizard = kodi.WizardDialog_Dummy(wizard, 'm_name', '', _get_name_from_platform)
         wizard = kodi.WizardDialog_Keyboard(wizard, 'm_name', 'Set the title of the launcher')
-        wizard = kodi.WizardDialog_FileBrowse(wizard, 'assets_path', 'Select asset/artwork directory',0, '')
+        wizard = kodi.WizardDialog_FileBrowse(wizard, 'assets_path', 'Select asset/artwork directory', 0, '')
         
         romcollection = ROMCollection()
         entity_data = romcollection.get_data_dic()
         entity_data = wizard.runWizard(entity_data)
-        if entity_data is None: return
+        if entity_data is None:
+            return
         
         romcollection.import_data_dic(entity_data)
         
