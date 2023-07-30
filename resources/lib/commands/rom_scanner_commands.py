@@ -47,11 +47,11 @@ def cmd_manage_romcollection_scanners(args):
         romcollection = repository.find_romcollection(romcollection_id)
         
     options = collections.OrderedDict()
-    options['ADD_SCANNER']      = 'Add new scanner'
-    options['EDIT_SCANNER']     = 'Edit scanner'
-    options['REMOVE_SCANNER']   = 'Remove scanner'
+    options['ADD_SCANNER'] = kodi.translate(42080)
+    options['EDIT_SCANNER'] = kodi.translate(42081)
+    options['REMOVE_SCANNER'] = kodi.translate(42082)
         
-    s = 'Manage ROM scanners for "{}"'.format(romcollection.get_name())
+    s = kodi.translate(41106).format(romcollection.get_name())
     selected_option = kodi.OrdDictionaryDialog().select(s, options)
     if selected_option is None:
         # >> Exits context menu
@@ -80,7 +80,7 @@ def cmd_add_romcollection_scanner(args):
         for addon in addons:
             options[addon] = addon.get_name()
     
-    s = 'Choose scanner to associate'
+    s = kodi.translate(41107)
     selected_option:AelAddon = kodi.OrdDictionaryDialog().select(s, options)
     
     if selected_option is None:
@@ -93,7 +93,7 @@ def cmd_add_romcollection_scanner(args):
     logger.debug('ADD_SCANNER: cmd_add_romcollection_scanner() Selected {}'.format(selected_option.get_id()))
     
     scanner_addon = ROMCollectionScanner(selected_option, {})
-    kodi.notify('Preparing scanner')
+    kodi.notify(kodi.translate(40980))
     kodi.run_script(
         selected_option.get_addon_id(), 
         scanner_addon.get_configure_command(romcollection))
@@ -110,7 +110,7 @@ def cmd_edit_romcollection_scanners(args):
     
     scanners = romcollection.get_scanners()
     if len(scanners) == 0:
-        kodi.notify('No scanners configured for this romcollection!')
+        kodi.notify(kodi.translate(40982))
         AppMediator.async_cmd('EDIT_ROMCOLLECTION_SCANNERS', args)
         return
     
@@ -118,7 +118,7 @@ def cmd_edit_romcollection_scanners(args):
     for scanner in scanners:
         options[scanner] = scanner.get_name()
     
-    s = 'Choose scanner to edit'
+    s = kodi.translate(41108)
     selected_option:ROMCollectionScanner = kodi.OrdDictionaryDialog().select(s, options)
     
     if selected_option is None:
@@ -130,7 +130,7 @@ def cmd_edit_romcollection_scanners(args):
     # >> Execute subcommand. May be atomic, maybe a submenu.
     logger.debug('EDIT_SCANNER: cmd_edit_romcollection_scanners() Selected {}'.format(selected_option.get_id()))
     
-    kodi.notify('Preparing scanner')
+    kodi.notify(kodi.translate(40980))
     kodi.run_script(
         selected_option.addon.get_addon_id(),
         selected_option.get_configure_command(romcollection))  
@@ -146,7 +146,7 @@ def cmd_remove_romcollection_scanner(args):
     
         scanners = romcollection.get_scanners()
         if len(scanners) == 0:
-            kodi.notify('No scanners configured for this romcollection!')
+            kodi.notify(kodi.translate(40982))
             AppMediator.async_cmd('EDIT_ROMCOLLECTION_SCANNERS', args)
             return
         
@@ -154,7 +154,7 @@ def cmd_remove_romcollection_scanner(args):
         for scanner in scanners:
             options[scanner] = scanner.get_name()
         
-        s = 'Choose scanner to remove'
+        s = kodi.translate(41109)
         selected_option:ROMCollectionScanner = kodi.OrdDictionaryDialog().select(s, options)
         
         if selected_option is None:
@@ -165,7 +165,7 @@ def cmd_remove_romcollection_scanner(args):
         
         # >> Execute subcommand. May be atomic, maybe a submenu.
         logger.debug('REMOVE_SCANNER: cmd_remove_romcollection_scanner() Selected {}'.format(selected_option.get_id()))
-        if not kodi.dialog_yesno('Are you sure to delete ROM scanner "{}"'.format(selected_option.get_name())):
+        if not kodi.dialog_yesno(kodi.translate(41060).format(selected_option.get_name())):
             logger.debug('REMOVE_SCANNER: cmd_remove_romcollection_scanner() Cancelled operation.')
             AppMediator.async_cmd('EDIT_ROMCOLLECTION_SCANNERS', args)
             return
@@ -190,7 +190,7 @@ def cmd_execute_rom_scanner(args):
 
     scanners = romcollection.get_scanners()
     if scanners is None or len(scanners) == 0:
-        kodi.notify_warn('No ROM scanners configured.')
+        kodi.notify_warn(kodi.translate(41000))
         return
 
     selected_scanner = scanners[0]
@@ -199,7 +199,7 @@ def cmd_execute_rom_scanner(args):
         for scanner in scanners:
             scanner_options[scanner] = scanner.get_name()
         dialog = kodi.OrdDictionaryDialog()
-        selected_scanner = dialog.select('Choose ROM scanner', scanner_options)
+        selected_scanner = dialog.select(kodi.translate(41110), scanner_options)
  
     if selected_scanner is None:
         # >> Exits context menu
@@ -208,7 +208,7 @@ def cmd_execute_rom_scanner(args):
         return    
 
     logger.info('SCAN_ROMS: selected scanner "{}"'.format(selected_scanner.get_name()))
-    kodi.notify('Preparing scanner')
+    kodi.notify(kodi.translate(40980))
     kodi.run_script(
         selected_scanner.addon.get_addon_id(),
         selected_scanner.get_scan_command(romcollection))
