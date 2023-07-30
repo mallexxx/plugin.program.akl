@@ -44,13 +44,14 @@ def cmd_add_category(args):
         
         if grand_parent_category is not None:
             options_dialog = kodi.ListDialog()
-            selected_option = options_dialog.select('Add category in?',[parent_category.get_name(), grand_parent_category.get_name()])
+            selected_option = options_dialog.select(kodi.translate(41084),[parent_category.get_name(), grand_parent_category.get_name()])
             if selected_option > 0:
                 parent_category = grand_parent_category
     
         # --- Get new Category name ---
-        name = kodi.dialog_keyboard('New Category Name')
-        if name is None: return
+        name = kodi.dialog_keyboard(kodi.translate(41085))
+        if name is None:
+            return
         
         category = Category()
         category.set_name(name)
@@ -59,7 +60,7 @@ def cmd_add_category(args):
         repository.insert_category(category, parent_category)
         uow.commit()
         
-        kodi.notify('Category {0} created'.format(category.get_name()))
+        kodi.notify(kodi.translate(41036).format(category.get_name()))
         AppMediator.async_cmd('RENDER_CATEGORY_VIEW', {'category_id': parent_category.get_id()})
         AppMediator.async_cmd('RENDER_CATEGORY_VIEW', {'category_id': category.get_id()})
 
@@ -80,12 +81,12 @@ def cmd_edit_category(args):
         category = repository.find_category(category_id)
         
         options = collections.OrderedDict()
-        options['CATEGORY_EDIT_METADATA']       = kodi.translate(40853)
-        options['CATEGORY_EDIT_ASSETS']         = kodi.translate(40854)
+        options['CATEGORY_EDIT_METADATA'] = kodi.translate(40853)
+        options['CATEGORY_EDIT_ASSETS'] = kodi.translate(40854)
         options['CATEGORY_EDIT_DEFAULT_ASSETS'] = kodi.translate(40859)
-        options['CATEGORY_STATUS']              = f'{kodi.translate(40859)} {category.get_finished_str()}'
-        options['EXPORT_CATEGORY_XML']          = kodi.translate(40861)
-        options['DELETE_CATEGORY']              = kodi.translate(40862)
+        options['CATEGORY_STATUS'] = f'{kodi.translate(40859)} {category.get_finished_str_code()}'
+        options['EXPORT_CATEGORY_XML'] = kodi.translate(40861)
+        options['DELETE_CATEGORY'] = kodi.translate(40862)
         
         s = f'{kodi.translate(40950)} "{category.get_name}"'
         selected_option = kodi.OrdDictionaryDialog().select(s, options)    
@@ -112,21 +113,21 @@ def cmd_edit_metadata_category(args):
         category = repository.find_category(category_id)
         
         NFO_FileName  = category.get_NFO_name()
-        NFO_found_str = 'NFO found' if NFO_FileName.exists() else 'NFO not found'
+        NFO_found_str = kodi.translate(42019) if NFO_FileName.exists() else kodi.translate(42020)
         plot_str      = text.limit_string(category.get_plot(), constants.PLOT_STR_MAXSIZE)
 
         options = collections.OrderedDict()
-        options['CATEGORY_EDIT_METADATA_TITLE']       = "Edit Title: '{}'".format(category.get_name())
-        options['CATEGORY_EDIT_METADATA_RELEASEYEAR'] = "Edit Release Year: '{}'".format(category.get_releaseyear())
-        options['CATEGORY_EDIT_METADATA_GENRE']       = "Edit Genre: '{}'".format(category.get_genre())
-        options['CATEGORY_EDIT_METADATA_DEVELOPER']   = "Edit Developer: '{}'".format(category.get_developer())
-        options['CATEGORY_EDIT_METADATA_RATING']      = "Edit Rating: '{}'".format(category.get_rating())
-        options['CATEGORY_EDIT_METADATA_PLOT']        = "Edit Plot: '{}'".format(plot_str)
-        options['CATEGORY_IMPORT_NFO_FILE']           = 'Import NFO file (default, {})'.format(NFO_found_str)
-        options['CATEGORY_IMPORT_NFO_FILE_BROWSE']    = 'Import NFO file (browse NFO file) ...'
-        options['CATEGORY_SAVE_NFO_FILE']             = 'Save NFO file (default location)'
+        options['CATEGORY_EDIT_METADATA_TITLE'] = kodi.translate(40863).format(category.get_name())
+        options['CATEGORY_EDIT_METADATA_RELEASEYEAR'] = kodi.translate(40865).format(category.get_releaseyear())
+        options['CATEGORY_EDIT_METADATA_GENRE'] = kodi.translate(40867).format(category.get_genre())
+        options['CATEGORY_EDIT_METADATA_DEVELOPER'] = kodi.translate(40868).format(category.get_developer())
+        options['CATEGORY_EDIT_METADATA_RATING'] = kodi.translate(40869).format(category.get_rating())
+        options['CATEGORY_EDIT_METADATA_PLOT'] = kodi.translate(40870).format(plot_str)
+        options['CATEGORY_IMPORT_NFO_FILE'] = kodi.translate(40876).format(NFO_found_str)
+        options['CATEGORY_IMPORT_NFO_FILE_BROWSE'] = kodi.translate(40877)
+        options['CATEGORY_SAVE_NFO_FILE'] = kodi.translate(40878)
             
-        s = 'Edit Category "{}" metadata'.format(category.get_name())
+        s = kodi.translate(41086).format(category.get_name())
         selected_option = kodi.OrdDictionaryDialog().select(s, options)
         
     if selected_option is None:
@@ -203,7 +204,7 @@ def cmd_category_status(args):
         repository = CategoryRepository(uow)
         category = repository.find_category(category_id)
         category.change_finished_status()
-        kodi.dialog_OK('Category "{}" status is now {}'.format(category.get_name(), category.get_finished_str()))
+        kodi.dialog_OK(kodi.translate(41146).format(category.get_name(), kodi.translate(category.get_finished_str_code())))
         repository.update_category(category)
         uow.commit()
         
@@ -223,13 +224,12 @@ def cmd_category_delete(args):
         category = repository.find_category(category_id)
         category_name = category.get_name()
         
+        del_q = kodi.translate(41066).format(category_name)
         if category.has_items():
-            question = (f'Category "{category_name}" has {category.num_categories()} sub-categories and '
-                        f'{category.num_romcollections()} romcollections. Deleting it will also delete related items. '
-                        f'Are you sure you want to delete "{category_name}"?')
+            question = kodi.translate(41067).format(category_name, category.num_categories(), category.num_romcollections()) \
+                + kodi.translate(41066).format(category_name)
         else:
-            question = (f'Category "{category_name}" has no categories or romcollections. '
-                        f'Are you sure you want to delete "{category_name}"?')
+            question = kodi.translate(41068).format(category_name) + kodi.translate(41066).format(category_name)
     
         ret = kodi.dialog_yesno(question)
         if not ret: return
@@ -238,7 +238,7 @@ def cmd_category_delete(args):
         repository.delete_category(category_id)
         uow.commit()
         
-    kodi.notify(f'Deleted category {category_name}')
+    kodi.notify(kodi.translate(41037).format(category_name))
     AppMediator.async_cmd('RENDER_CATEGORY_VIEW', {'category_id': category.get_parent_id()})            
     AppMediator.async_cmd('CLEANUP_VIEWS')
     AppMediator.sync_cmd('EDIT_CATEGORY', args)
@@ -257,7 +257,7 @@ def cmd_category_metadata_title(args):
         repository = CategoryRepository(uow)
         category = repository.find_category(category_id)
         
-        if editors.edit_field_by_str(category, 'Title', category.get_name, category.set_name):
+        if editors.edit_field_by_str(category, kodi.translate(40812), category.get_name, category.set_name):
             repository.update_category(category)
             uow.commit()
             AppMediator.async_cmd('RENDER_CATEGORY_VIEW', {'category_id': category.get_id()})
@@ -272,7 +272,7 @@ def cmd_category_metadata_releaseyear(args):
         repository = CategoryRepository(uow)
         category = repository.find_category(category_id)
         
-        if editors.edit_field_by_str(category, 'Release Year', category.get_releaseyear, category.set_releaseyear):
+        if editors.edit_field_by_str(category, kodi.translate(40803), category.get_releaseyear, category.set_releaseyear):
             repository.update_category(category)
             uow.commit()
             AppMediator.async_cmd('RENDER_CATEGORY_VIEW', {'category_id': category.get_id()})
@@ -287,7 +287,7 @@ def cmd_category_metadata_genre(args):
         repository = CategoryRepository(uow)
         category = repository.find_category(category_id)
         
-        if editors.edit_field_by_str(category, 'Genre', category.get_genre, category.set_genre):
+        if editors.edit_field_by_str(category, kodi.translate(40801), category.get_genre, category.set_genre):
             repository.update_category(category)
             uow.commit()            
             AppMediator.async_cmd('RENDER_CATEGORY_VIEW', {'category_id': category.get_id()})
@@ -302,7 +302,7 @@ def cmd_category_metadata_developer(args):
         repository = CategoryRepository(uow)
         category = repository.find_category(category_id)
         
-        if editors.edit_field_by_str(category, 'Developer', category.get_developer, category.set_developer):
+        if editors.edit_field_by_str(category, kodi.translate(40802), category.get_developer, category.set_developer):
             repository.update_category(category)
             uow.commit()    
             AppMediator.async_cmd('RENDER_CATEGORY_VIEW', {'category_id': category.get_id()})
@@ -332,7 +332,7 @@ def cmd_category_metadata_plot(args):
         repository = CategoryRepository(uow)
         category = repository.find_category(category_id)
         
-        if editors.edit_field_by_str(category, 'Plot', category.get_plot, category.set_plot):
+        if editors.edit_field_by_str(category, kodi.translate(40811), category.get_plot, category.set_plot):
             repository.update_category(category)
             uow.commit()
             AppMediator.async_cmd('RENDER_CATEGORY_VIEW', {'category_id': category.get_id()})
@@ -351,7 +351,7 @@ def cmd_category_import_nfo_file(args):
         if category.import_NFO_file(NFO_file):
             repository.update_category(category)
             uow.commit()
-            kodi.notify('Imported Category NFO file {0}'.format(NFO_file.getPath()))
+            kodi.notify(kodi.translate(41038).format(NFO_file.getPath()))
             AppMediator.async_cmd('RENDER_CATEGORY_VIEW', {'category_id': category.get_id()})
             AppMediator.async_cmd('RENDER_CATEGORY_VIEW', {'category_id': category.get_parent_id()})
     
@@ -361,11 +361,13 @@ def cmd_category_import_nfo_file(args):
 def cmd_category_browse_import_nfo_file(args):    
     category_id = args['category_id'] if 'category_id' in args else None
     
-    NFO_file = kodi.browse(text='Select NFO description file', mask='.nfo')
+    NFO_file = kodi.browse(text=kodi.translate(41143), mask='.nfo')
     logger.debug('cmd_category_browse_import_nfo_file() Dialog().browse returned "{0}"'.format(NFO_file))
-    if not NFO_file: return
+    if not NFO_file:
+        return
     NFO_FileName = io.FileName(NFO_file)
-    if not NFO_FileName.exists(): return
+    if not NFO_FileName.exists():
+        return
     
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
@@ -375,7 +377,7 @@ def cmd_category_browse_import_nfo_file(args):
         if category.import_NFO_file(NFO_FileName):
             repository.update_category(category)
             uow.commit()
-            kodi.notify('Imported Category NFO file {0}'.format(NFO_FileName.getPath()))
+            kodi.notify(kodi.translate(41038).format(NFO_FileName.getPath()))
             AppMediator.async_cmd('RENDER_CATEGORY_VIEW', {'category_id': category.get_id()})
             AppMediator.async_cmd('RENDER_CATEGORY_VIEW', {'category_id': category.get_parent_id()})
     
@@ -395,11 +397,11 @@ def cmd_category_save_nfo_file(args):
     try:
         category.export_to_NFO_file(NFO_FileName)
     except:
-        kodi.notify_warn('Exception writing NFO file {0}'.format(NFO_FileName.getPath()))
+        kodi.notify_warn(kodi.translate(41042).format(NFO_FileName.getPath()))
         logger.error("cmd_category_save_nfo_file() Exception writing'{0}'".format(NFO_FileName.getPath()))
     else:
         logger.debug("cmd_category_save_nfo_file() Created '{0}'".format(NFO_FileName.getPath()))
-        kodi.notify('Exported Category NFO file {0}'.format(NFO_FileName.getPath()))
+        kodi.notify(kodi.translate(41039).format(NFO_FileName.getPath()))
     
     AppMediator.sync_cmd('CATEGORY_EDIT_METADATA', args)
 
@@ -420,7 +422,7 @@ def cmd_category_export_xml(args):
     logger.debug('cmd_export_category_xml() l_fn_str "{0}"'.format(category_fn_str))
 
     # --- Ask user for a path to export the launcher configuration ---
-    dir_path = kodi.browse(type=0, text='Select directory to export XML')
+    dir_path = kodi.browse(type=0, text=kodi.translate(41144))
     if not dir_path: 
         AppMediator.sync_cmd('CATEGORY_EDIT_METADATA', args)
         return
@@ -428,9 +430,9 @@ def cmd_category_export_xml(args):
     # --- If XML exists then warn user about overwriting it ---
     export_FN = io.FileName(dir_path).pjoin(category_fn_str)
     if export_FN.exists():
-        ret = kodi.dialog_yesno('Overwrite file {0}?'.format(export_FN.getPath()))
+        ret = kodi.dialog_yesno(kodi.translate(41052).format(export_FN.getPath()))
         if not ret:
-            kodi.notify_warn('Export of Category XML cancelled')
+            kodi.notify_warn(kodi.translate(41040))
             AppMediator.sync_cmd('CATEGORY_EDIT_METADATA', args)
             return
 
@@ -441,8 +443,8 @@ def cmd_category_export_xml(args):
     try:
         category.export_to_file(export_FN)
     except constants.AddonError as E:
-        kodi.notify_warn('{0}'.format(E))
+        kodi.notify_warn(str(E))
     else:
-        kodi.notify('Exported Category "{0}" XML config'.format(category.get_name()))
+        kodi.notify(kodi.translate(41041).format(category.get_name()))
     
     AppMediator.sync_cmd('CATEGORY_EDIT_METADATA', args)

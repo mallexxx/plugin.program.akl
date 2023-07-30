@@ -55,17 +55,17 @@ def _is_empty_or_default(input: any, default: any):
 # Returns an object with all the information
 # -------------------------------------------------------------------------------------------------
 class AssetInfo(object):
-    id              = ''
-    key             = ''
-    
-    name            = ''
-    description     = name
-    plural          = ''
-    fname_infix     = '' # Used only when searching assets when importing XML
-    kind_str        = ''
-    exts            = []
-    exts_dialog     = ''
-    path_key        = ''
+    id = ''
+    key = ''
+    name_id = '' 
+    name = ''
+    description = name
+    plural = ''
+    fname_infix = '' # Used only when searching assets when importing XML
+    kind_str = ''
+    exts = []
+    exts_dialog = ''
+    path_key = ''
 
     def get_description(self):
         if self.description == '': return self.name
@@ -328,31 +328,6 @@ class RomAssetMapping(AssetMapping):
         return True
 
 
-# legacy
-# |----- LauncherABC (abstract class)
-#        |
-#        |----- StandaloneLauncher (Standalone launcher)
-#        |
-#        |----- ROMLauncherABC (abstract class)
-#               |
-#               |----- CollectionLauncher (ROM Collection launcher)
-#               |
-#               |----- VirtualLauncher (Browse by ... launcher)
-#               |
-#               |----- StandardRomLauncher (Standard launcher)
-#               |
-#               |----- LnkLauncher
-#               |
-#               |----- RetroplayerLauncher
-#               |
-#               |----- RetroarchLauncher
-#               |
-#               |----- SteamLauncher
-#               |
-#               |----- NvidiaGameStreamLauncher
-#
-# -------------------------------------------------------------------------------------------------
-
 class ROMAddon(EntityABC):
     __metaclass__ = abc.ABCMeta
     
@@ -362,7 +337,8 @@ class ROMAddon(EntityABC):
         
     def get_name(self):
         secondary_name = self.get_secondary_name()
-        if secondary_name: return '{} ({})'.format(self.addon.get_name(), secondary_name)
+        if secondary_name:
+            return '{} ({})'.format(self.addon.get_name(), secondary_name)
         return self.addon.get_name()
     
     def get_secondary_name(self):
@@ -454,14 +430,17 @@ class RetroplayerLauncherAddon(ROMLauncherAddon):
         rom_file_path = rom.get_scanned_data_element_as_file('file')
         if rom_file_path is None:
             logger.warning(f'Cannot launch ROM {rom.get_rom_identifier()}. No path provided.')
-            kodi.notify_warn('Cannot launch ROM')
+            kodi.notify_warn(kodi.translate(40957))
             return
             
         # >> How to fill gameclient = string (game.libretro.fceumm) ???
         game_info = {
-            'title'    : rom.get_name(),     'platform'  : rom.get_platform(),
-            'genres'   : [rom.get_genre()],  'developer' : rom.get_developer(),
-            'overview' : rom.get_plot(),     'year'      : rom.get_releaseyear()
+            'title' : rom.get_name(),
+            'platform': rom.get_platform(),
+            'genres' : [rom.get_genre()],
+            'developer': rom.get_developer(),
+            'overview': rom.get_plot(),
+            'year': rom.get_releaseyear()
         }
         logger.info(f'launch() name     "{rom.get_name()}"')
         logger.info(f'launch() path     "{rom_file_path.getPath()}"')
@@ -479,7 +458,7 @@ class RetroplayerLauncherAddon(ROMLauncherAddon):
         }        
         is_stored = api.client_post_launcher_settings(globals.WEBSERVER_HOST, globals.WEBSERVER_PORT, post_data)
         if not is_stored:
-            kodi.notify_error('Failed to store launchers settings')
+            kodi.notify_error(kodi.translate(40958))
             
     def configure_for_rom(self, rom: ROM):
         post_data = {
@@ -490,7 +469,7 @@ class RetroplayerLauncherAddon(ROMLauncherAddon):
         }        
         is_stored = api.client_post_launcher_settings(globals.WEBSERVER_HOST, globals.WEBSERVER_PORT, post_data)
         if not is_stored:
-            kodi.notify_error('Failed to store launchers settings')
+            kodi.notify_error(kodi.translate(40958))
      
 class ROMCollectionScanner(ROMAddon):
     
@@ -530,13 +509,16 @@ class ScraperAddon(ROMAddon):
 
         if settings.scrape_metadata_policy != constants.SCRAPE_ACTION_NONE:
             supported_metadata_types = self.get_supported_metadata()
-            if len(supported_metadata_types) > 0: return True
+            if len(supported_metadata_types) > 0:
+                return True
 
         if settings.scrape_assets_policy != constants.SCRAPE_ACTION_NONE:
             supported_asset_types = self.get_supported_assets()
-            if len(supported_asset_types) == 0: return False
+            if len(supported_asset_types) == 0:
+                return False
             asset_overlap = list(set(supported_asset_types) & set(settings.asset_IDs_to_scrape))
-            if len(asset_overlap) > 0: return True
+            if len(asset_overlap) > 0:
+                return True
         
         return False
 
@@ -551,13 +533,15 @@ class ScraperAddon(ROMAddon):
     def get_supported_metadata(self) -> typing.List[str]:
         extra_settings = self.addon.get_extra_settings()
         supported_types = extra_settings['supported_metadata'] if 'supported_metadata' in extra_settings else None
-        if supported_types is None: return None
+        if supported_types is None:
+            return None
         return supported_types.split('|')
 
     def get_supported_assets(self) -> typing.List[str]:
         extra_settings = self.addon.get_extra_settings()
         supported_types = extra_settings['supported_assets'] if 'supported_assets' in extra_settings else None
-        if supported_types is None: return None
+        if supported_types is None:
+            return None
         return supported_types.split('|')
 
     def get_scraper_settings(self) -> ScraperSettings:
@@ -575,7 +559,7 @@ class ScraperAddon(ROMAddon):
             '--server_port': globals.WEBSERVER_PORT,
             '--akl_addon_id': self.addon.get_id(),
             '--rom_id': rom.get_id(),
-            '--settings':  io.parse_to_json_arg(self.get_settings())
+            '--settings': io.parse_to_json_arg(self.get_settings())
         }
         
     def get_scrape_command_for_collection(self, collection: ROMCollection) -> dict:     
@@ -586,7 +570,7 @@ class ScraperAddon(ROMAddon):
             '--server_port': globals.WEBSERVER_PORT,
             '--akl_addon_id': self.addon.get_id(),
             '--romcollection_id': collection.get_id(),
-            '--settings':  io.parse_to_json_arg(self.get_settings())
+            '--settings': io.parse_to_json_arg(self.get_settings())
         }
  
 # -------------------------------------------------------------------------------------------------
@@ -649,7 +633,7 @@ class MetaDataItemABC(EntityABC):
         return self.entity_data['metadata_id']
 
     def get_name(self):
-        return self.entity_data['m_name'] if 'm_name' in self.entity_data else 'Unknown'
+        return self.entity_data['m_name'] if 'm_name' in self.entity_data else kodi.translate(41156)
 
     def set_name(self, name):
         self.entity_data['m_name'] = name
@@ -723,9 +707,9 @@ class MetaDataItemABC(EntityABC):
     def is_finished(self):
         return 'finished' in self.entity_data and self.entity_data['finished']
 
-    def get_finished_str(self):
+    def get_finished_str_code(self):
         finished = self.is_finished()
-        finished_display = 'Finished' if finished == True else 'Unfinished'
+        finished_display = 42014 if finished == True else 42015
 
         return finished_display
 
@@ -766,8 +750,10 @@ class MetaDataItemABC(EntityABC):
     # Gets the asset path (str) of the given assetinfo type.
     #
     def get_asset_str(self, asset_info=None, asset_id=None, fallback = '') -> str:
-        if asset_info is None and asset_id is None: return None
-        if asset_info is not None: asset_id = asset_info.id
+        if asset_info is None and asset_id is None:
+            return None
+        if asset_info is not None:
+            asset_id = asset_info.id
         
         asset = self.get_asset(asset_id)
         if asset is not None:
@@ -777,10 +763,12 @@ class MetaDataItemABC(EntityABC):
         return fallback
             
     def get_asset_FN(self, asset_info: AssetInfo) -> io.FileName:
-        if asset_info is None: return None
+        if asset_info is None:
+            return None
         
         asset = self.get_asset(asset_info.id)
-        if asset is None: return None
+        if asset is None:
+            return None
         
         return asset.get_path_FN()
         
@@ -927,13 +915,13 @@ class Category(MetaDataItemABC):
         super(Category, self).__init__(category_dic, assets, None, asset_mappings)
 
     def get_object_name(self):
-        return 'Category'
+        return "Category"
 
     def get_assets_kind(self):
         return constants.KIND_ASSET_CATEGORY
     
     def get_type(self):
-        return constants.OBJ_CATEGORY
+        return constants.OBJ_CATEGORY # 42501
     
     # parent category / romcollection this item belongs to.
     def get_parent_id(self) -> str:
@@ -986,11 +974,11 @@ class Category(MetaDataItemABC):
                 item_nfo = nfo_FileName.loadFileToStr()
                 item_nfo = item_nfo.replace('\r', '').replace('\n', '')
             except:
-                kodi.notify_warn('Exception reading NFO file {0}'.format(nfo_FileName.getPath()))
+                kodi.notify_warn(kodi.translate(41044).format(nfo_FileName.getPath()))
                 logger.error("Category.import_NFO_file() Exception reading NFO file '{0}'".format(nfo_FileName.getPath()))
                 return False
         else:
-            kodi.notify_warn('NFO file not found {0}'.format(nfo_FileName.getBase()))
+            kodi.notify_warn(kodi.translate(41045).format(nfo_FileName.getBase()))
             logger.error("Category.import_NFO_file() NFO file not found '{0}'".format(nfo_FileName.getPath()))
             return False
 
@@ -1065,13 +1053,13 @@ class Category(MetaDataItemABC):
 class VirtualCategory(Category):
     
     def get_object_name(self):
-        return 'Virtual Category'
+        return "Virtual Category"
     
     def get_assets_kind(self):
         return constants.KIND_ASSET_CATEGORY
     
     def get_type(self):
-        return constants.OBJ_CATEGORY_VIRTUAL
+        return constants.OBJ_CATEGORY_VIRTUAL # 42502
  
 # -------------------------------------------------------------------------------------------------
 # Class representing a collection of ROMs.
@@ -1107,9 +1095,11 @@ class ROMCollection(MetaDataItemABC):
            
         super(ROMCollection, self).__init__(entity_data, assets_data, asset_paths, asset_mappings)
 
-    def get_object_name(self): return 'ROM Collection'
+    def get_object_name(self):
+        return "ROM Collection"
 
-    def get_assets_kind(self): return constants.KIND_ASSET_LAUNCHER
+    def get_assets_kind(self):
+        return constants.KIND_ASSET_LAUNCHER
     
     def get_type(self): return constants.OBJ_ROMCOLLECTION
     
@@ -1168,8 +1158,8 @@ class ROMCollection(MetaDataItemABC):
     # Get a list of assets with duplicated paths. Refuse to do anything if duplicated paths found.
     #
     def get_duplicated_asset_dirs(self):
-        duplicated_bool_list   = [False] * len(constants.ROM_ASSET_ID_LIST)
-        duplicated_name_list   = []
+        duplicated_bool_list = [False] * len(constants.ROM_ASSET_ID_LIST)
+        duplicated_name_list = []
 
         # >> Check for duplicated asset paths
         for i, asset_i in enumerate(constants.ROM_ASSET_ID_LIST[:-1]):
@@ -1217,14 +1207,17 @@ class ROMCollection(MetaDataItemABC):
         return next((l for l in self.launchers_data if l.get_id() == id), None)
 
     def get_default_launcher(self) -> ROMLauncherAddon:
-        if len(self.launchers_data) == 0: return None
+        if len(self.launchers_data) == 0:
+            return None
         default_launcher = next((l for l in self.launchers_data if l.is_default()), None)
-        if default_launcher is None: return self.launchers_data[0]
+        if default_launcher is None:
+            return self.launchers_data[0]
         
         return default_launcher
 
     def set_launcher_as_default(self, launcher_id):
-        if len(self.launchers_data) == 0: return
+        if len(self.launchers_data) == 0:
+            return
         
         current_default_launcher = next((l for l in self.launchers_data if l.is_default()), None)
         if current_default_launcher: current_default_launcher.set_default(False)
@@ -1276,11 +1269,11 @@ class ROMCollection(MetaDataItemABC):
                 item_nfo = nfo_FileName.loadFileToStr()
                 item_nfo = item_nfo.replace('\r', '').replace('\n', '')
             except:
-                kodi.notify_warn('Exception reading NFO file {0}'.format(nfo_FileName.getPath()))
+                kodi.notify_warn(kodi.translate(41044).format(nfo_FileName.getPath()))
                 logger.error("ROMCollection.import_NFO_file() Exception reading NFO file '{0}'".format(nfo_FileName.getPath()))
                 return False
         else:
-            kodi.notify_warn('NFO file not found {0}'.format(nfo_FileName.getBase()))
+            kodi.notify_warn(kodi.translate(41045).format(nfo_FileName.getBase()))
             logger.error("ROMCollection.import_NFO_file() NFO file not found '{0}'".format(nfo_FileName.getPath()))
             return False
 
@@ -1366,7 +1359,7 @@ class VirtualCollection(ROMCollection):
         super(VirtualCollection, self).__init__(entity_data, assets_data)
 
     def get_object_name(self):
-        return 'Virtual Collection'
+        return "Virtual Collection"
     
     def get_assets_kind(self):
         return constants.KIND_ASSET_COLLECTION
@@ -1418,7 +1411,8 @@ class ROM(MetaDataItemABC):
            
         super(ROM, self).__init__(rom_data, assets_data, asset_paths_data, asset_mappings)
         
-    def get_object_name(self): return 'ROM'
+    def get_object_name(self):
+        return 'ROM'
 
     def get_assets_kind(self):
         return constants.KIND_ASSET_ROM
@@ -1539,8 +1533,10 @@ class ROM(MetaDataItemABC):
         self.tags[tag] = ''
 
     def remove_tag(self, tag:str):
-        if self.tags is None: return
-        if not tag in self.tags: return
+        if self.tags is None:
+            return
+        if not tag in self.tags:
+            return
         del self.tags[tag]
 
     def clear_tags(self):
@@ -1600,7 +1596,8 @@ class ROM(MetaDataItemABC):
         })        
         if is_default:
             current_default_launcher = next((l for l in self.launchers_data if l.is_default()), None)
-            if current_default_launcher: current_default_launcher.set_default(False)
+            if current_default_launcher:
+                current_default_launcher.set_default(False)
             
         self.launchers_data.append(launcher)
         logger.debug(f'Adding addon "{addon.get_addon_id()}" to ROM "{self.get_name()}"')
@@ -1612,14 +1609,17 @@ class ROM(MetaDataItemABC):
         return next((l for l in self.launchers_data if l.get_id() == id), None)
 
     def get_default_launcher(self) -> ROMLauncherAddon:
-        if len(self.launchers_data) == 0: return None
+        if len(self.launchers_data) == 0:
+            return None
         default_launcher = next((l for l in self.launchers_data if l.is_default()), None)
-        if default_launcher is None: return self.launchers_data[0]
+        if default_launcher is None:
+            return self.launchers_data[0]
         
         return default_launcher
 
     def set_launcher_as_default(self, launcher_id):
-        if len(self.launchers_data) == 0: return
+        if len(self.launchers_data) == 0:
+            return
         
         current_default_launcher = next((l for l in self.launchers_data if l.is_default()), None)
         if current_default_launcher: current_default_launcher.set_default(False)
@@ -1688,7 +1688,7 @@ class ROM(MetaDataItemABC):
         logger.debug('Rom.update_with_nfo_file() Loading "{0}"'.format(nfo_file_path.getPath()))
         if not nfo_file_path.exists():
             if verbose:
-                kodi.notify_warn('NFO file not found {0}'.format(nfo_file_path.getPath()))
+                kodi.notify_warn(kodi.translate(41045).format(nfo_file_path.getPath()))
             logger.debug("Rom.update_with_nfo_file() NFO file not found '{0}'".format(nfo_file_path.getPath()))
             return False
 
@@ -1729,7 +1729,7 @@ class ROM(MetaDataItemABC):
         if len(item_trailer) > 0:   self.set_trailer(text.unescape_XML(item_trailer[0]))
 
         if verbose:
-            kodi.notify('Imported {0}'.format(nfo_file_path.getPath()))
+            kodi.notify(kodi.translate(41046).format(nfo_file_path.getPath()))
 
         return True
         
@@ -2085,6 +2085,7 @@ class AssetInfoFactory(object):
         # >> These are used very frequently so I think it is better to have a cached list.
         a = AssetInfo()
         a.id                            = constants.ASSET_ICON_ID
+        a.name_id                       = 43001
         a.name                          = 'Icon'
         a.plural                        = 'Icons'
         a.fname_infix                   = 'icon'
@@ -2096,6 +2097,7 @@ class AssetInfoFactory(object):
 
         a = AssetInfo()
         a.id                            = constants.ASSET_FANART_ID
+        a.name_id                       = 43002
         a.name                          = 'Fanart'
         a.plural                        = 'Fanarts'
         a.fname_infix                   = 'fanart'
@@ -2107,6 +2109,7 @@ class AssetInfoFactory(object):
 
         a = AssetInfo()
         a.id                            = constants.ASSET_BANNER_ID
+        a.name_id                       = 43003
         a.name                          = 'Banner'
         a.description                   = 'Banner / Marquee'
         a.plural                        = 'Banners'
@@ -2119,6 +2122,7 @@ class AssetInfoFactory(object):
 
         a = AssetInfo()        
         a.id                            = constants.ASSET_POSTER_ID
+        a.name_id                       = 43004
         a.name                          = 'Poster'
         a.plural                        = 'Posters'
         a.fname_infix                   = 'poster'
@@ -2130,6 +2134,7 @@ class AssetInfoFactory(object):
 
         a = AssetInfo()
         a.id                            = constants.ASSET_CLEARLOGO_ID
+        a.name_id                       = 43005
         a.name                          = 'Clearlogo'
         a.plural                        = 'Clearlogos'
         a.fname_infix                   = 'clearlogo'
@@ -2141,6 +2146,7 @@ class AssetInfoFactory(object):
 
         a = AssetInfo()
         a.id                            = constants.ASSET_CONTROLLER_ID
+        a.name_id                       = 43006
         a.name                          = 'Controller'
         a.plural                        = 'Controllers'
         a.fname_infix                   = 'controller'
@@ -2152,6 +2158,7 @@ class AssetInfoFactory(object):
         
         a = AssetInfo()
         a.id                            = constants.ASSET_TRAILER_ID
+        a.name_id                       = 43007
         a.name                          = 'Trailer'
         a.plural                        = 'Trailers'
         a.fname_infix                   = 'trailer'
@@ -2163,6 +2170,7 @@ class AssetInfoFactory(object):
 
         a = AssetInfo()
         a.id                            = constants.ASSET_TITLE_ID
+        a.name_id                       = 43008
         a.name                          = 'Title'
         a.plural                        = 'Titles'
         a.fname_infix                   = 'title'
@@ -2174,6 +2182,7 @@ class AssetInfoFactory(object):
 
         a = AssetInfo()
         a.id                            = constants.ASSET_SNAP_ID
+        a.name_id                       = 43009
         a.name                          = 'Snap'
         a.plural                        = 'Snaps'
         a.fname_infix                   = 'snap'
@@ -2185,6 +2194,7 @@ class AssetInfoFactory(object):
 
         a = AssetInfo()
         a.id                            = constants.ASSET_BOXFRONT_ID
+        a.name_id                       = 43010
         a.name                          = 'Boxfront'
         a.description                   = 'Boxfront / Cabinet'
         a.plural                        = 'Boxfronts'
@@ -2197,6 +2207,7 @@ class AssetInfoFactory(object):
 
         a = AssetInfo()
         a.id                            = constants.ASSET_BOXBACK_ID
+        a.name_id                       = 43011
         a.name                          = 'Boxback'
         a.description                   = 'Boxback / CPanel'
         a.plural                        = 'Boxbacks'
@@ -2209,6 +2220,7 @@ class AssetInfoFactory(object):
 
         a = AssetInfo()
         a.id                            = constants.ASSET_CARTRIDGE_ID
+        a.name_id                       = 43012
         a.name                          = 'Cartridge'
         a.description                   = 'Cartridge / PCB'
         a.plural                        = 'Cartridges'
@@ -2221,6 +2233,7 @@ class AssetInfoFactory(object):
 
         a = AssetInfo()
         a.id                            = constants.ASSET_FLYER_ID
+        a.name_id                       = 43013
         a.name                          = 'Flyer'
         a.plural                        = 'Flyers'
         a.fname_infix                   = 'flyer'
@@ -2233,6 +2246,7 @@ class AssetInfoFactory(object):
 
         a = AssetInfo()
         a.id                            = constants.ASSET_MAP_ID
+        a.name_id                       = 43014
         a.name                          = 'Map'
         a.plural                        = 'Maps'
         a.fname_infix                   = 'map'
@@ -2244,6 +2258,7 @@ class AssetInfoFactory(object):
 
         a = AssetInfo()
         a.id                            = constants.ASSET_MANUAL_ID
+        a.name_id                       = 43015
         a.name                          = 'Manual'
         a.plural                        = 'Manuals'
         a.fname_infix                   = 'manual'
@@ -2255,6 +2270,7 @@ class AssetInfoFactory(object):
 
         a = AssetInfo()
         a.id                            = constants.ASSET_3DBOX_ID
+        a.name_id                       = 43016
         a.name                          = '3D Box'
         a.plural                        = '3D Boxes'
         a.fname_infix                   = '3dbox'
@@ -2279,20 +2295,32 @@ class VirtualCollectionFactory(object):
         if vcollection_id == constants.VCOLLECTION_FAVOURITES_ID:
             return VirtualCollection(dict(default_entity_data, **{
                 'id' : vcollection_id,
-                'm_name' : '<Favourites>',
-                'plot': 'Browse AKL Favourite ROMs',
+                'm_name' : kodi.translate(42063),
+                'plot': kodi.translate(42005),
                 'finished': settings.getSettingAsBool('display_hide_favs')
             }), [
-                Asset({'id' : '', 'asset_type' : constants.ASSET_FANART_ID, 'filepath' : globals.g_PATHS.FANART_FILE_PATH.getPath()}),
-                Asset({'id' : '', 'asset_type' : constants.ASSET_ICON_ID,   'filepath' : globals.g_PATHS.ADDON_CODE_DIR.pjoin('media/theme/Favourites_icon.png').getPath()}),
-                Asset({'id' : '', 'asset_type' : constants.ASSET_POSTER_ID, 'filepath' : globals.g_PATHS.ADDON_CODE_DIR.pjoin('media/theme/Favourites_poster.png').getPath()}),
+                Asset({
+                    'id' : '',
+                    'asset_type' : constants.ASSET_FANART_ID,
+                    'filepath' : globals.g_PATHS.FANART_FILE_PATH.getPath()
+                }),
+                Asset({
+                    'id' : '',
+                    'asset_type' : constants.ASSET_ICON_ID,
+                    'filepath' : globals.g_PATHS.ADDON_CODE_DIR.pjoin('media/theme/Favourites_icon.png').getPath()
+                }),
+                Asset({
+                    'id' : '',
+                    'asset_type' : constants.ASSET_POSTER_ID,
+                    'filepath' : globals.g_PATHS.ADDON_CODE_DIR.pjoin('media/theme/Favourites_poster.png').getPath()
+                }),
             ])
             
         if vcollection_id == constants.VCOLLECTION_RECENT_ID:
             return VirtualCollection(dict(default_entity_data, **{
                 'id' : vcollection_id,
-                'm_name' : '[Recently played ROMs]',
-                'plot': 'Browse the ROMs you played recently',
+                'm_name' : kodi.translate(42064),
+                'plot': kodi.translate(42006),
                 'finished': settings.getSettingAsBool('display_hide_recent')
             }), [
                 Asset({'id' : '', 'asset_type' : constants.ASSET_FANART_ID, 'filepath' : globals.g_PATHS.FANART_FILE_PATH.getPath()}),
@@ -2303,8 +2331,8 @@ class VirtualCollectionFactory(object):
         if vcollection_id == constants.VCOLLECTION_MOST_PLAYED_ID:
             return VirtualCollection(dict(default_entity_data, **{
                 'id' : vcollection_id,
-                'm_name' : '[Most played ROMs]',
-                'plot': 'Browse the ROMs you play most',
+                'm_name' : kodi.translate(42065),
+                'plot': kodi.translate(42007),
                 'finished': settings.getSettingAsBool('display_hide_mostplayed')
             }), [
                 Asset({'id' : '', 'asset_type' : constants.ASSET_FANART_ID, 'filepath' : globals.g_PATHS.FANART_FILE_PATH.getPath()}),
@@ -2322,7 +2350,7 @@ class VirtualCollectionFactory(object):
             'id' : f'{vcategory_id}_{collection_value}',
             'parent_id': vcategory_id,
             'm_name' : collection_value,
-            'plot': f"Browse ROMs filtered on '{collection_value}'",
+            'plot': kodi.translate(42008).format(collection_value),
             'collection_value': collection_value,
             'finished': settings.getSettingAsBool('display_hide_vcategories')
         }), [
@@ -2338,8 +2366,8 @@ class VirtualCategoryFactory(object):
         if vcategory_id  == constants.VCATEGORY_ROOT_ID:
              return VirtualCategory(dict(default_entity_data, **{
                 'id' : vcategory_id,
-                'm_name' : 'Browse by...',
-                'plot': 'Browse the ROMs by specifics',
+                'm_name' : kodi.translate(42066),
+                'plot': kodi.translate(42009),
                 'finished': settings.getSettingAsBool('display_hide_vcategories')
             }), [
                 Asset({'id' : '', 'asset_type' : constants.ASSET_FANART_ID, 'filepath' : globals.g_PATHS.FANART_FILE_PATH.getPath()}),
@@ -2350,8 +2378,8 @@ class VirtualCategoryFactory(object):
         if vcategory_id == constants.VCATEGORY_TITLE_ID:
              return VirtualCategory(dict(default_entity_data, **{
                 'id' : vcategory_id,
-                'm_name' : 'Browse by Title',
-                'plot': 'Browse the ROMs by title',
+                'm_name' : kodi.translate(42067),
+                'plot': kodi.translate(42010),
                 'finished': settings.getSettingAsBool('display_hide_vcategories')
             }), [
                 Asset({'id' : '', 'asset_type' : constants.ASSET_FANART_ID, 'filepath' : globals.g_PATHS.FANART_FILE_PATH.getPath()}),
@@ -2362,8 +2390,8 @@ class VirtualCategoryFactory(object):
         if vcategory_id == constants.VCATEGORY_YEARS_ID:
              return VirtualCategory(dict(default_entity_data, **{
                 'id' : vcategory_id,
-                'm_name' : 'Browse by Year',
-                'plot': 'Browse the ROMs by year',
+                'm_name' : kodi.translate(42068),
+                'plot': kodi.translate(42011),
                 'finished': settings.getSettingAsBool('display_hide_vcategories')
             }), [
                 Asset({'id' : '', 'asset_type' : constants.ASSET_FANART_ID, 'filepath' : globals.g_PATHS.FANART_FILE_PATH.getPath()}),
@@ -2374,8 +2402,8 @@ class VirtualCategoryFactory(object):
         if vcategory_id == constants.VCATEGORY_GENRE_ID:
              return VirtualCategory(dict(default_entity_data, **{
                 'id' : vcategory_id,
-                'm_name' : 'Browse by Genre',
-                'plot': 'Browse the ROMs by genre',
+                'm_name' : kodi.translate(42069),
+                'plot': kodi.translate(42012),
                 'finished': settings.getSettingAsBool('display_hide_vcategories')
             }), [
                 Asset({'id' : '', 'asset_type' : constants.ASSET_FANART_ID, 'filepath' : globals.g_PATHS.FANART_FILE_PATH.getPath()}),
@@ -2386,8 +2414,8 @@ class VirtualCategoryFactory(object):
         if vcategory_id == constants.VCATEGORY_DEVELOPER_ID:
              return VirtualCategory(dict(default_entity_data, **{
                 'id' : vcategory_id,
-                'm_name' : 'Browse by Developer',
-                'plot': 'Browse the ROMs by developer',
+                'm_name' : kodi.translate(42070),
+                'plot': kodi.translate(42013),
                 'finished': settings.getSettingAsBool('display_hide_vcategories')
             }), [
                 Asset({'id' : '', 'asset_type' : constants.ASSET_FANART_ID, 'filepath' : globals.g_PATHS.FANART_FILE_PATH.getPath()}),
@@ -2398,8 +2426,8 @@ class VirtualCategoryFactory(object):
         if vcategory_id == constants.VCATEGORY_NPLAYERS_ID:
              return VirtualCategory(dict(default_entity_data, **{
                 'id' : vcategory_id,
-                'm_name' : 'Browse by Number of Players',
-                'plot': 'Browse the ROMs by number of players',
+                'm_name' : kodi.translate(42071),
+                'plot': kodi.translate(42014),
                 'finished': settings.getSettingAsBool('display_hide_vcategories')
             }), [
                 Asset({'id' : '', 'asset_type' : constants.ASSET_FANART_ID, 'filepath' : globals.g_PATHS.FANART_FILE_PATH.getPath()}),
@@ -2410,8 +2438,8 @@ class VirtualCategoryFactory(object):
         if vcategory_id == constants.VCATEGORY_ESRB_ID:
              return VirtualCategory(dict(default_entity_data, **{
                 'id' : vcategory_id,
-                'm_name' : 'Browse by ESRB Rating',
-                'plot': 'Browse the ROMs by ESRB rating',
+                'm_name': kodi.translate(42072),
+                'plot': kodi.translate(42015),
                 'finished': settings.getSettingAsBool('display_hide_vcategories')
             }), [
                 Asset({'id' : '', 'asset_type' : constants.ASSET_FANART_ID, 'filepath' : globals.g_PATHS.FANART_FILE_PATH.getPath()}),
@@ -2422,8 +2450,8 @@ class VirtualCategoryFactory(object):
         if vcategory_id == constants.VCATEGORY_PEGI_ID:
              return VirtualCategory({
                 'id' : vcategory_id,
-                'm_name' : 'Browse by PEGI Rating',
-                'plot': 'Browse the ROMs by PEGI rating',
+                'm_name': kodi.translate(42073),
+                'plot': kodi.translate(42016),
                 'finished': settings.getSettingAsBool('display_hide_vcategories')
             }, [
                 Asset({'id' : '', 'asset_type' : constants.ASSET_FANART_ID, 'filepath' : globals.g_PATHS.FANART_FILE_PATH.getPath()}),
@@ -2434,8 +2462,8 @@ class VirtualCategoryFactory(object):
         if vcategory_id == constants.VCATEGORY_RATING_ID:
              return VirtualCategory(dict(default_entity_data, **{
                 'id' : vcategory_id,
-                'm_name' : 'Browse by Rating',
-                'plot': 'Browse the ROMs by rating',
+                'm_name': kodi.translate(42074),
+                'plot': kodi.translate(42017),
                 'finished': settings.getSettingAsBool('display_hide_vcategories')
             }), [
                 Asset({'id' : '', 'asset_type' : constants.ASSET_FANART_ID, 'filepath' : globals.g_PATHS.FANART_FILE_PATH.getPath()}),

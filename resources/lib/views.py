@@ -77,7 +77,7 @@ def run_plugin(addon_argv):
         router.run(argv)
     except Exception as e:
         logger.error('Exception while executing route', exc_info=e)
-        kodi.notify_error('Failed to execute route or command')
+        kodi.notify_error(kodi.translate(40960))
         
     logger.debug('Advanced Kodi Launcher run_plugin() exit')
 
@@ -106,12 +106,12 @@ def vw_route_render_collection(view_id: str):
     filter = vw_create_filter(filter_type, filter_term)
 
     if container is None:
-        kodi.notify('Current view is not rendered correctly. Re-render views first.')
+        kodi.notify(kodi.translate(40961))
     elif len(container['items']) == 0:
         if container_type == constants.OBJ_CATEGORY:
-            kodi.notify('Category {} has no items. Add romcollections or categories first.'.format(container['name']))
+            kodi.notify(kodi.translate(40995).format(container['name']))
         if container_type == constants.OBJ_ROMCOLLECTION or container_type == constants.OBJ_COLLECTION_VIRTUAL:
-            kodi.notify('Collection {} has no items. Add ROMs'.format(container['name']))
+            kodi.notify(kodi.translate(40996).format(container['name']))
     else:
         _render_list_items(container, container_context_items, filter)
         
@@ -136,13 +136,13 @@ def vw_route_render_virtual_view(view_id: str):
     filter = vw_create_filter(filter_type, filter_term)
     
     if container is None:
-        kodi.notify('Current view is not rendered correctly. Re-render views first.')
+        kodi.notify(kodi.translate(40961))
     elif len(container['items']) == 0:
         if container_type == constants.OBJ_CATEGORY_VIRTUAL:
-            if kodi.dialog_yesno(f"Virtual category '{container['name']}'' has no items. Regenerate the views now?"):
+            if kodi.dialog_yesno(kodi.translate(41048).format(container['name'])):
                 AppMediator.async_cmd('RENDER_VCATEGORY_VIEW', {'vcategory_id': container['id']})
         if container_type == constants.OBJ_COLLECTION_VIRTUAL:
-            if kodi.dialog_yesno(f"Virtual collection {container['name']} has no items. Regenerate the views now?"):
+            if kodi.dialog_yesno(kodi.translate(41049).format(container['name'])):
                 AppMediator.async_cmd('RENDER_VCATEGORY_VIEW', {'vcategory_id': container['parent_id']})
     else:
         _render_list_items(container, container_context_items, filter)
@@ -269,7 +269,7 @@ def vw_view_rom_metadata(rom_id):
 def vw_view_rom_metadata(rom_id):
     field = router.args['field'][0] if 'field' in router.args else None
     if not field:
-        kodi.notify_warn("No field specified")
+        kodi.notify_warn(kodi.translate(40997))
         return
     container = viewqueries.qry_get_view_scanned_data(rom_id)
     requested_item = next((i for i in container['items'] if i['name'] == field), None)

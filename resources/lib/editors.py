@@ -40,15 +40,16 @@ logger = logging.getLogger(__name__)
 def edit_field_by_str(obj_instance: MetaDataItemABC, metadata_name, get_method, set_method) -> bool:
     object_name = obj_instance.get_object_name()
     old_value = get_method()
-    s = 'Edit {0} "{1}" {2}'.format(object_name, old_value, metadata_name)
+    s = kodi.translate(41137).format(object_name, old_value, metadata_name)
     new_value = kodi.dialog_keyboard(s, old_value)
-    if new_value is None: return False
+    if new_value is None:
+        return False
 
     if old_value == new_value:
-        kodi.notify('{0} {1} not changed'.format(object_name, metadata_name))
+        kodi.notify(kodi.translate(40987).format(object_name, metadata_name))
         return False
     set_method(new_value)
-    kodi.notify('{0} {1} is now {2}'.format(object_name, metadata_name, new_value))
+    kodi.notify(kodi.translate(40986).format(object_name, metadata_name, new_value))
     return True
 
 # Edits an object field which is an integer.
@@ -59,15 +60,15 @@ def edit_field_by_str(obj_instance: MetaDataItemABC, metadata_name, get_method, 
 def edit_field_by_int(obj_instance: MetaDataItemABC, metadata_name, get_method, set_method) -> bool:
     object_name = obj_instance.get_object_name()
     old_value = get_method()
-    s = 'Edit {0} "{1}" {2}'.format(object_name, old_value, metadata_name)
+    s = kodi.translate(41137).format(object_name, old_value, metadata_name)
     new_value = kodi.dialog_numeric(s, old_value)
     if new_value is None: return False
 
     if old_value == new_value:
-        kodi.notify('{0} {1} not changed'.format(object_name, metadata_name))
+        kodi.notify(kodi.translate(40987).format(object_name, metadata_name))
         return False
     set_method(new_value)
-    kodi.notify('{0} {1} is now {2}'.format(object_name, metadata_name, new_value))
+    kodi.notify(kodi.translate(40986).format(object_name, metadata_name, new_value))
     return True
 
 #
@@ -84,17 +85,17 @@ def edit_field_by_list(obj_instance: MetaDataItemABC, metadata_name:str, str_lis
         preselect_idx = str_list.index(old_value)
     else:
         preselect_idx = 0
-    dialog_title = 'Edit {0} {1}'.format(object_name, metadata_name)
+    dialog_title = kodi.translate(41075).format(object_name, metadata_name)
     selected = kodi.ListDialog().select(dialog_title, str_list, preselect_idx)
     if selected is None:
         return
     new_value = str_list[selected]
     if old_value == new_value:
-        kodi.notify('{0} {1} not changed'.format(object_name, metadata_name))
+        kodi.notify(kodi.translate(40987).format(object_name, metadata_name))
         return False
 
     set_method(new_value)
-    kodi.notify('{0} {1} is now {2}'.format(object_name, metadata_name, new_value))
+    kodi.notify(kodi.translate(40986).format(object_name, metadata_name, new_value))
     return True
 
 #
@@ -107,9 +108,18 @@ def edit_field_by_list(obj_instance: MetaDataItemABC, metadata_name:str, str_lis
 #
 def edit_rating(obj_instance: MetaDataItemABC, get_method, set_method):
     options_list = [
-        'Not set',
-        'Rating 0', 'Rating 1', 'Rating 2', 'Rating 3', 'Rating 4', 'Rating 5',
-        'Rating 6', 'Rating 7', 'Rating 8', 'Rating 9', 'Rating 10'
+        kodi.translate(42001),
+        kodi.translate(42002).format('0'),
+        kodi.translate(42002).format('1'),
+        kodi.translate(42002).format('2'),
+        kodi.translate(42002).format('3'),
+        kodi.translate(42002).format('4'),
+        kodi.translate(42002).format('5'),
+        kodi.translate(42002).format('6'),
+        kodi.translate(42002).format('7'),
+        kodi.translate(42002).format('8'),
+        kodi.translate(42002).format('9'),
+        kodi.translate(42002).format('10')
     ]
     object_name = obj_instance.get_object_name()
     current_rating_str = get_method()
@@ -117,11 +127,11 @@ def edit_rating(obj_instance: MetaDataItemABC, get_method, set_method):
         preselected_value = 0
     else:
         preselected_value = int(current_rating_str) + 1
-    sel_value = kodi.ListDialog().select('Select the {0} Rating'.format(object_name),
+    sel_value = kodi.ListDialog().select(kodi.translate(41079).format(object_name),
                                         options_list, preselect_idx = preselected_value)
     if sel_value is None: return
     if sel_value == preselected_value:
-        kodi.notify('{0} Rating not changed'.format(object_name))
+        kodi.notify(kodi.translate(40988).format(object_name))
         return False
 
     if sel_value == 0:
@@ -129,11 +139,11 @@ def edit_rating(obj_instance: MetaDataItemABC, get_method, set_method):
     elif sel_value >= 1 and sel_value <= 11:
         current_rating_str = '{0}'.format(sel_value - 1)
     elif sel_value < 0:
-        kodi.notify('{0} Rating not changed'.format(object_name))
+        kodi.notify(kodi.translate(40988).format(object_name))
         return False
 
     set_method(current_rating_str)
-    kodi.notify('{0} rating is now {1}'.format(object_name, current_rating_str))
+    kodi.notify(kodi.translate(40989).format(object_name, current_rating_str))
     return True
 
 #
@@ -147,8 +157,7 @@ def import_TXT_file(text_file: io.FileName):
     file_size = statinfo.st_size
     logger.debug('import_TXT_file() File size is {0}'.format(file_size))
     if file_size > 16384:
-        ret = kodi.dialog_yesno('File "{0}" has {1} bytes and it is very big.'.format(text_file.getPath(), file_size) +
-                                'Are you sure this is the correct file?')
+        ret = kodi.dialog_yesno(kodi.translate(41070).format(text_file.getPath(), file_size))
         if not ret: return ''
 
     # Import file
@@ -174,14 +183,17 @@ def edit_object_assets(obj_instance:MetaDataItemABC, preselected_asset = None) -
         # >> Label1 is the asset name (Icon, Fanart, etc.)
         # >> Label2 is the asset filename str as in the database or 'Not set'
         # >> setArt('icon') is the asset picture.
-        label1_str = 'Edit {0} ...'.format(asset_info_obj.name)
+        label1_str = kodi.translate(42003).format(asset_info_obj.name)
         label2_stt = asset_fname_str if asset_fname_str else 'Not set'
         list_item = xbmcgui.ListItem(label = label1_str, label2 = label2_stt)
         if asset_fname_str:
             item_path = io.FileName(asset_fname_str)
-            if item_path.isVideoFile():     item_img = 'DefaultAddonVideo.png'
-            elif item_path.isManualFile():  item_img = 'DefaultAddonInfoProvider.png'
-            else:                           item_img = asset_fname_str
+            if item_path.isVideoFile():
+                item_img = 'DefaultAddonVideo.png'
+            elif item_path.isManualFile():
+                item_img = 'DefaultAddonInfoProvider.png'
+            else:
+                item_img = asset_fname_str
         else:
             item_img = 'DefaultAddonNone.png'
         list_item.setArt({'icon' : item_img})
@@ -190,12 +202,11 @@ def edit_object_assets(obj_instance:MetaDataItemABC, preselected_asset = None) -
 
     # if ROM then add scrape option
     if obj_instance.get_object_name() == 'ROM':
-        options[SCRAPE_CMD] = 'Scrape ROM assets'
+        options[SCRAPE_CMD] = kodi.translate(41120)
     
     # --- Customize function for each object type ---
-    dialog_title_str = 'Edit {0} Assets/Artwork'. format(obj_instance.get_object_name())
+    dialog_title_str = kodi.translate(41076). format(obj_instance.get_object_name())
     dialog = kodi.OrdDictionaryDialog()
-    # >> Use Krypton Dialog().select(useDetails = True) to display label2 on dialog.
     selected_option = dialog.select(dialog_title_str, options, preselect = preselected_asset, use_details = True)
 
     if selected_option is None:
@@ -222,8 +233,8 @@ def edit_asset(obj_instance: MetaDataItemABC, asset_info: AssetInfo) -> str:
     # --- Get asset object information ---
     assets_directory = obj_instance.get_assets_root_path()        
     if not assets_directory:
-        if kodi.dialog_yesno("No local assets path configured. Configure now?\n Else we will use addon default directories."):
-            path_str = kodi.dialog_get_directory(f"Assets root path for entry '{obj_instance.get_name()}'")
+        if kodi.dialog_yesno(kodi.translate(41047)):
+            path_str = kodi.dialog_get_directory(kodi.translate(41138).format(obj_instance.get_name()))
             assets_directory = io.FileName(path_str, True)
             obj_instance.set_assets_root_path(assets_directory, None, create_default_subdirectories=True)
         else:
@@ -240,31 +251,30 @@ def edit_asset(obj_instance: MetaDataItemABC, asset_info: AssetInfo) -> str:
                 assets_directory = io.FileName(settings.getSetting('launchers_asset_dir'), isdir = True)
                 obj_instance.set_assets_root_path(assets_directory, None, create_default_subdirectories=True)
             else:
-                kodi.dialog_OK('Unknown obj_instance.get_assets_kind() {}. '.format(obj_instance.get_assets_kind()) +
-                            'This is a bug, please report it.')
+                kodi.dialog_OK(kodi.translate(41140).format(obj_instance.get_assets_kind()))
                 return None
 
     asset_type_directory = obj_instance.get_asset_path(asset_info, False)    
 
     logger.info(f'edit_asset() Editing {obj_instance.get_object_name()} {asset_info.name}')
     logger.info(f'edit_asset() Object ID {obj_instance.get_id()}')
-    logger.debug(f'edit_asset() assets_directory  "{assets_directory.getPath()}"')
-    logger.debug(f'edit_asset() asset_type_directory  "{asset_type_directory.getPath()}"')
+    logger.debug(f'edit_asset() assets_directory "{assets_directory.getPath()}"')
+    logger.debug(f'edit_asset() asset_type_directory "{asset_type_directory.getPath() if asset_type_directory else "None"}"')
+
     if not assets_directory.exists():
         logger.error(f'Directory not found "{assets_directory.getPath()}"')
-        kodi.dialog_OK('Directory to store artwork not found. '
-                       'Configure it before you can edit artwork.')
+        kodi.dialog_OK(kodi.translate(41139))
         return None
 
-    dialog_title = f'Change {obj_instance.get_name()} {asset_info.name}'
+    dialog_title = kodi.translate(41074).format(obj_instance.get_name(), asset_info.name)
     
     # --- Show image editing options ---
     options = collections.OrderedDict()
-    options['LINK_LOCAL']   = f'Link to local {asset_info.name} image'
-    options['IMPORT_LOCAL'] = f'Import local {asset_info.name} (copy and rename)'
-    options['UNSET']        = 'Unset artwork/asset'
+    options['LINK_LOCAL'] = kodi.translate(42004).format(asset_info.name)
+    options['IMPORT_LOCAL'] = kodi.translate(42005).format(asset_info.name)
+    options['UNSET'] = kodi.translate(42006)
     if obj_instance.get_assets_kind() == constants.KIND_ASSET_ROM:
-        options['SCRAPE_ASSET'] = f'Scrape {asset_info.name}'
+        options['SCRAPE_ASSET'] = kodi.translate(42007).format(asset_info.name)
         
     selected_option = kodi.OrdDictionaryDialog().select(dialog_title, options)
     
@@ -290,7 +300,7 @@ def edit_asset(obj_instance: MetaDataItemABC, asset_info: AssetInfo) -> str:
             current_image_dir = io.FileName('/')
         
         logger.debug(f'edit_asset() Asset initial dir "{current_image_dir.getPath()}"')
-        title_str = 'Select {0} {1}'.format(obj_instance.get_object_name(), asset_info.name)
+        title_str = kodi.translate(41141).format(obj_instance.get_object_name(), kodi.translate(asset_info.name_id))
         ext_list = asset_info.exts_dialog
         if asset_info.id == constants.ASSET_MANUAL_ID or asset_info.id == constants.ASSET_TRAILER_ID:
             new_asset_file = kodi.browse(text=title_str, mask=ext_list, preselected_path=current_image_dir.getPath())
@@ -317,7 +327,7 @@ def edit_asset(obj_instance: MetaDataItemABC, asset_info: AssetInfo) -> str:
         # kodi_update_image_cache(new_asset_FN)
 
         # --- Notify user ---
-        kodi.notify('{0} {1} has been updated'.format(obj_instance.get_object_name(), asset_info.name))
+        kodi.notify(kodi.translate(40990).format(obj_instance.get_object_name(), asset_info.name))
 
     # --- Import an image ---
     # >> Copy and rename a local image into asset directory
@@ -327,7 +337,7 @@ def edit_asset(obj_instance: MetaDataItemABC, asset_info: AssetInfo) -> str:
             logger.info("No local asset type path configured. Reverting to root.")
             current_image_dir = obj_instance.get_assets_root_path()
         
-        title_str = f'Select {obj_instance.get_object_name()} {asset_info.name}'
+        title_str = kodi.translate(41141).format(obj_instance.get_object_name(), kodi.translate(asset_info.name_id))
         ext_list = asset_info.exts_dialog
         if asset_info.id == constants.ASSET_MANUAL_ID or asset_info.id == constants.ASSET_TRAILER_ID:
             new_asset_file_str = kodi.browse(text=title_str, mask=ext_list, preselected_path=current_image_dir.getPath())
@@ -348,7 +358,7 @@ def edit_asset(obj_instance: MetaDataItemABC, asset_info: AssetInfo) -> str:
         logger.debug(f'edit_asset() dest_asset_file    "{dest_asset_file.getPath()}"')
         if new_asset_file.getPath() == dest_asset_file.getPath():
             logger.info('edit_asset() new_asset_file and dest_asset_file are the same. Returning.')
-            kodi.notify_warn('new_asset_file and dest_asset_file are the same. Returning')
+            kodi.notify_warn(kodi.translate(40991))
             return None
 
         # --- Kodi image cache ---
@@ -371,7 +381,7 @@ def edit_asset(obj_instance: MetaDataItemABC, asset_info: AssetInfo) -> str:
             new_asset_file.copy(dest_asset_file)
         except constants.AddonError:
             logger.error('edit_asset() AddonException exception copying image')
-            kodi.notify_warn('AddonException exception copying image')
+            kodi.notify_warn(kodi.translate(40992))
             return None
 
         # --- Update object ---
@@ -411,13 +421,13 @@ def edit_asset(obj_instance: MetaDataItemABC, asset_info: AssetInfo) -> str:
             logger.exception("Failed to delete cache")
 
         # --- Notify user ---
-        kodi.notify(f'{obj_instance.get_object_name()} {asset_info.name} has been updated')
+        kodi.notify(kodi.translate(40994).format(obj_instance.get_object_name(), asset_info.name))
 
     # --- Unset asset ---
     elif selected_option == 'UNSET':
         obj_instance.set_asset(asset_info, io.FileName(''))
         logger.info('edit_asset() Unset {0} {1}'.format(obj_instance.get_object_name(), asset_info.name))
-        kodi.notify('{0} {1} has been unset'.format(obj_instance.get_object_name(), asset_info.name))
+        kodi.notify(kodi.translate(40993).format(obj_instance.get_object_name(), asset_info.name))
     
     return selected_option
 
@@ -431,7 +441,7 @@ def edit_object_default_assets(obj_instance: MetaDataItemABC, preselected_asset_
     logger.debug('edit_object_default_assets() preselected_asset_id {0}'.format(preselected_asset_id))
     
     pre_select_idx = 0
-    dialog_title_str = f'Edit {obj_instance.get_object_name()} default Assets/Artwork'
+    dialog_title_str = kodi.translate(41077).format(obj_instance.get_object_name())
 
     # --- Build Dialog.select() list ---
     default_assets_list = obj_instance.get_mappable_asset_list()
@@ -445,14 +455,19 @@ def edit_object_default_assets(obj_instance: MetaDataItemABC, preselected_asset_
         # >> icon is the fname string of the current mapped asset.
         mapped_asset_info = obj_instance.get_asset_mapping(default_asset_info)
         mapped_asset_str = obj_instance.get_asset_str(mapped_asset_info)
-        label1_str = f'Choose asset for {default_asset_info.name} (currently {mapped_asset_info.name})'
+        label1_str = kodi.translate(42055).format(
+            kodi.translate(default_asset_info.name_id), 
+            kodi.translate(mapped_asset_info.name_id))
         label2_str = mapped_asset_str
         list_item = xbmcgui.ListItem(label = label1_str, label2 = label2_str)
         if mapped_asset_str:
             item_path = io.FileName(mapped_asset_str)
-            if item_path.isVideoFile():     item_img = 'DefaultAddonVideo.png'
-            elif item_path.isManualFile():  item_img = 'DefaultAddonInfoProvider.png'
-            else:                           item_img = mapped_asset_str
+            if item_path.isVideoFile():
+                item_img = 'DefaultAddonVideo.png'
+            elif item_path.isManualFile():
+                item_img = 'DefaultAddonInfoProvider.png'
+            else:
+                item_img = mapped_asset_str
         else:
             item_img = 'DefaultAddonNone.png'
         list_item.setArt({'icon' : item_img})
@@ -493,13 +508,16 @@ def edit_default_asset(obj_instance: MetaDataItemABC, asset_info: AssetInfo) -> 
         # >> setArt('icon') is the asset picture.
         mapped_asset_str = obj_instance.get_asset_str(mappable_asset_info)
         label1_str = mappable_asset_info.name
-        label2_stt = mapped_asset_str if mapped_asset_str else 'Not set'
-        list_item = xbmcgui.ListItem(label = label1_str, label2 = label2_stt)
+        label2_str = mapped_asset_str if mapped_asset_str else kodi.translate(42001)
+        list_item = xbmcgui.ListItem(label = label1_str, label2 = label2_str)
         if mapped_asset_str:
             item_path = io.FileName(mapped_asset_str)
-            if item_path.isVideoFile():     item_img = 'DefaultAddonVideo.png'
-            elif item_path.isManualFile():  item_img = 'DefaultAddonInfoProvider.png'
-            else:                           item_img = mapped_asset_str
+            if item_path.isVideoFile():
+                item_img = 'DefaultAddonVideo.png'
+            elif item_path.isManualFile():
+                item_img = 'DefaultAddonInfoProvider.png'
+            else:
+                item_img = mapped_asset_str
         else:
             item_img = 'DefaultAddonNone.png'
         list_item.setArt({'icon' : item_img})
@@ -510,7 +528,7 @@ def edit_default_asset(obj_instance: MetaDataItemABC, asset_info: AssetInfo) -> 
             secondary_pre_select_idx = counter
         counter += 1
     
-    dialog_title_str = 'Edit {0} {1} mapped asset'.format(obj_instance.get_object_name(), asset_info.name)
+    dialog_title_str = kodi.translate(41078).format(obj_instance.get_object_name(), asset_info.name)
     secondary_selected_option = xbmcgui.Dialog().select(
             dialog_title_str, list = list_items, useDetails = True, preselect = secondary_pre_select_idx)
     logger.debug('edit_default_asset() Mapable select() returned {0}'.format(secondary_selected_option))
@@ -522,7 +540,7 @@ def edit_default_asset(obj_instance: MetaDataItemABC, asset_info: AssetInfo) -> 
     new_selected_asset_info = asset_info_list[secondary_selected_option]
     logger.debug(f'edit_default_asset() Mapable selected {new_selected_asset_info.name}.')
     obj_instance.set_mapped_asset(asset_info, new_selected_asset_info)
-    kodi.notify('{0} {1} mapped to {2}'.format(
+    kodi.notify(kodi.translate(40983).format(
         obj_instance.get_object_name(), asset_info.name, new_selected_asset_info.name
     ))
     return True
