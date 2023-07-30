@@ -40,16 +40,16 @@ logger = logging.getLogger(__name__)
 
 @AppMediator.register('SCAN_FOR_ADDONS')
 def cmd_scan_addons(args):
-    kodi.notify('Scanning for AKL supported addons')
+    kodi.notify(kodi.translate(40998))
     addon_count = _check_installed_addons()
     
-    msg = 'No AKL addons found. Search and install default plugin addons for AKL?'
+    msg = kodi.translate(40963)
     if addon_count == 0 and kodi.dialog_yesno(msg):
         xbmc.executebuiltin('InstallAddon(script.akl.defaults)', True)
         addon_count = _check_installed_addons()
         
     logger.info(f'cmd_scan_addons(): Processed {addon_count} addons')
-    kodi.notify(f'Scan completed. Found {addon_count} addons')
+    kodi.notify(kodi.translate(40999).format(addon_count))
 
 
 @AppMediator.register('SHOW_ADDONS')
@@ -60,7 +60,7 @@ def cmd_show_addons(args):
         addons = repository.find_all()
 
         options = collections.OrderedDict()
-        options["cmd_SCAN_FOR_ADDONS"] = "> Scan for new or updated addons"
+        options["cmd_SCAN_FOR_ADDONS"] = kodi.translate(42008)
         for addon in addons:
             logger.info(f"Installed Addon {addon.get_addon_id()} v{addon.get_version()} {addon.get_addon_type()}")
             if addon.get_addon_id() in options:
@@ -68,7 +68,7 @@ def cmd_show_addons(args):
             name = f"{addon.get_name()} v{addon.get_version()}"
             options[addon.get_addon_id()] = name
 
-        s = 'Addons'
+        s = kodi.translate(41080)
         selected_option = kodi.OrdDictionaryDialog().select(s, options)
         if selected_option is None:
             return
@@ -87,13 +87,13 @@ def cmd_addon_details(args):
     addon_id:str = args['addon_id'] if 'addon_id' in args else None
     
     options = collections.OrderedDict()
-    options["UPDATE"] = "Refresh/update addon"
-    options["METADATA"] = "Supported metadata"
-    options["ASSETS"] = "Supported assets"
-    options["SETTINGS"] = "Plugin settings"
+    options["UPDATE"] = kodi.translate(42009)
+    options["METADATA"] = kodi.translate(42010)
+    options["ASSETS"] = kodi.translate(42011)
+    options["SETTINGS"] = kodi.translate(42012)
     
     addon = xbmcaddon.Addon(addon_id)
-    title = f"Addon: {addon.getAddonInfo('name')}"
+    title = kodi.translate(41081).format(addon.getAddonInfo('name'))
     
     selected_option = kodi.OrdDictionaryDialog().select(title, options)
     if selected_option is None:
@@ -138,14 +138,14 @@ def cmd_addon_details(args):
                 })
                 repository.update_addon(ael_addon)
             uow.commit()
-            kodi.notify("Updated addon")
+            kodi.notify(kodi.translate(40962))
         cmd_addon_details(args)
         return
 
     if selected_option == "METADATA":
         supported_metadata_str = addon.getSetting('akl.scraper.supported_metadata')
-        options = { m: constants.METADATA_DESCRIPTIONS[m] for m in supported_metadata_str.split('|') }
-        kodi.OrdDictionaryDialog().select(f"Supported metadata: {addon.getAddonInfo('name')}", options)
+        options = { m: kodi.translate(constants.METADATA_DESCRIPTIONS[m]) for m in supported_metadata_str.split('|') }
+        kodi.OrdDictionaryDialog().select(kodi.translate(41082).format(addon.getAddonInfo('name')), options)
         cmd_addon_details(args)
         return
 
@@ -153,7 +153,7 @@ def cmd_addon_details(args):
         supported_assets_str = addon.getSetting('akl.scraper.supported_assets')
         assets = g_assetFactory.get_asset_list_by_IDs(supported_assets_str.split('|'))
         options = { a.id: a.name for a in assets }
-        kodi.OrdDictionaryDialog().select(f"Supported assets: {addon.getAddonInfo('name')}", options)
+        kodi.OrdDictionaryDialog().select(kodi.translate(41083).format(addon.getAddonInfo('name')), options)
         cmd_addon_details(args)
         return
     
