@@ -22,7 +22,7 @@ from __future__ import annotations
 import abc
 import typing
 import logging
-import re 
+import re
 import time
 import datetime
 import json
@@ -377,7 +377,7 @@ class ROMLauncherAddon(ROMAddon):
             '--cmd': 'launch',
             '--type': constants.AddonType.LAUNCHER.name,
             '--server_host': globals.WEBSERVER_HOST,
-            '--server_port': globals.WEBSERVER_PORT,
+            '--server_port': settings.getSettingAsInt('webserver_port'),
             '--akl_addon_id': self.get_id(),
             '--rom_id': rom.get_id()
         }
@@ -387,7 +387,7 @@ class ROMLauncherAddon(ROMAddon):
             '--cmd': 'configure',
             '--type': constants.AddonType.LAUNCHER.name,
             '--server_host': globals.WEBSERVER_HOST,
-            '--server_port': globals.WEBSERVER_PORT,
+            '--server_port': settings.getSettingAsInt('webserver_port'),
             '--romcollection_id': romcollection.get_id(), 
             '--akl_addon_id': self.get_id()
         }
@@ -397,7 +397,7 @@ class ROMLauncherAddon(ROMAddon):
             '--cmd': 'configure',
             '--type': constants.AddonType.LAUNCHER.name,
             '--server_host': globals.WEBSERVER_HOST,
-            '--server_port': globals.WEBSERVER_PORT,
+            '--server_port': settings.getSettingAsInt('webserver_port'),
             '--rom_id': rom.get_id(), 
             '--akl_addon_id': self.get_id()
         }
@@ -407,12 +407,12 @@ class ROMLauncherAddon(ROMAddon):
             self.addon.get_addon_id(), 
             self.get_launch_command(rom))
 
-    def configure(self, romcollection:ROMCollection):
+    def configure(self, romcollection: ROMCollection):
         kodi.run_script(
             self.addon.get_addon_id(), 
             self.get_configure_command(romcollection))
     
-    def configure_for_rom(self, rom:ROM):
+    def configure_for_rom(self, rom: ROM):
         kodi.run_script(
             self.addon.get_addon_id(), 
             self.get_configure_command_for_rom(rom))
@@ -456,7 +456,7 @@ class RetroplayerLauncherAddon(ROMLauncherAddon):
             'addon_id': self.addon.get_addon_id(),
             'settings': {}
         }        
-        is_stored = api.client_post_launcher_settings(globals.WEBSERVER_HOST, globals.WEBSERVER_PORT, post_data)
+        is_stored = api.client_post_launcher_settings(globals.WEBSERVER_HOST, settings.getSettingAsInt('webserver_port'), post_data)
         if not is_stored:
             kodi.notify_error(kodi.translate(40958))
             
@@ -467,7 +467,7 @@ class RetroplayerLauncherAddon(ROMLauncherAddon):
             'addon_id': self.addon.get_addon_id(),
             'settings': {}
         }        
-        is_stored = api.client_post_launcher_settings(globals.WEBSERVER_HOST, globals.WEBSERVER_PORT, post_data)
+        is_stored = api.client_post_launcher_settings(globals.WEBSERVER_HOST, settings.getSettingAsInt('webserver_port'), post_data)
         if not is_stored:
             kodi.notify_error(kodi.translate(40958))
      
@@ -481,7 +481,7 @@ class ROMCollectionScanner(ROMAddon):
             '--cmd': 'scan',
             '--type': constants.AddonType.SCANNER.name,
             '--server_host': globals.WEBSERVER_HOST,
-            '--server_port': globals.WEBSERVER_PORT,
+            '--server_port': settings.getSettingAsInt('webserver_port'),
             '--romcollection_id': rom_collection.get_id(),
             '--akl_addon_id': self.get_id()
         }
@@ -491,9 +491,9 @@ class ROMCollectionScanner(ROMAddon):
             '--cmd': 'configure',
             '--type': constants.AddonType.SCANNER.name,
             '--server_host': globals.WEBSERVER_HOST,
-            '--server_port': globals.WEBSERVER_PORT,
+            '--server_port': settings.getSettingAsInt('webserver_port'),
             '--romcollection_id': romcollection.get_id(),
-            '--akl_addon_id':  self.get_id()
+            '--akl_addon_id': self.get_id()
         }
 
 class ScraperAddon(ROMAddon):
@@ -556,7 +556,7 @@ class ScraperAddon(ROMAddon):
             '--cmd': 'scrape',
             '--type': constants.AddonType.SCRAPER.name,
             '--server_host': globals.WEBSERVER_HOST,
-            '--server_port': globals.WEBSERVER_PORT,
+            '--server_port': settings.getSettingAsInt('webserver_port'),
             '--akl_addon_id': self.addon.get_id(),
             '--rom_id': rom.get_id(),
             '--settings': io.parse_to_json_arg(self.get_settings())
@@ -567,7 +567,7 @@ class ScraperAddon(ROMAddon):
             '--cmd': 'scrape',
             '--type': constants.AddonType.SCRAPER.name,
             '--server_host': globals.WEBSERVER_HOST,
-            '--server_port': globals.WEBSERVER_PORT,
+            '--server_port': settings.getSettingAsInt('webserver_port'),
             '--akl_addon_id': self.addon.get_id(),
             '--romcollection_id': collection.get_id(),
             '--settings': io.parse_to_json_arg(self.get_settings())
