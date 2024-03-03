@@ -343,6 +343,18 @@ msgctxt "#40816"
 msgid "Default box size"
 msgstr ""
 
+msgctxt "#40817"
+msgid "Is Favourite"
+msgstr ""
+
+msgctxt "#40818"
+msgid "Is Favourite"
+msgstr ""
+
+msgctxt "#40819"
+msgid "Times launched"
+msgstr ""
+
 ############################
 # Constant Enum values
 ############################
@@ -436,6 +448,38 @@ msgctxt "#42505"
 msgid "ROM"
 msgstr "domain"
 
+msgctxt "#42506"
+msgid "Source"
+msgstr "domain"
+
+msgctxt "#42507"
+msgid "No Type"
+msgstr "domain"
+
+msgctxt "#42508"
+msgid "All"
+msgstr "domain"
+
+msgctxt "#42509"
+msgid "Ruleset"
+msgstr "domain"
+
+msgctxt "#42510"
+msgid "Rules"
+msgstr "domain"
+
+msgctxt "#42511"
+msgid "Rule"
+msgstr "domain"
+
+msgctxt "#42512"
+msgid "Categories"
+msgstr "domain"
+
+msgctxt "#42513"
+msgid "Collections"
+msgstr "domain"
+
 ############################
 # Advanced Enum values
 ############################
@@ -459,6 +503,42 @@ msgstr "LOG ENUM"
 msgctxt "#30915"
 msgid "DEBUG"
 msgstr "LOG ENUM"
+
+############################
+# Domain Enum values
+############################
+
+msgctxt "#30916"
+msgid "all of the rules"
+msgstr "RuleSetOperator"
+
+msgctxt "#30917"
+msgid "one or more of the rules"
+msgstr "RuleSetOperator"
+
+msgctxt "#30918"
+msgid "Equals"
+msgstr "RuleOperator"
+
+msgctxt "#30919"
+msgid "Not Equals"
+msgstr "RuleOperator"
+
+msgctxt "#30920"
+msgid "Contains"
+msgstr "RuleOperator"
+
+msgctxt "#30921"
+msgid "Does not contain"
+msgstr "RuleOperator"
+
+msgctxt "#30922"
+msgid "More than"
+msgstr "RuleOperator"
+
+msgctxt "#30923"
+msgid "Less than"
+msgstr "RuleOperator"
 
 ################################################################################################################
 
@@ -603,7 +683,7 @@ msgid "Edit ROM"
 msgstr ""
 
 msgctxt "#40884"
-msgid "Link ROM in other collection"
+msgid "Link ROM in other collections/categories"
 msgstr ""
 
 msgctxt "#40885"
@@ -627,7 +707,7 @@ msgid "Add new ROM Collection"
 msgstr ""
 
 msgctxt "#40890"
-msgid "Add new ROM (Standalone)"
+msgid "Standalone ROM"
 msgstr ""
 
 msgctxt "#40891"
@@ -722,6 +802,38 @@ msgctxt "#40913"
 msgid "Global ROM Audit statistics (Redump only)"
 msgstr ""
 
+msgctxt "#40914"
+msgid "Sources"
+msgstr ""
+
+msgctxt "#40915"
+msgid "Edit Source"
+msgstr ""
+
+msgctxt "#40916"
+msgid "Add Source"
+msgstr ""
+
+msgctxt "#40917"
+msgid "Add Launcher"
+msgstr ""
+
+msgctxt "#40918"
+msgid "Edit Launcher"
+msgstr ""
+
+msgctxt "#40919"
+msgid "Remove Launcher"
+msgstr ""
+
+msgctxt "#40920"
+msgid "Launchers"
+msgstr ""
+
+msgctxt "#40921"
+msgid "Add new ruleset"
+msgstr ""
+
 ############################
 # Headers and texts / notifications / dialogs
 ############################
@@ -734,11 +846,11 @@ msgid "Invalid parameters supplied."
 msgstr ""
 
 msgctxt "#40952"
-msgid "Is it a directly launchable file/executable?\nChoose no if you want to assign a separate launcher afterwards."
+msgid "File is directly executable/launchable"
 msgstr ""
 
 msgctxt "#40953"
-msgid "Select file"
+msgid "Select file to execute (Skip if not available)"
 msgstr ""
 
 msgctxt "#40954"
@@ -854,7 +966,7 @@ msgid "Creating new AKL database"
 msgstr ""
 
 msgctxt "#40982"
-msgid "No scanners configured for this romcollection!"
+msgid "Should new platform be applied to existing ROMs in this source?"
 msgstr ""
 
 msgctxt "#40983"
@@ -926,7 +1038,7 @@ msgid "Scan completed. Found {0} addons"
 msgstr ""
 
 msgctxt "#41000"
-msgid "No ROM scanners configured."
+msgid "Scrape collection '{0}' ROMs with '{1}'"
 msgstr ""
 
 msgctxt "#41001"
@@ -938,7 +1050,7 @@ msgid "No launchers configured for this ROM!"
 msgstr ""
 
 msgctxt "#41003"
-msgid "No launchers configured for this collection."
+msgid "No launchers associated for this collection."
 msgstr ""
 
 msgctxt "#41004"
@@ -954,7 +1066,7 @@ msgid "Configured ROM scanner '{0}'"
 msgstr ""
 
 msgctxt "#41007"
-msgid "Stored scanned ROMS in ROMs Collection '{0}'"
+msgid "Stored scanned ROMS in source '{0}'"
 msgstr ""
 
 msgctxt "#41008"
@@ -966,7 +1078,7 @@ msgid "Stored scraped ROM '{0}'"
 msgstr ""
 
 msgctxt "#41010"
-msgid "Removed ROMS from ROMs Collection '{0}'"
+msgid "Removed ROMS from Source '{0}'"
 msgstr ""
 
 msgctxt "#41011"
@@ -1162,11 +1274,11 @@ msgid "Clear all tags from ROM '{0}'?"
 msgstr ""
 
 msgctxt "#41059"
-msgid "Are you sure to delete launcher '{}'?"
+msgid "Are you sure to unassociate launcher '{}'?"
 msgstr ""
 
 msgctxt "#41060"
-msgid "Are you sure to delete ROM scanner '{}'?"
+msgid "Items must match"
 msgstr ""
 
 msgctxt "#41061"
@@ -1350,7 +1462,7 @@ msgid "Choose launcher"
 msgstr "" 
 
 msgctxt "#41106"
-msgid "Manage ROM scanners for {}"
+msgid "Choose launcher addon type"
 msgstr "" 
 
 msgctxt "#41107"
@@ -1362,15 +1474,15 @@ msgid "Choose scanner to edit"
 msgstr "" 
 
 msgctxt "#41109"
-msgid "Choose scanner to remove"
-msgstr "" 
+msgid "Added launcher '{0}'"
+msgstr ""
 
 msgctxt "#41110"
-msgid "Choose ROM scanner"
+msgid "Scrape source '{0}' ROMs"
 msgstr "" 
 
 msgctxt "#41111"
-msgid "Scrape collection '{0}' ROMs with '{1}'"
+msgid "Scrape source '{0}' ROMs with '{1}'"
 msgstr "" 
 
 msgctxt "#41112"
@@ -1438,10 +1550,6 @@ msgid "Edit Launcher '{0}' metadata"
 msgstr ""
 
 msgctxt "#41128"
-msgid "Move to category"
-msgstr ""
-
-msgctxt "#41128"
 msgid "Manage ROM Collection '{}' ROMs"
 msgstr ""
 
@@ -1450,7 +1558,7 @@ msgid "ROM Asset directories"
 msgstr ""
 
 msgctxt "#41130"
-msgid "Import ROMs in ROMCollection '{}'"
+msgid "Import rules for ROMs in ROMCollection '{}'"
 msgstr ""
 
 msgctxt "#41131"
@@ -1490,7 +1598,7 @@ msgid "Directory to store artwork not found.\nConfigure it before you can edit a
 msgstr ""
 
 msgctxt "#41140"
-msgid "Unknown obj_instance.get_assets_kind() {}.\nThis is a bug, please report it."
+msgid "Unknown object type {}.\nThis is a bug, please report it."
 msgstr ""
 
 msgctxt "#41141"
@@ -1571,6 +1679,122 @@ msgstr ""
 
 msgctxt "#41160"
 msgid "Select {} path"
+msgstr ""
+
+msgctxt "#41161"
+msgid "Rendering source views"
+msgstr ""
+
+msgctxt "#41162"
+msgid "Manage Source '{}' ROMs"
+msgstr ""
+
+msgctxt "#41163"
+msgid "Source has no ROMs. Nothing to do."
+msgstr ""
+
+msgctxt "#41164"
+msgid "Source '{0}' has {1} ROMs. Are you sure you want to clear them from this source?"
+msgstr ""
+
+msgctxt "#41165"
+msgid "Cleared ROMs from source"
+msgstr ""
+
+msgctxt "#41166"
+msgid "New Source Name"
+msgstr "" 
+
+msgctxt "#41167"
+msgid "Select action for Source {0}"
+msgstr ""
+
+msgctxt "#41168"
+msgid "No launchers configured for this source!"
+msgstr ""
+
+msgctxt "#41169"
+msgid "Source '{0}' has {1} ROMs. All the references to these ROMs will be deleted also from the database. "
+msgstr "" 
+
+msgctxt "#41170"
+msgid "Deleted source {0}"
+msgstr ""
+
+msgctxt "#41171"
+msgid "Set launcher '{0}' as default?"
+msgstr ""
+
+msgctxt "#41172"
+msgid "Select source"
+msgstr ""
+
+msgctxt "#41173"
+msgid "Remove all rules"
+msgstr ""
+
+msgctxt "#41174"
+msgid "Ruleset for source {0}"
+msgstr ""
+
+msgctxt "#41175"
+msgid "This action will remove all rules applied.\nAre you sure to continue?"
+msgstr ""
+
+msgctxt "#41176"
+msgid "Removed all rules. Now importing all from source."
+msgstr ""
+
+msgctxt "#41177"
+msgid "Select field for rule"
+msgstr ""
+
+msgctxt "#41178"
+msgid "Select operator"
+msgstr ""
+
+msgctxt "#41179"
+msgid "Value to use for rule"
+msgstr ""
+
+msgctxt "#41180"
+msgid "Ruleset updated"
+msgstr ""
+
+msgctxt "#41181"
+msgid "Cannot find item"
+msgstr ""
+
+msgctxt "#41182"
+msgid "Choose action for rule"
+msgstr ""
+
+msgctxt "#41183"
+msgid "ROMs imported"
+msgstr ""
+
+msgctxt "#41184"
+msgid "Manage ruleset"
+msgstr ""
+
+msgctxt "#41185"
+msgid "Import ROMs by ruleset"
+msgstr ""
+
+msgctxt "#41186"
+msgid "Choose destination to link ROM with"
+msgstr ""
+
+msgctxt "#41187"
+msgid "Linked ROM {0} in Category {1}"
+msgstr ""
+
+msgctxt "#41188"
+msgid "Linked ROM {0} in Collection {1}"
+msgstr ""
+
+msgctxt "#41189"
+msgid "Currently importing: {0}"
 msgstr ""
 
 ############################
@@ -1722,7 +1946,7 @@ msgid "No"
 msgstr ""
 
 msgctxt "#42037"
-msgid "Set the title of the launcher"
+msgid "Set the title of the ROM collection"
 msgstr ""
 
 msgctxt "#42038"
@@ -1874,149 +2098,181 @@ msgid "Browse by Rating"
 msgstr ""
 
 msgctxt "#42080"
-msgid "Add new scanner"
+msgid "Clear ROMs from source"
 msgstr ""
 
 msgctxt "#42081"
-msgid "Edit scanner"
+msgid "Edit source scanner"
 msgstr ""
 
 msgctxt "#42082"
-msgid "Remove scanner"
+msgid "Import ROMs"
 msgstr ""
 
 msgctxt "#42083"
-msgid "Change root assets path: '{}'"
+msgid "Change root assets path"
 msgstr ""
 
 msgctxt "#42084"
-msgid "Change {} path: '{}'"
+msgid "Change {} path"
+msgstr ""
+
+msgctxt "#42085"
+msgid "Delete Source"
+msgstr ""
+
+msgctxt "#42086"
+msgid "Add rule"
+msgstr ""
+
+msgctxt "#42087"
+msgid "Edit rule"
+msgstr ""
+
+msgctxt "#42088"
+msgid "Remove rule"
+msgstr ""
+
+msgctxt "#42089"
+msgid "Execute ruleset"
+msgstr ""
+
+msgctxt "#42090"
+msgid "Create new launcher..."
 msgstr ""
 
 ############################
 # Context menu item descriptions
 ############################
 
-msgctxt "#42001"
+msgctxt "#44001"
 msgid "Execute several [COLOR orange]Utilities[/COLOR]."
 msgstr "viewqueries"
 
-msgctxt "#42002"
+msgctxt "#44002"
 msgid "Generate and view [COLOR orange]Global Reports[/COLOR]."
 msgstr "viewqueries"
 
-msgctxt "#42003"
+msgctxt "#44003"
 msgid "Reset the AKL database. You will loose all data."
 msgstr "viewqueries"
 
-msgctxt "#42004"
+msgctxt "#44004"
 msgid "Rebuild all the container views in the application."
 msgstr "viewqueries"
 
-msgctxt "#42005"
+msgctxt "#44005"
 msgid "Browse AKL Favourite ROMs"
 msgstr "domain"
 
-msgctxt "#42006"
+msgctxt "#44006"
 msgid "Browse the ROMs you played recently"
 msgstr "domain"
 
-msgctxt "#42007"
+msgctxt "#44007"
 msgid "Browse the ROMs you play most"
 msgstr "domain"
 
-msgctxt "#42008"
+msgctxt "#44008"
 msgid "Browse ROMs filtered on '{0}'"
 msgstr "domain"
 
-msgctxt "#42009"
+msgctxt "#44009"
 msgid "Browse the ROMs by specifics"
 msgstr "domain"
 
-msgctxt "#42010"
+msgctxt "#44010"
 msgid "Browse the ROMs by title"
 msgstr "domain"
 
-msgctxt "#42011"
+msgctxt "#44011"
 msgid "Browse the ROMs by year"
 msgstr "domain"
 
-msgctxt "#42012"
+msgctxt "#44012"
 msgid "Browse the ROMs by genre"
 msgstr "domain"
 
-msgctxt "#42013"
+msgctxt "#44013"
 msgid "Browse the ROMs by developer"
 msgstr "domain"
 
-msgctxt "#42014"
+msgctxt "#44014"
 msgid "Browse the ROMs by number of players"
 msgstr "domain"
 
-msgctxt "#42015"
+msgctxt "#44015"
 msgid "Browse the ROMs by ESRB rating"
 msgstr "domain"
 
-msgctxt "#42016"
+msgctxt "#44016"
 msgid "Browse the ROMs by PEGI rating"
 msgstr "domain"
 
-msgctxt "#42017"
+msgctxt "#44017"
 msgid "Browse the ROMs by rating"
 msgstr "domain"
 
-msgctxt "#42018"
+msgctxt "#44018"
 msgid "Rebuild all the virtual categories and collections in the container"
 msgstr "viewqueries"
 
-msgctxt "#42019"
+msgctxt "#44019"
 msgid "Scan for addons that can be used by AKL (launchers, scrapers etc.)"
 msgstr "viewqueries"
 
-msgctxt "#42020"
+msgctxt "#44020"
 msgid "Shows previously scanned addons that can be used by AKL (launchers, scrapers etc.)"
 msgstr "viewqueries"
 
-msgctxt "#42021"
+msgctxt "#44021"
 msgid "Manage existing/available tags for ROMs"
 msgstr "viewqueries"
 
-msgctxt "#42022"
+msgctxt "#44022"
 msgid "Execute several [COLOR orange]Utilities[/COLOR]."
 msgstr "viewqueries"
 
-msgctxt "#42023"
+msgctxt "#44023"
 msgid "Exports all AKL categories and collections into an XML configuration file.\nYou can later reimport this XML file."
 msgstr "viewqueries"
 
-msgctxt "#42024"
+msgctxt "#44024"
 msgid "Check all collections for missing launchers or scanners, missing artwork, wrong platform names, asset path existence, etc."
 msgstr "viewqueries"
 
-msgctxt "#42025"
+msgctxt "#44025"
 msgid "Scans existing [COLOR=orange]ROMs artwork images[/COLOR] in ROM Collections and verifies that the images have correct extension and size is greater than 0. You can delete corrupted images to be rescraped later."
 msgstr "viewqueries"
 
-msgctxt "#42026"
+msgctxt "#44026"
 msgid "Scans all ROM collections and finds [COLOR orange]redundant ROMs artwork[/COLOR]. You may delete these unneeded images."
 msgstr "viewqueries"
 
-msgctxt "#42027"
+msgctxt "#44027"
 msgid "Display the auto-detected No-Intro/Redump DATs that will be used for the ROM audit. You have to configure the DAT directories in [COLOR orange]AKL addon settings[/COLOR], [COLOR=orange]ROM Audit[/COLOR] tab."
 msgstr "viewqueries"
 
-msgctxt "#42028"
+msgctxt "#44028"
 msgid "Shows a report of all ROM collections with number of ROMs."
 msgstr "viewqueries"
 
-msgctxt "#42029"
+msgctxt "#44029"
 msgid "Shows a report of all audited ROM collections, with Have, Miss and Unknown statistics."
 msgstr "viewqueries"
 
-msgctxt "#42030"
+msgctxt "#44030"
 msgid "Shows a report of all audited ROM Launchers, with Have, Miss and Unknown statistics. Only No-Intro platforms (cartridge-based) are reported."
 msgstr "viewqueries"
 
-msgctxt "#42031"
+msgctxt "#44031"
 msgid "Shows a report of all audited ROM Launchers, with Have, Miss and Unknown statistics. Only Redump platforms (optical-based) are reported."
+msgstr "viewqueries"
+
+msgctxt "#44032"
+msgid "Manage your game [COLOR orange]libraries[/COLOR] and sources."
+msgstr "viewqueries"
+
+msgctxt "#44033"
+msgid "Manage your game [COLOR orange]launchers[/COLOR]."
 msgstr "viewqueries"

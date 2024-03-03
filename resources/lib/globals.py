@@ -75,6 +75,7 @@ class AKL_Paths(object):
         self.DEFAULT_FAV_ASSET_DIR = self.ADDON_DATA_DIR.pjoin('asset-favourites')
         
         # --- Rendered views (normal and virtuals/generated) ---
+        self.SOURCES_VIEW_PATH = self.ADDON_DATA_DIR.pjoin('sources.json')
         self.GENERATED_VIEWS_DIR = self.ADDON_DATA_DIR.pjoin('db_generated_views')
         self.VIEWS_DIR = self.ADDON_DATA_DIR.pjoin('db_views')
         
@@ -99,8 +100,8 @@ class AKL_Paths(object):
             self.DEFAULT_CAT_ASSET_DIR.makedirs()
         if not self.DEFAULT_COL_ASSET_DIR.exists():
             self.DEFAULT_COL_ASSET_DIR.makedirs()
-        if not self.DEFAULT_LAUN_ASSET_DIR.exists():
-            self.DEFAULT_LAUN_ASSET_DIR.makedirs()
+        if not self.DEFAULT_ROM_ASSET_DIR.exists():
+            self.DEFAULT_ROM_ASSET_DIR.makedirs()
         if not self.DEFAULT_FAV_ASSET_DIR.exists():
             self.DEFAULT_FAV_ASSET_DIR.makedirs()
         
@@ -111,12 +112,11 @@ class AKL_Paths(object):
 
         return self
 
- 
 router: routing.Plugin = routing.Plugin()
 g_PATHS: AKL_Paths
 
 WEBSERVER_HOST = '127.0.0.1'
-WEBSERVER_PORT = 5738
+WEBSERVER_PORT = 57300
 
 
 #

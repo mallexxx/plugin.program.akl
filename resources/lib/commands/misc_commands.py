@@ -21,7 +21,6 @@ import logging
 import typing
 import collections
 
-from datetime import datetime
 from xml.etree import cElementTree as ET
 from xml.dom import minidom
 from distutils.version import LooseVersion
@@ -31,7 +30,7 @@ from akl import constants
 
 from resources.lib.commands.mediator import AppMediator
 from resources.lib import globals
-from resources.lib.repositories import UnitOfWork, AelAddonRepository, CategoryRepository, ROMCollectionRepository, XmlConfigurationRepository
+from resources.lib.repositories import UnitOfWork, AelAddonRepository, CategoryRepository, ROMCollectionRepository, XmlConfigurationRepository, SourcesRepository
 from resources.lib.domain import Category, ROMCollection, AelAddon
 
 logger = logging.getLogger(__name__)
@@ -41,8 +40,8 @@ def cmd_execute_import_launchers(args):
 
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
-        addon_repository      = AelAddonRepository(uow)
-        available_launchers   = [*addon_repository.find_all_launchers()]
+        addon_repository = AelAddonRepository(uow)
+        available_launchers = [*addon_repository.find_all_launcher_addons()]
         
         categories_repository = CategoryRepository(uow)
         existing_categories   = [*categories_repository.find_all_categories()]
@@ -233,7 +232,7 @@ def cmd_execute_migrations(args):
     migrations_in_database = uow.get_migrations_history()
 
     options = collections.OrderedDict()
-    migrations_files_available  = uow.get_migration_files(LooseVersion("0.0.0"))
+    migrations_files_available = uow.get_migration_files(LooseVersion("0.0.0"))
     
     for migration_file in migrations_files_available:
         file_name = migration_file.getBase()
@@ -247,6 +246,7 @@ def cmd_execute_migrations(args):
     if selected_file is None:
         return
     
+    logger.debug(f"RUN_DB_MIGRATIONS: Selected {selected_file}")
     migration_file = io.FileName(selected_file)
     version_to_store = LooseVersion(globals.addon_version)
     file_version = uow.get_version_from_migration_file(migration_file)
@@ -256,34 +256,37 @@ def cmd_execute_migrations(args):
         version_to_store = db_version
     
     dialog = kodi.ListDialog()
-    selected_index = dialog.select(kodi.translate(41089).format(migration_file.getBaseNoExt()),[
+    selected_index = dialog.select(kodi.translate(41089).format(migration_file.getBaseNoExt()), [
         kodi.translate(41090),
         kodi.translate(41091)
     ])
-    if not selected_index:
+    
+    if selected_index is None or selected_index < 0:
         return
     
     if selected_index == 0:
         if not kodi.dialog_yesno(kodi.translate(41055).format(migration_file.getBaseNoExt())):
             return
         
-    uow.migrate_database([migration_file], version_to_store, selected_index==1)
+    uow.migrate_database([migration_file], version_to_store, selected_index == 1)
     kodi.notify(kodi.translate(41016))
+
 
 @AppMediator.register('CHECK_DUPLICATE_ASSET_DIRS')
 def cmd_check_duplicate_asset_dirs(args):
-    romcollection_id:str = args['romcollection_id'] if 'romcollection_id' in args else None
+    source_id: str = args['source_id'] if 'source_id' in args else None
     
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
-        repository = ROMCollectionRepository(uow)
-        romcollection = repository.find_romcollection(romcollection_id)
+        repository = SourcesRepository(uow)
+        source = repository.find(source_id)
 
     # >> Check for duplicate paths and warn user.
-    duplicated_name_list = romcollection.get_duplicated_asset_dirs()
+    duplicated_name_list = source.get_duplicated_asset_dirs()
     if duplicated_name_list:
         duplicated_asset_srt = ', '.join(duplicated_name_list)
         kodi.dialog_OK(kodi.translate(41147).format(duplicated_asset_srt))
+
 
 def _apply_addon_launcher_for_legacy_launcher(collection: ROMCollection, available_addons: typing.Dict[str, AelAddon]):
     launcher_type = collection.get_custom_attribute('type')
