@@ -13,7 +13,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-# --- Python standard library ---
+# --- Python standard source ---
 from __future__ import unicode_literals
 from __future__ import division
 
@@ -130,7 +130,7 @@ def cmd_check_ROM_artwork_integrity(args):
             ['Launcher', 'ROMs', 'Images', 'Missing', 'Problematic'],
         ]
         pdialog = kodi.ProgressDialog()
-        d_msg = 'Checking ROM artwork integrity...'
+        d_msg = kodi.translate(41152)
         pdialog.startProgress(d_msg, len(romcollections))
         total_images = 0
         missing_images = 0
@@ -292,11 +292,11 @@ def cmd_delete_redundant_rom_artwork(args):
             options[collection] = collection.get_name()
             
         dialog = kodi.MultiSelectDialog()
-        selected_collections:typing.List[ROMCollection] = dialog.select('Collections to process', options, preselected=romcollections)
+        selected_collections:typing.List[ROMCollection] = dialog.select(kodi.translate(41087), options, preselected=romcollections)
         
         main_slist = []
         detailed_slist = []
-        d_msg = 'Checking ROM artwork integrity...'
+        d_msg = kodi.translate(41152)
         pdialog.startProgress(d_msg, len(selected_collections))
 
         all_unique_paths = []
@@ -411,7 +411,7 @@ def cmd_delete_redundant_rom_artwork(args):
     pdialog.endProgress()
 
     kodi.display_text_window_mono('ROM redundant artwork report', output_table)
-    do_delete = kodi.dialog_yesno(f'Delete {len(files_to_be_removed)} files marked as redundant?\nWarning! This will actually delete the files!\m Backup filesnow if needed.')
+    do_delete = kodi.dialog_yesno(kodi.translate(41071).format(len(files_to_be_removed)))
     if not do_delete:
         return
 
@@ -422,4 +422,4 @@ def cmd_delete_redundant_rom_artwork(args):
         file_to_delete.unlink()
         
     pdialog.endProgress()
-    kodi.notify('Cleaned up redundant files')
+    kodi.notify(kodi.translate(41011))

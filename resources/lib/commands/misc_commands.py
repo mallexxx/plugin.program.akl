@@ -21,7 +21,6 @@ import logging
 import typing
 import collections
 
-from datetime import datetime
 from xml.etree import cElementTree as ET
 from xml.dom import minidom
 from distutils.version import LooseVersion
@@ -31,18 +30,18 @@ from akl import constants
 
 from resources.lib.commands.mediator import AppMediator
 from resources.lib import globals
-from resources.lib.repositories import UnitOfWork, AelAddonRepository, CategoryRepository, ROMCollectionRepository, XmlConfigurationRepository
+from resources.lib.repositories import UnitOfWork, AelAddonRepository, CategoryRepository, ROMCollectionRepository, XmlConfigurationRepository, SourcesRepository
 from resources.lib.domain import Category, ROMCollection, AelAddon
 
 logger = logging.getLogger(__name__)
 @AppMediator.register('IMPORT_LAUNCHERS')
 def cmd_execute_import_launchers(args):
-    file_list = kodi.browse(text='Select XML category/launcher configuration file',mask='.xml', multiple=True)
+    file_list = kodi.browse(text=kodi.translate(41145),mask='.xml', multiple=True)
 
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
-        addon_repository      = AelAddonRepository(uow)
-        available_launchers   = [*addon_repository.find_all_launchers()]
+        addon_repository = AelAddonRepository(uow)
+        available_launchers = [*addon_repository.find_all_launcher_addons()]
         
         categories_repository = CategoryRepository(uow)
         existing_categories   = [*categories_repository.find_all_categories()]
@@ -73,7 +72,7 @@ def cmd_execute_import_launchers(args):
                 if category_to_import.get_id() in existing_category_ids:
                      # >> Category exists (by name). Overwrite?
                     logger.debug('Category found. Edit existing category.')
-                    if kodi.dialog_yesno(f'Category "{category_to_import.get_name()}" found in AKL database. Overwrite?'):
+                    if kodi.dialog_yesno(kodi.translate(41072).format(category_to_import.get_name())):
                         categories_to_update.append(category_to_import)
                 else:
                     categories_to_insert.append(category_to_import)
@@ -83,7 +82,7 @@ def cmd_execute_import_launchers(args):
                 if launcher_to_import.get_id() in existing_romcollection_ids:
                      # >> Romset exists (by name). Overwrite?
                     logger.debug('ROMCollection found. Edit existing ROMCollection.')
-                    if kodi.dialog_yesno(f'ROMCollection "{launcher_to_import.get_name()}" found in AKL database. Overwrite?'):
+                    if kodi.dialog_yesno(kodi.translate(41073).format(launcher_to_import.get_name())):
                         romcollections_to_update.append(launcher_to_import)
                 else:
                     romcollections_to_insert.append(launcher_to_import)
@@ -107,7 +106,7 @@ def cmd_execute_import_launchers(args):
         uow.commit()
 
     AppMediator.async_cmd('RENDER_VIEWS')
-    kodi.notify('Finished importing Categories/Launchers')
+    kodi.notify(kodi.translate(41012))
 
 # Export AKL launcher configuration.
 # Export all Categories and Launchers.
@@ -116,15 +115,16 @@ def cmd_export_to_xml(args):
     logger.debug('_command_exec_utils_export_launchers() Exporting Category/Launcher XML configuration')
 
     # --- Ask path to export XML configuration ---
-    dir_path = kodi.dialog_get_directory('Select XML export directory')
-    if not dir_path: return
+    dir_path = kodi.dialog_get_directory(kodi.translate(41144))
+    if not dir_path:
+        return
 
     # --- If XML exists then warn user about overwriting it ---
     export_FN = io.FileName(dir_path).pjoin('AKL_configuration.xml')
     if export_FN.exists():
-        ret = kodi.dialog_yesno('AKL_configuration.xml found in the selected directory. Overwrite?')
+        ret = kodi.dialog_yesno(kodi.translate(41054))
         if not ret:
-            kodi.notify_warn('Category/Launcher XML exporting cancelled')
+            kodi.notify_warn(kodi.translate(41013))
             return
 
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
@@ -207,13 +207,13 @@ def cmd_export_to_xml(args):
             parsed_xml = minidom.parseString(result_xml)
             export_FN.saveStrToFile(parsed_xml.toprettyxml(indent="  "))
         except constants.AddonError as ex:
-            kodi.notify_warn('{}'.format(ex))
+            kodi.notify_warn(str(ex))
         else:
-            kodi.notify('Exported AKL Categories and Collections to XML configuration')
+            kodi.notify(kodi.translate(41014))
 
 @AppMediator.register('RESET_DATABASE')
 def cmd_execute_reset_db(args):
-    if not kodi.dialog_yesno('Are you sure you want to reset the database?'):
+    if not kodi.dialog_yesno(kodi.translate(41053)):
         return
     
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
@@ -222,7 +222,7 @@ def cmd_execute_reset_db(args):
     AppMediator.async_cmd('CLEANUP_VIEWS')
     AppMediator.async_cmd('RENDER_VIEWS')
     AppMediator.async_cmd('SCAN_FOR_ADDONS')
-    kodi.notify('Finished resetting the database')
+    kodi.notify(kodi.translate(41015))
 
 @AppMediator.register('RUN_DB_MIGRATIONS')
 def cmd_execute_migrations(args):
@@ -232,7 +232,7 @@ def cmd_execute_migrations(args):
     migrations_in_database = uow.get_migrations_history()
 
     options = collections.OrderedDict()
-    migrations_files_available  = uow.get_migration_files(LooseVersion("0.0.0"))
+    migrations_files_available = uow.get_migration_files(LooseVersion("0.0.0"))
     
     for migration_file in migrations_files_available:
         file_name = migration_file.getBase()
@@ -241,11 +241,12 @@ def cmd_execute_migrations(args):
         options[migration_file.getPath()] = f"{migration_file.getBase()} [{state}]"
             
     dialog = kodi.OrdDictionaryDialog()
-    selected_file = dialog.select(f"Select migrations to execute (Current version {db_version})", options)
+    selected_file = dialog.select(kodi.translate(41088).format(db_version), options)
 
     if selected_file is None:
         return
     
+    logger.debug(f"RUN_DB_MIGRATIONS: Selected {selected_file}")
     migration_file = io.FileName(selected_file)
     version_to_store = LooseVersion(globals.addon_version)
     file_version = uow.get_version_from_migration_file(migration_file)
@@ -255,35 +256,37 @@ def cmd_execute_migrations(args):
         version_to_store = db_version
     
     dialog = kodi.ListDialog()
-    selected_index = dialog.select(f"Migration {migration_file.getBaseNoExt()}",[
-        "Run migration",
-        "Mark as executed without running"
+    selected_index = dialog.select(kodi.translate(41089).format(migration_file.getBaseNoExt()), [
+        kodi.translate(41090),
+        kodi.translate(41091)
     ])
-    if not selected_index:
+    
+    if selected_index is None or selected_index < 0:
         return
     
     if selected_index == 0:
-        if not kodi.dialog_yesno(f"Run migration {migration_file.getBaseNoExt()}?"):
+        if not kodi.dialog_yesno(kodi.translate(41055).format(migration_file.getBaseNoExt())):
             return
         
-    uow.migrate_database([migration_file], version_to_store, selected_index==1)
-    kodi.notify('Done running migrations on the database')
+    uow.migrate_database([migration_file], version_to_store, selected_index == 1)
+    kodi.notify(kodi.translate(41016))
+
 
 @AppMediator.register('CHECK_DUPLICATE_ASSET_DIRS')
 def cmd_check_duplicate_asset_dirs(args):
-    romcollection_id:str = args['romcollection_id'] if 'romcollection_id' in args else None
+    source_id: str = args['source_id'] if 'source_id' in args else None
     
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
-        repository = ROMCollectionRepository(uow)
-        romcollection = repository.find_romcollection(romcollection_id)
+        repository = SourcesRepository(uow)
+        source = repository.find(source_id)
 
     # >> Check for duplicate paths and warn user.
-    duplicated_name_list = romcollection.get_duplicated_asset_dirs()
+    duplicated_name_list = source.get_duplicated_asset_dirs()
     if duplicated_name_list:
         duplicated_asset_srt = ', '.join(duplicated_name_list)
-        kodi.dialog_OK('Duplicated asset directories: {0}. '.format(duplicated_asset_srt) +
-                        'AKL will refuse to add/edit ROMs if there are duplicate asset directories.')
+        kodi.dialog_OK(kodi.translate(41147).format(duplicated_asset_srt))
+
 
 def _apply_addon_launcher_for_legacy_launcher(collection: ROMCollection, available_addons: typing.Dict[str, AelAddon]):
     launcher_type = collection.get_custom_attribute('type')

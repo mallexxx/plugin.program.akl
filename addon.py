@@ -4,7 +4,7 @@
 #
 
 # Copyright (c) Chrisism <crizizz@gmail.com>
-# Big Portions (c) Wintermute0110 <wintermute0110@gmail.com> 
+# Big Portions (c) Wintermute0110 <wintermute0110@gmail.com>
 # Portions (c) 2010-2015 Angelscry and others
 #
 # This program is free software; you can redistribute it and/or modify
@@ -37,4 +37,4 @@ try:
     views.run_plugin(sys.argv)
 except Exception as ex:
     logger.fatal('Exception in plugin', exc_info=ex)
-    kodi.notify_error("General failure")
+    kodi.notify_error(kodi.translate(40956))
