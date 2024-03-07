@@ -27,21 +27,26 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from http.client import HTTPConnection
 
 # AKL modules
+from akl import settings
 from resources.lib import globals, apiqueries
 from resources.lib.commands import api_commands
 
 logger = logging.getLogger(__name__)
 
+
 #################################################################################################
 class WebService(threading.Thread):
-    
-    HOST = globals.WEBSERVER_HOST
-    PORT = globals.WEBSERVER_PORT
     
     ''' Run a webservice for api communication.
     '''
     def __init__(self):
         self.server = None
+        self.port = settings.getSettingAsInt('webserver_port')
+        self.host = globals.WEBSERVER_HOST
+        
+        if self.port is None or self.port == 0:
+            self.port = globals.WEBSERVER_PORT
+        
         threading.Thread.__init__(self)
 
     def is_alive(self):
@@ -52,7 +57,7 @@ class WebService(threading.Thread):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         try:
-            s.connect((WebService.HOST, WebService.PORT))
+            s.connect((self.host, self.port))
             s.sendall("")
         except Exception as error:
             logger.fatal(f'Exception in webservice.is_alive {str(error)}')
@@ -63,7 +68,7 @@ class WebService(threading.Thread):
 
         return alive
 
-    def stop(self, check_alive = False):
+    def stop(self, check_alive=False):
         
         if check_alive and not self.is_alive():
             logger.info("Webservice not running, so stopping not needed.")
@@ -72,8 +77,8 @@ class WebService(threading.Thread):
         ''' Called when the thread needs to stop
         '''
         try:
-            logger.info(f"Stopping AKL webservice({WebService.HOST}:{WebService.PORT})")
-            conn = HTTPConnection(f"{WebService.HOST}:{WebService.PORT}")
+            logger.info(f"Stopping AKL webservice({self.host}:{self.port})")
+            conn = HTTPConnection(f"{self.host}:{self.port}")
             conn.request("QUIT", "/")
             conn.getresponse()
         except Exception as error:
@@ -87,8 +92,8 @@ class WebService(threading.Thread):
         '''
         self.stop(check_alive=True)
 
-        logger.info("Startup AKL webservice({}:{})".format(WebService.HOST, WebService.PORT))
-        server = AelHttpServer((WebService.HOST, WebService.PORT), RequestHandler)
+        logger.info("Startup AKL webservice({}:{})".format(self.host, self.port))
+        server = AelHttpServer((self.host, self.port), RequestHandler)
         
         try:
             server.serve_forever()
@@ -191,7 +196,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self.end_headers()
 
             elif 'query/' in api_path:
-               self.handle_queries(api_path)
+                self.handle_queries(api_path)
             elif 'store/' in api_path:
                 if self.handle_posts(api_path):
                     self.send_response(200)
@@ -218,15 +223,21 @@ class RequestHandler(BaseHTTPRequestHandler):
         if 'query/rom/' in api_path:
             obj = 'ROM'
             response_data = self.handle_rom_queries(api_path)
-        elif 'query/romcollection/':
+        elif 'query/romcollection/' in api_path:
             obj = 'ROMCollection'
             response_data = self.handle_romcollection_queries(api_path)
-                        
-        if response_data is None: 
+        elif 'query/source/' in api_path:
+            obj = 'Source'
+            response_data = self.handle_source_queries(api_path)
+        elif 'query/launcher/' in api_path:
+            obj = 'Launcher'
+            response_data = self.handle_launcher_queries(api_path)
+            
+        if response_data is None:
             self.send_response(404)
             self.send_header('Content-type', 'text/html')
             self.end_headers()
-            self.wfile.write('{} entity not found'.format(obj))
+            self.wfile.write(f'{obj} entity not found'.encode(encoding='utf-8'))
             return
         
         self.send_response(200)
@@ -249,16 +260,32 @@ class RequestHandler(BaseHTTPRequestHandler):
         params = self.get_params()
         id = params.get('id')
         
-        if 'romcollection/launcher/settings/' in api_path:
-            return apiqueries.qry_get_collection_launcher_settings(id, params.get('launcher_id'))
-        if 'romcollection/scanner/settings/' in api_path:
-            return apiqueries.qry_get_collection_scanner_settings(id, params.get('scanner_id'))
-        if 'romcollection/launchers/' in api_path:
-            return apiqueries.qry_get_launchers(id)
         if 'romcollection/roms/' in api_path:
             return apiqueries.qry_get_roms(id)
         if 'romcollection/' in api_path:
             return apiqueries.qry_get_rom_collection(id)
+        
+        return None
+     
+    def handle_source_queries(self, api_path):
+        params = self.get_params()
+        id = params.get('id')
+
+        if 'source/scanner/settings/' in api_path:
+            return apiqueries.qry_get_source_scanner_settings(id)
+        if 'source/roms/' in api_path:
+            return apiqueries.qry_get_roms(id)
+        if 'source/launchers' in api_path:
+            return apiqueries.qry_get_source_launchers(id)
+        
+        return None
+            
+    def handle_launcher_queries(self, api_path):
+        params = self.get_params()
+        id = params.get('launcher_id')
+        
+        if 'query/launcher/' in api_path:
+            return apiqueries.qry_get_launcher_settings(id)
         
         return None
             
@@ -282,4 +309,4 @@ class RequestHandler(BaseHTTPRequestHandler):
         if 'store/rom/updated' in api_path:
             return api_commands.cmd_store_scraped_single_rom(data)
         
-        return False
+        return
