@@ -56,6 +56,12 @@ class Test_services(unittest.TestCase):
             FakeFile('/migrations/with/1.2.7.sql')
         ]
         
+        a = LooseVersion('1.5.0~rc4') 
+        b = LooseVersion('1.5.0~rc7')
+        
+        c = a < b
+        self.assertTrue(c)
+        
         target = UnitOfWork(FakeFile("/x.db"))
         start_version = LooseVersion('1.1.1')
         globals.addon_version = '1.0.0'

@@ -109,9 +109,10 @@ class AppService(object):
         
         self._perform_scans()
 
-    def _do_version_upgrade(self, uow:UnitOfWork, db_version:LooseVersion):
+    def _do_version_upgrade(self, uow: UnitOfWork, db_version: LooseVersion):
         migrations_files_to_execute = uow.get_migration_files(db_version)
         if len(migrations_files_to_execute) == 0:
+            logger.debug('No migrations to execute')
             return
         
         migrations_executed = uow.get_migrations_history()
@@ -120,7 +121,9 @@ class AppService(object):
 
         logger.info(f"Found {len(new_migration_files_to_execute)} migration files to process.")
         if len(new_migration_files_to_execute) == 0:
+            logger.debug('No new migrations to execute')
             return
+        
         version_to_store = LooseVersion(globals.addon_version)
         file_version = uow.get_version_from_migration_file(new_migration_files_to_execute[-1])
         if file_version > version_to_store:
