@@ -333,7 +333,7 @@ def _render_root_view(categories_repository: CategoryRepository, romcollections_
     root_categories = categories_repository.find_root_categories()
     root_romcollections = romcollections_repository.find_root_romcollections()
     root_roms = roms_repository.find_root_roms()
-    sources = sources_repository.find_all()
+    sources = [*sources_repository.find_all()]
 
     root_data = {
         'id': constants.VCATEGORY_ADDONROOT_ID,

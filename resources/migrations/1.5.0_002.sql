@@ -72,8 +72,9 @@ INSERT INTO collection_source_ruleset (ruleset_id, source_id, collection_id)
         LEFT JOIN romcollections as rc ON rc.id = rcs.romcollection_id;
 
 INSERT INTO source_assetpaths (source_id, assetpaths_id)
-    SELECT ra.romcollection_id, ra.assetpaths_id
-    FROM romcollection_assetpaths as ra;
+    SELECT rcs.id, ra.assetpaths_id
+    FROM romcollection_scanners as rcs
+        INNER JOIN romcollection_assetpaths as ra ON ra.romcollection_id = rcs.romcollection_id;
 
 INSERT INTO launchers (id, name, akl_addon_id, settings)
     SELECT rl.id, a.name || ' (' || rl.id || ')', a.id, rl.settings
@@ -86,8 +87,9 @@ INSERT INTO launchers (id, name, akl_addon_id, settings)
         INNER JOIN akl_addon AS a ON rcl.akl_addon_id = a.id;
 
 INSERT INTO source_launchers(source_id, launcher_id, is_default)
-    SELECT rcl.romcollection_id, rcl.id, rcl.is_default
-    FROM romcollection_launchers AS rcl;
+    SELECT rcs.id, rcl.id, rcl.is_default
+    FROM romcollection_launchers AS rcl
+    INNER JOIN romcollection_scanners AS rcs ON rcs.romcollection_id = rcl.romcollection_id;
 
 -- --------------------------------------
 -- ASSOCIATE ROMS WITH SOURCE INSTEAD OF SCANNER
@@ -355,7 +357,7 @@ CREATE VIEW IF NOT EXISTS vw_source_launchers AS SELECT
     l.settings,
     sl.is_default
 FROM source_launchers AS sl
-    INNER JOIN launchers AS l ON sl.source_id = l.id
+    INNER JOIN launchers AS l ON sl.launcher_id = l.id
     INNER JOIN akl_addon AS a ON l.akl_addon_id = a.id;
 
 CREATE VIEW IF NOT EXISTS vw_rom_launchers AS SELECT
@@ -371,5 +373,5 @@ CREATE VIEW IF NOT EXISTS vw_rom_launchers AS SELECT
     l.settings,
     rl.is_default
 FROM rom_launchers AS rl
-    INNER JOIN launchers AS l ON rl.rom_id = l.id
+    INNER JOIN launchers AS l ON rl.launcher_id = l.id
     INNER JOIN akl_addon AS a ON l.akl_addon_id = a.id;

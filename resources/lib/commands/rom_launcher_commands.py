@@ -233,18 +233,9 @@ def cmd_add_rom_launchers(args):
         is_default = kodi.dialog_yesno(kodi.translate(41171).format(selected_option.get_name()))
         
         rom.add_launcher(launcher, is_default)
-        rom_repository.update_rom(rom)    
+        rom_repository.update_rom(rom)
         logger.info(f'Added launcher#{selected_option.get_id()} to ROM {rom.get_id()}')
         uow.commit()
-
-        repository = AelAddonRepository(uow)
-        addons = repository.find_all_launcher_addons()
-
-        for addon in addons:
-            options[addon] = addon.get_name()
-    
-    s = kodi.translate(41106)
-    selected_option: AelAddon = kodi.OrdDictionaryDialog().select(s, options)
     
     kodi.notify(kodi.translate(41109).format(selected_option.get_name()))
     AppMediator.sync_cmd('EDIT_ROM_LAUNCHERS', args)
