@@ -483,28 +483,18 @@ class RetroplayerLauncherAddon(ROMLauncherAddon):
         kodi.play_item(rom.get_name(), rom_file_path.getPath(), 'game', game_info)
         logger.debug('Retroyplayer call finished')
    
-    def configure(self, romcollection: ROMCollection):
+    def configure(self, entity: EntityABC):
         post_data = {
-            'romcollection_id': romcollection.get_id(),
             'akl_addon_id': self.get_id(),
             'addon_id': self.addon.get_addon_id(),
+            'entity_id': entity.get_id(),
+            'entity_type': entity.get_type(),
             'settings': {}
-        }        
+        }
         is_stored = api.client_post_launcher_settings(globals.WEBSERVER_HOST, settings.getSettingAsInt('webserver_port'), post_data)
         if not is_stored:
             kodi.notify_error(kodi.translate(40958))
-            
-    def configure_for_rom(self, rom: ROM):
-        post_data = {
-            'rom_id': rom.get_id(),
-            'akl_addon_id': self.get_id(),
-            'addon_id': self.addon.get_addon_id(),
-            'settings': {}
-        }        
-        is_stored = api.client_post_launcher_settings(globals.WEBSERVER_HOST, settings.getSettingAsInt('webserver_port'), post_data)
-        if not is_stored:
-            kodi.notify_error(kodi.translate(40958))
-     
+
 
 class Source(ROMAddon):
     
