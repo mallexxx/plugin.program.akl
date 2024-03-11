@@ -194,6 +194,8 @@ def cmd_remove_roms(args) -> bool:
     kodi.notify(kodi.translate(41010).format(source.get_name()))
     
     AppMediator.async_cmd('RENDER_SOURCE_VIEW', {'source_id': source_id})
+    for collection in romcollections:
+        AppMediator.async_cmd('RENDER_ROMCOLLECTION_VIEW', {'romcollection_id': collection.get_id()})
     AppMediator.async_cmd('RENDER_VCATEGORY_VIEWS')
     AppMediator.async_cmd('EDIT_SOURCE', {'source_id': source_id})
     return True
@@ -333,7 +335,7 @@ def cmd_store_scraped_single_rom(args) -> bool:
     scraped_meta = applied_settings.scrape_metadata_policy != constants.SCRAPE_ACTION_NONE
     scraped_assets = applied_settings.scrape_assets_policy != constants.SCRAPE_ACTION_NONE
     
-    if metadata_is_updated: 
+    if metadata_is_updated:
         AppMediator.async_cmd('RENDER_VCATEGORY_VIEWS')
     
     if scraped_meta and not scraped_assets:
