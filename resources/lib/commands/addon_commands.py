@@ -144,7 +144,7 @@ def cmd_addon_details(args):
 
     if selected_option == "METADATA":
         supported_metadata_str = addon.getSetting('akl.scraper.supported_metadata')
-        options = { m: kodi.translate(constants.METADATA_DESCRIPTIONS[m]) for m in supported_metadata_str.split('|') }
+        options = {m: kodi.translate(constants.METADATA_DESCRIPTIONS[m]) for m in supported_metadata_str.split('|')}
         kodi.OrdDictionaryDialog().select(kodi.translate(41082).format(addon.getAddonInfo('name')), options)
         cmd_addon_details(args)
         return
@@ -152,7 +152,7 @@ def cmd_addon_details(args):
     if selected_option == "ASSETS":
         supported_assets_str = addon.getSetting('akl.scraper.supported_assets')
         assets = g_assetFactory.get_asset_list_by_IDs(supported_assets_str.split('|'))
-        options = { a.id: a.name for a in assets }
+        options = {a.id: a.name for a in assets}
         kodi.OrdDictionaryDialog().select(kodi.translate(41083).format(addon.getAddonInfo('name')), options)
         cmd_addon_details(args)
         return

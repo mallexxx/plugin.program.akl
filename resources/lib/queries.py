@@ -445,7 +445,7 @@ DELETE_ROMCOLLECTION_LAUNCHER = "DELETE FROM romcollection_launchers WHERE romco
 SELECT_LAUNCHER = """
     SELECT l.*,
         a.id AS associated_addon_id,
-        a.name,
+        a.name as addon_name,
         a.addon_id,
         a.version,
         a.addon_type,
