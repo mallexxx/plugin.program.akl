@@ -155,7 +155,7 @@ class EntityABC(object):
 
 
 # Addons that can be used as AKL plugin (launchers, scrapers)
-class AelAddon(EntityABC):
+class AklAddon(EntityABC):
     
     def __init__(self, addon_dic=None):
         if addon_dic is None:
@@ -170,7 +170,7 @@ class AelAddon(EntityABC):
         if 'id' not in addon_dic:
             addon_dic['id'] = text.misc_generate_random_SID()
             
-        super(AelAddon, self).__init__(addon_dic)
+        super(AklAddon, self).__init__(addon_dic)
     
     def get_id(self) -> str:
         return self.entity_data['id'] 
@@ -350,23 +350,13 @@ class RomAssetMapping(AssetMapping):
 class ROMAddon(EntityABC):
     __metaclass__ = abc.ABCMeta
     
-    def __init__(self, addon: AelAddon, entity_data: dict):
+    def __init__(self, addon: AklAddon, entity_data: dict):
         self.addon = addon
         super(ROMAddon, self).__init__(entity_data)
-        
-    def get_name(self):
-        secondary_name = self.get_secondary_name()
-        if secondary_name:
-            return '{} ({})'.format(self.addon.get_name(), secondary_name)
-        return self.addon.get_name()
-    
+            
     def get_addon_name(self):
         return self.addon.get_name()
     
-    def get_secondary_name(self):
-        settings = self.get_settings()
-        return settings['secname'] if 'secname' in settings else None
-            
     def get_settings_str(self) -> str:
         return self.entity_data['settings'] if 'settings' in self.entity_data else None
     
@@ -392,7 +382,7 @@ class ROMAddon(EntityABC):
         if new_name:
             self.entity_data['name'] = new_name
     
-    def get_addon(self) -> AelAddon:
+    def get_addon(self) -> AklAddon:
         return self.addon
 
 
@@ -401,7 +391,7 @@ class ROMLauncherAddon(ROMAddon):
       
     def __init__(self,
                  entity_data: dict = None,
-                 addon: AelAddon = None):
+                 addon: AklAddon = None):
         
         if entity_data is None:
             entity_data = {
@@ -412,6 +402,9 @@ class ROMLauncherAddon(ROMAddon):
         super(ROMLauncherAddon, self).__init__(addon, entity_data)
         
     def get_name(self):
+        if not self.entity_data['name']:
+            return super().get_addon_name()
+        
         return self.entity_data["name"]
         
     def is_default(self) -> bool:
@@ -502,7 +495,7 @@ class Source(ROMAddon):
     
     def __init__(self,
                  entity_data: dict = None,
-                 addon: AelAddon = None,
+                 addon: AklAddon = None,
                  asset_paths_data: typing.List[AssetPath] = [],
                  launchers_data: typing.List[ROMLauncherAddon] = []):
         
@@ -526,6 +519,8 @@ class Source(ROMAddon):
         super(Source, self).__init__(addon, entity_data)
     
     def get_name(self):
+        if not self.entity_data['name']:
+            return super().get_addon_name()
         return self.entity_data["name"]
     
     def set_name(self, name):
@@ -677,11 +672,16 @@ class Source(ROMAddon):
 
 class ScraperAddon(ROMAddon):
     
-    def __init__(self, addon: AelAddon, scraper_settings: ScraperSettings):
+    def __init__(self, addon: AklAddon, scraper_settings: ScraperSettings):
         entity_data = {
             'settings': json.dumps(scraper_settings.get_data_dic())
         }
         super(ScraperAddon, self).__init__(addon, entity_data)
+    
+    def get_name(self):
+        if not self.entity_data['name']:
+            return super().get_addon_name()
+        return self.entity_data["name"]
     
     def settings_are_applicable(self) -> bool:
         settings = self.get_scraper_settings()
@@ -2077,61 +2077,61 @@ class ROM(MetaDataItemABC):
 
         if constants.META_TITLE_ID in metadata_to_update \
             and api_rom_obj.get_name() \
-            and (overwrite_existing_metadata or \
+            and (overwrite_existing_metadata or
                  _is_empty_or_default(self.get_name(), constants.DEFAULT_META_TITLE)):
             self.set_name(api_rom_obj.get_name())
 
         if constants.META_PLOT_ID in metadata_to_update \
             and api_rom_obj.get_plot() \
-            and (overwrite_existing_metadata or \
+            and (overwrite_existing_metadata or
                  _is_empty_or_default(self.get_plot(), constants.DEFAULT_META_PLOT)):
             self.set_plot(api_rom_obj.get_plot())
     
         if constants.META_YEAR_ID in metadata_to_update \
             and api_rom_obj.get_releaseyear() \
-            and (overwrite_existing_metadata or \
+            and (overwrite_existing_metadata or
                  _is_empty_or_default(self.get_releaseyear(), constants.DEFAULT_META_YEAR)):
             self.set_releaseyear(api_rom_obj.get_releaseyear())
         
         if constants.META_GENRE_ID in metadata_to_update \
             and api_rom_obj.get_genre() \
-            and (overwrite_existing_metadata or \
+            and (overwrite_existing_metadata or
                  _is_empty_or_default(self.get_genre(), constants.DEFAULT_META_GENRE)):
             self.set_genre(api_rom_obj.get_genre())
         
         if constants.META_DEVELOPER_ID in metadata_to_update \
             and api_rom_obj.get_developer() \
-            and (overwrite_existing_metadata or \
+            and (overwrite_existing_metadata or
                  _is_empty_or_default(self.get_developer(), constants.DEFAULT_META_DEVELOPER)):         
             self.set_developer(api_rom_obj.get_developer())
         
         if constants.META_NPLAYERS_ID in metadata_to_update \
             and api_rom_obj.get_number_of_players() \
-            and (overwrite_existing_metadata or \
+            and (overwrite_existing_metadata or
                  _is_empty_or_default(self.get_number_of_players(), constants.DEFAULT_META_NPLAYERS)):
             self.set_number_of_players(api_rom_obj.get_number_of_players())
         
         if constants.META_NPLAYERS_ONLINE_ID in metadata_to_update \
             and api_rom_obj.get_number_of_players_online() \
-            and (overwrite_existing_metadata or \
+            and (overwrite_existing_metadata or
                  _is_empty_or_default(self.get_number_of_players_online(), constants.DEFAULT_META_NPLAYERS)):
             self.set_number_of_players_online(api_rom_obj.get_number_of_players_online())
         
         if constants.META_ESRB_ID in metadata_to_update\
                 and api_rom_obj.get_esrb_rating() \
-                and (overwrite_existing_metadata or \
+                and (overwrite_existing_metadata or
                      _is_empty_or_default(self.get_esrb_rating(), constants.DEFAULT_META_ESRB)):
             self.set_esrb_rating(api_rom_obj.get_esrb_rating())
         
         if constants.META_PEGI_ID in metadata_to_update\
                 and api_rom_obj.get_pegi_rating() \
-                and (overwrite_existing_metadata or \
+                and (overwrite_existing_metadata or
                      _is_empty_or_default(self.get_pegi_rating(), constants.DEFAULT_META_PEGI)):       
             self.set_pegi_rating(api_rom_obj.get_pegi_rating())
         
         if constants.META_RATING_ID in metadata_to_update \
                 and api_rom_obj.get_rating() \
-                and (overwrite_existing_metadata or \
+                and (overwrite_existing_metadata or
                      _is_empty_or_default(self.get_rating(), constants.DEFAULT_META_RATING)):            
             self.set_rating(api_rom_obj.get_rating())
         
@@ -2814,7 +2814,7 @@ class VirtualCategoryFactory(object):
 class ROMLauncherAddonFactory(object):
 
     @staticmethod
-    def create(addon: AelAddon, data: dict) -> ROMLauncherAddon:
+    def create(addon: AklAddon, data: dict) -> ROMLauncherAddon:
         if addon.get_addon_id() == constants.RETROPLAYER_LAUNCHER_APP_NAME:
             return RetroplayerLauncherAddon(data, addon)
                     

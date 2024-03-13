@@ -32,8 +32,8 @@ from akl.utils import kodi
 
 from resources.lib.commands.mediator import AppMediator
 from resources.lib import globals
-from resources.lib.repositories import UnitOfWork, AelAddonRepository
-from resources.lib.domain import AelAddon, g_assetFactory
+from resources.lib.repositories import UnitOfWork, AklAddonRepository
+from resources.lib.domain import AklAddon, g_assetFactory
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +56,7 @@ def cmd_scan_addons(args):
 def cmd_show_addons(args):
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
-        repository = AelAddonRepository(uow)
+        repository = AklAddonRepository(uow)
         addons = repository.find_all()
 
         options = collections.OrderedDict()
@@ -111,7 +111,7 @@ def cmd_addon_details(args):
         
         uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
         with uow:
-            repository = AelAddonRepository(uow)  
+            repository = AklAddonRepository(uow)  
 
             if constants.AddonType.LAUNCHER.name in addon_types:
                 ael_addon = repository.find_by_addon_id(addon_id, constants.AddonType.LAUNCHER)
@@ -172,7 +172,7 @@ def _check_installed_addons() -> int:
     
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
-        addon_repository = AelAddonRepository(uow)
+        addon_repository = AklAddonRepository(uow)
         existing_addons = [*addon_repository.find_all()]
         
         existing_launcher_ids = {a.get_addon_id(): a for a in existing_addons if a.get_addon_type() == constants.AddonType.LAUNCHER}
@@ -206,12 +206,12 @@ def _check_installed_addons() -> int:
 def _process_launcher_addon(
         addon_id: str,
         addon: xbmcaddon.Addon,
-        existing_addon_ids: typing.Dict[str, AelAddon],
-        addon_repository: AelAddonRepository):    
+        existing_addon_ids: typing.Dict[str, AklAddon],
+        addon_repository: AklAddonRepository):    
     addon_name = addon.getSetting('akl.launcher.friendlyname')
     addon_name = addon.getAddonInfo('name') if addon_name is None or addon_name == '' else addon_name
     
-    addon_obj = AelAddon({
+    addon_obj = AklAddon({
         'addon_id': addon_id,
         'version': addon.getAddonInfo('version'),
         'name': addon_name,
@@ -232,12 +232,12 @@ def _process_launcher_addon(
 def _process_scanner_addon(
         addon_id: str,
         addon: xbmcaddon.Addon,
-        existing_addon_ids: typing.Dict[str, AelAddon],
-        addon_repository: AelAddonRepository):
+        existing_addon_ids: typing.Dict[str, AklAddon],
+        addon_repository: AklAddonRepository):
     addon_name = addon.getSetting('akl.scanner.friendlyname')
     addon_name = addon.getAddonInfo('name') if addon_name is None or addon_name == '' else addon_name
     
-    addon_obj = AelAddon({
+    addon_obj = AklAddon({
         'addon_id': addon_id,
         'version': addon.getAddonInfo('version'),
         'name': addon_name,
@@ -258,12 +258,12 @@ def _process_scanner_addon(
 def _process_scraper_addon(
         addon_id: str,
         addon: xbmcaddon.Addon,
-        existing_addon_ids: typing.Dict[str, AelAddon],
-        addon_repository: AelAddonRepository):
+        existing_addon_ids: typing.Dict[str, AklAddon],
+        addon_repository: AklAddonRepository):
     addon_name = addon.getSetting('akl.scraper.friendlyname')
     addon_name = addon.getAddonInfo('name') if addon_name is None or addon_name == '' else addon_name
     
-    addon_obj = AelAddon({
+    addon_obj = AklAddon({
         'addon_id': addon_id,
         'version': addon.getAddonInfo('version'),
         'name': addon_name,

@@ -28,7 +28,7 @@ from akl import constants
 from resources.lib.commands.mediator import AppMediator
 from resources.lib import globals
 from resources.lib.repositories import UnitOfWork, ROMCollectionRepository, ROMsRepository, SourcesRepository
-from resources.lib.repositories import AelAddonRepository, LaunchersRepository
+from resources.lib.repositories import AklAddonRepository, LaunchersRepository
 from resources.lib.domain import ROM, ROMLauncherAddon
 
 logger = logging.getLogger(__name__)
@@ -49,7 +49,7 @@ def cmd_set_launcher_args(args) -> bool:
     args = None
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
-        addon_repository = AelAddonRepository(uow)
+        addon_repository = AklAddonRepository(uow)
         launchers_repository = LaunchersRepository(uow)
         
         addon = addon_repository.find_by_addon_id(addon_id, constants.AddonType.LAUNCHER)

@@ -17,7 +17,7 @@ from resources.lib import queries as qry
 from resources.lib.domain import MetaDataItemABC, Category, ROMCollection, ROM, VirtualCollection, RuleSet, Rule
 from resources.lib.domain import Asset, AssetPath, AssetMapping, RomAssetMapping
 from resources.lib.domain import VirtualCategoryFactory, VirtualCollectionFactory, ROMLauncherAddonFactory, g_assetFactory
-from resources.lib.domain import Source, ROMLauncherAddon, AelAddon
+from resources.lib.domain import Source, ROMLauncherAddon, AklAddon
 
 
 # #################################################################################################
@@ -808,7 +808,7 @@ class ROMCollectionRepository(object):
         launchers_data = self._uow.result_set()
         launchers = []
         for launcher_data in launchers_data:
-            addon = AelAddon(launcher_data.copy())
+            addon = AklAddon(launcher_data.copy())
             launcher = ROMLauncherAddonFactory.create(addon, launcher_data)
             launchers.append(launcher)
                     
@@ -948,7 +948,7 @@ class ROMCollectionRepository(object):
                 
             launchers = []
             for launcher_data in launchers_data:
-                addon = AelAddon(launcher_data.copy())
+                addon = AklAddon(launcher_data.copy())
                 launcher = ROMLauncherAddonFactory.create(addon, launcher_data)
                 launchers.append(launcher)
                 
@@ -985,7 +985,7 @@ class ROMCollectionRepository(object):
                 
             launchers = []
             for launcher_data in launchers_data:
-                addon = AelAddon(launcher_data.copy())
+                addon = AklAddon(launcher_data.copy())
                 launcher = ROMLauncherAddonFactory.create(addon, launcher_data)
                 launchers.append(launcher)
                 
@@ -1417,7 +1417,7 @@ class ROMsRepository(object):
         launchers_data = self._uow.result_set()
         launchers = []
         for launcher_data in launchers_data:
-            addon = AelAddon(launcher_data.copy())
+            addon = AklAddon(launcher_data.copy())
             launcher = ROMLauncherAddonFactory.create(addon, launcher_data)
             launchers.append(launcher)
 
@@ -1689,49 +1689,49 @@ class ROMsRepository(object):
         return None
 
 
-class AelAddonRepository(object):
+class AklAddonRepository(object):
 
     def __init__(self, uow: UnitOfWork):
         self._uow = uow
         self.logger = logging.getLogger(__name__)
 
-    def find(self, id: str) -> AelAddon:
+    def find(self, id: str) -> AklAddon:
         self._uow.execute(qry.SELECT_ADDON, id)
         result_set = self._uow.single_result()
-        return AelAddon(result_set)
+        return AklAddon(result_set)
 
-    def find_by_addon_id(self, addon_id: str, type: constants.AddonType) -> AelAddon:
+    def find_by_addon_id(self, addon_id: str, type: constants.AddonType) -> AklAddon:
         self._uow.execute(qry.SELECT_ADDON_BY_ADDON_ID, addon_id, type.name)
         result_set = self._uow.single_result()
         if result_set is None:
             return None
-        return AelAddon(result_set)
+        return AklAddon(result_set)
 
-    def find_all(self) -> typing.Iterator[AelAddon]:
+    def find_all(self) -> typing.Iterator[AklAddon]:
         self._uow.execute(qry.SELECT_ADDONS)
         result_set = self._uow.result_set()
         for addon_data in result_set:
-            yield AelAddon(addon_data)
+            yield AklAddon(addon_data)
 
-    def find_all_launcher_addons(self) -> typing.Iterator[AelAddon]:
+    def find_all_launcher_addons(self) -> typing.Iterator[AklAddon]:
         self._uow.execute(qry.SELECT_LAUNCHER_ADDONS)
         result_set = self._uow.result_set()
         for addon_data in result_set:
-            yield AelAddon(addon_data)
+            yield AklAddon(addon_data)
 
-    def find_all_scanner_addons(self) -> typing.Iterator[AelAddon]:
+    def find_all_scanner_addons(self) -> typing.Iterator[AklAddon]:
         self._uow.execute(qry.SELECT_SCANNER_ADDONS)
         result_set = self._uow.result_set()
         for addon_data in result_set:
-            yield AelAddon(addon_data)
+            yield AklAddon(addon_data)
 
-    def find_all_scraper_addons(self) -> typing.Iterator[AelAddon]:
+    def find_all_scraper_addons(self) -> typing.Iterator[AklAddon]:
         self._uow.execute(qry.SELECT_SCRAPER_ADDONS)
         result_set = self._uow.result_set()
         for addon_data in result_set:
-            yield AelAddon(addon_data)
+            yield AklAddon(addon_data)
             
-    def insert_addon(self, addon: AelAddon):
+    def insert_addon(self, addon: AklAddon):
         self.logger.info("Saving addon '{}'".format(addon.get_addon_id()))
         self._uow.execute(qry.INSERT_ADDON,
                           addon.get_id(),
@@ -1741,7 +1741,7 @@ class AelAddonRepository(object):
                           addon.get_addon_type().name,
                           addon.get_extra_settings_str())
         
-    def update_addon(self, addon: AelAddon):
+    def update_addon(self, addon: AklAddon):
         self.logger.info("Updating addon '{}'".format(addon.get_addon_id()))
         self.logger.info(f"EXTRA SETTINGS: {addon.get_extra_settings_str()}")
         self._uow.execute(qry.UPDATE_ADDON,
@@ -1776,11 +1776,11 @@ class SourcesRepository(object):
         launchers_data = self._uow.result_set()
         launchers = []
         for launcher_data in launchers_data:
-            addon = AelAddon(launcher_data.copy())
+            addon = AklAddon(launcher_data.copy())
             launcher = ROMLauncherAddonFactory.create(addon, launcher_data)
             launchers.append(launcher)
         
-        addon = AelAddon(result_set.copy())
+        addon = AklAddon(result_set.copy())
         return Source(result_set, addon, asset_paths, launchers)
 
     def find_all(self) -> typing.Iterator[Source]:
@@ -1788,7 +1788,7 @@ class SourcesRepository(object):
         result_sets = self._uow.result_set()
         
         for result_set in result_sets:
-            addon = AelAddon(result_set.copy())
+            addon = AklAddon(result_set.copy())
             yield Source(result_set, addon)
 
     def find_sources_by_collection(self, romcollection_id) -> typing.Iterator[Source]:
@@ -1796,7 +1796,7 @@ class SourcesRepository(object):
         result_sets = self._uow.result_set()
         
         for result_set in result_sets:
-            addon = AelAddon(result_set.copy())
+            addon = AklAddon(result_set.copy())
             yield Source(result_set, addon)
 
     def find_romcollection_ids_by_source(self, source_id):
@@ -1887,7 +1887,7 @@ class LaunchersRepository(object):
         
         self._uow.execute(qry.SELECT_LAUNCHER, id)
         result_set = self._uow.single_result()
-        addon = AelAddon(result_set.copy())
+        addon = AklAddon(result_set.copy())
         
         return ROMLauncherAddon(result_set, addon)
     
@@ -1896,7 +1896,7 @@ class LaunchersRepository(object):
         result_sets = self._uow.result_set()
         
         for result_set in result_sets:
-            addon = AelAddon(result_set.copy())
+            addon = AklAddon(result_set.copy())
             yield ROMLauncherAddon(result_set, addon)
   
     def insert_launcher(self, launcher: ROMLauncherAddon):

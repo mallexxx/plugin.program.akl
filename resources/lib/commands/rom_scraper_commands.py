@@ -26,7 +26,7 @@ from akl.scrapers import ScraperSettings
 
 from resources.lib.commands.mediator import AppMediator
 from resources.lib import globals
-from resources.lib.repositories import UnitOfWork, AelAddonRepository, ROMsRepository
+from resources.lib.repositories import UnitOfWork, AklAddonRepository, ROMsRepository
 from resources.lib.repositories import ROMCollectionRepository, SourcesRepository
 from resources.lib.domain import ROMCollection, Source, ScraperAddon, g_assetFactory
 
@@ -138,7 +138,7 @@ def cmd_scrape_roms_in_collection_or_source(args):
 
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
-        addon_repository = AelAddonRepository(uow)
+        addon_repository = AklAddonRepository(uow)
         collection_repository = ROMCollectionRepository(uow)
         source_repository = SourcesRepository(uow)
         
@@ -203,7 +203,7 @@ def cmd_scrape_rom_with_settings(args):
 
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
-        addon_repository = AelAddonRepository(uow)
+        addon_repository = AklAddonRepository(uow)
         roms_repository = ROMsRepository(uow)
         
         rom = roms_repository.find_rom(rom_id)   
@@ -554,7 +554,7 @@ def cmd_configure_scraper_ignore_mode(args):
 
 def _select_scraper(uow: UnitOfWork, title: str, scraper_settings: ScraperSettings) -> ScraperAddon:
     selected_addon = None
-    repository = AelAddonRepository(uow)
+    repository = AklAddonRepository(uow)
     addons = repository.find_all_scraper_addons()
     
     # --- Make a menu list of available metadata scrapers ---
