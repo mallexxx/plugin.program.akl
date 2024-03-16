@@ -184,7 +184,7 @@ def cmd_remove_roms(args) -> bool:
         romcollections_repository = ROMCollectionRepository(uow)
         rom_repository = ROMsRepository(uow)
         
-        romcollections = romcollections_repository.find_romcollections_by_source(source)
+        romcollections = romcollections_repository.find_romcollections_by_source(source_id)
         source = sources_repository.find(source_id)
         
         for rom_id in rom_ids:
@@ -195,6 +195,8 @@ def cmd_remove_roms(args) -> bool:
     
     AppMediator.async_cmd('RENDER_SOURCE_VIEW', {'source_id': source_id})
     AppMediator.async_cmd('RENDER_VCATEGORY_VIEWS')
+    for romcollection in romcollections:
+        AppMediator.async_cmd('RENDER_ROMCOLLECTION_VIEW', {'romcollection_id': romcollection.get_id()})
     AppMediator.async_cmd('EDIT_SOURCE', {'source_id': source_id})
     return True
 

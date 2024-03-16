@@ -492,7 +492,7 @@ class RetroplayerLauncherAddon(ROMLauncherAddon):
             'settings': {}
         }
         is_stored = api.client_post_launcher_settings(globals.WEBSERVER_HOST, 
-                                                      settings.getSettingAsInt('webserver_port'), 
+                                                      settings.getSettingAsInt('webserver_port'),
                                                       post_data)
         if not is_stored:
             kodi.notify_error(kodi.translate(40958))
@@ -2172,7 +2172,6 @@ class ROM(MetaDataItemABC):
             # metadata_updated = True
      
     def apply_source_asset_paths(self, source: Source):
-        self.set_assets_root_path(source.get_assets_root_path())
         self.asset_paths = {}
         for assetpath in source.get_asset_paths():
             self.asset_paths[assetpath.get_asset_info_id()] = assetpath

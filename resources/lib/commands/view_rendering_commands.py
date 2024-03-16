@@ -103,7 +103,7 @@ def cmd_render_virtual_views(args):
             vcollection = VirtualCollectionFactory.create(vcollection_id)
             logger.debug(f'Processing virtual collection "{vcollection.get_name()}"')
             collection_view_data = _render_romcollection_view(vcollection, roms_repository)
-            views_repository.store_view(vcollection.get_id(), vcollection.get_type(), collection_view_data)        
+            views_repository.store_view(vcollection.get_id(), vcollection.get_type(), collection_view_data)
         
         for vcategory_id in constants.VCATEGORIES:
             vcategory = VirtualCategoryFactory.create(vcategory_id)
@@ -149,10 +149,10 @@ def cmd_render_vcategory(args):
     
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
-        categories_repository     = CategoryRepository(uow)
+        categories_repository = CategoryRepository(uow)
         romcollections_repository = ROMCollectionRepository(uow)
-        roms_repository           = ROMsRepository(uow)
-        views_repository          = ViewRepository(globals.g_PATHS)  
+        roms_repository = ROMsRepository(uow)
+        views_repository = ViewRepository(globals.g_PATHS)
         
         vcategory = VirtualCategoryFactory.create(vcategory_id)
         
@@ -163,7 +163,7 @@ def cmd_render_vcategory(args):
         # cleanup first
         views_repository.cleanup_virtual_category_views(vcategory.get_id())
         
-        if do_notification:      
+        if do_notification:
             kodi.notify(kodi.translate(40970).format(vcategory.get_name()))
         _render_category_view(vcategory, categories_repository, romcollections_repository, roms_repository, views_repository)
     
@@ -235,7 +235,7 @@ def cmd_render_source_view_data(args):
         source_view_data = _render_source_view(source, roms_repository)
         views_repository.store_view(source.get_id(), source.get_type(), source_view_data)
     
-    if do_notification:      
+    if do_notification:
         kodi.notify(kodi.translate(40966))
     kodi.refresh_container()
 
@@ -252,10 +252,10 @@ def cmd_render_vcollection(args):
         
         vcollection = VirtualCollectionFactory.create(vcollection_id)
             
-        if do_notification:      
+        if do_notification:
             kodi.notify(kodi.translate(40973).format(vcollection.get_name()))
         collection_view_data = _render_romcollection_view(vcollection, roms_repository)
-        views_repository.store_view(vcollection.get_id(), vcollection.get_type(), collection_view_data)  
+        views_repository.store_view(vcollection.get_id(), vcollection.get_type(), collection_view_data)
     
         if do_notification:
             kodi.notify(kodi.translate(40971).format(vcollection.get_name()))
@@ -269,12 +269,12 @@ def cmd_render_rom_views(args):
     
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
-        roms_repository           = ROMsRepository(uow)
+        roms_repository = ROMsRepository(uow)
         romcollections_repository = ROMCollectionRepository(uow)
-        views_repository          = ViewRepository(globals.g_PATHS)
+        views_repository = ViewRepository(globals.g_PATHS)
 
-        rom_obj = roms_repository.find_rom(rom_id)     
-        if do_notification:      
+        rom_obj = roms_repository.find_rom(rom_id)
+        if do_notification:
             kodi.notify(kodi.translate(40975).format(rom_obj.get_rom_identifier()))
 
         romcollections = romcollections_repository.find_romcollections_by_rom(rom_id)
@@ -285,9 +285,9 @@ def cmd_render_rom_views(args):
         for vcollection_id in constants.VCOLLECTIONS:
             vcollection = VirtualCollectionFactory.create(vcollection_id)
             collection_view_data = _render_romcollection_view(vcollection, roms_repository)
-            views_repository.store_view(vcollection.get_id(), vcollection.get_type(), collection_view_data)   
+            views_repository.store_view(vcollection.get_id(), vcollection.get_type(), collection_view_data)
     
-    if do_notification:      
+    if do_notification:
         kodi.notify(kodi.translate(40964))
     kodi.refresh_container()
     
@@ -307,7 +307,7 @@ def cmd_cleanup_views(args):
         
         category_ids = list(c.get_id() for c in categories)
         romcollection_ids = list(r.get_id() for r in romcollections)
-        source_ids = list(l.get_id() for l in sources)
+        source_ids = list(src.get_id() for src in sources)
        
         views_repository.cleanup_views(category_ids + romcollection_ids + source_ids)
 
@@ -348,7 +348,7 @@ def _render_root_view(categories_repository: CategoryRepository, romcollections_
         if rendered_item:
             root_items.append(rendered_item)
         if render_sub_views:
-            _render_category_view(root_category, categories_repository, romcollections_repository, 
+            _render_category_view(root_category, categories_repository, romcollections_repository,
                                   roms_repository, views_repository, render_sub_views)
 
     for root_romcollection in root_romcollections:
@@ -373,7 +373,7 @@ def _render_root_view(categories_repository: CategoryRepository, romcollections_
         try:
             root_items.append(render_rom_listitem(rom))
         except Exception:
-            logger.exception(f"Exception while rendering list item ROM '{rom.get_name()}'")                  
+            logger.exception(f"Exception while rendering list item ROM '{rom.get_name()}'")
 
     root_vcategory = VirtualCategoryFactory.create(constants.VCATEGORY_ROOT_ID)
     logger.debug('Processing root virtual category')
@@ -550,8 +550,8 @@ def _render_source_view(source: Source, roms_repository: ROMsRepository) -> dict
 def _render_category_listitem(category_obj: Category) -> dict:
     # --- Do not render row if category finished ---
     if category_obj.is_finished() and \
-            (category_obj.get_type() in constants.OBJ_VIRTUAL_TYPES or \
-             settings.getSettingAsBool('display_hide_finished')): 
+            (category_obj.get_type() in constants.OBJ_VIRTUAL_TYPES or
+             settings.getSettingAsBool('display_hide_finished')):
         return None
 
     category_name = category_obj.get_name()
@@ -562,23 +562,27 @@ def _render_category_listitem(category_obj: Category) -> dict:
     if category_obj.get_type() == constants.OBJ_CATEGORY_VIRTUAL:
         url_prefix = 'category/virtual'
         
-    return { 
+    return {
         'id': category_obj.get_id(),
         'name': category_name,
         'url': globals.router.url_for_path('{}/{}'.format(url_prefix, category_obj.get_id())),
         'is_folder': True,
         'type': 'video',
         'info': {
-            'title'   : category_name,              'year'    : category_obj.get_releaseyear(),
-            'genre'   : category_obj.get_genre(),   'studio'  : category_obj.get_developer(),
-            'rating'  : category_obj.get_rating(),  'plot'    : category_obj.get_plot(),
-            'trailer' : category_obj.get_trailer(), 'overlay' : ICON_OVERLAY
+            'title': category_name,
+            'year': category_obj.get_releaseyear(),
+            'genre': category_obj.get_genre(),
+            'studio': category_obj.get_developer(),
+            'rating': category_obj.get_rating(),
+            'plot': category_obj.get_plot(),
+            'trailer': category_obj.get_trailer(),
+            'overlay': ICON_OVERLAY
         },
         'art': assets,
-        'properties': { 
+        'properties': {
             constants.AKL_CONTENT_LABEL: constants.AKL_CONTENT_VALUE_CATEGORY,
             'obj_type': category_obj.get_type(),
-            'num_romcollections': category_obj.num_romcollections() 
+            'num_romcollections': category_obj.num_romcollections()
         }
     }
 
@@ -596,7 +600,7 @@ def _render_romcollection_listitem(romcollection_obj: ROMCollection) -> dict:
     
     if romcollection_obj.get_type() == constants.OBJ_COLLECTION_VIRTUAL:
         if romcollection_obj.get_parent_id() is None:
-           url = globals.router.url_for_path(f'collection/virtual/{romcollection_obj.get_id()}')
+            url = globals.router.url_for_path(f'collection/virtual/{romcollection_obj.get_id()}')
         else:
             collection_value = romcollection_obj.get_custom_attribute("collection_value")
             url = globals.router.url_for_path(f'collection/virtual/{romcollection_obj.get_parent_id()}/items?value={collection_value}')
