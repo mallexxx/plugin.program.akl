@@ -29,8 +29,8 @@ from akl.utils import kodi, io
 from resources.lib.commands.mediator import AppMediator
 from resources.lib import globals, editors
 from resources.lib.repositories import UnitOfWork, SourcesRepository, ROMsRepository, ROMsJsonFileRepository
-from resources.lib.repositories import AelAddonRepository, LaunchersRepository
-from resources.lib.domain import ROM, Source, AelAddon, AssetInfo, g_assetFactory, ROMLauncherAddonFactory
+from resources.lib.repositories import AklAddonRepository, LaunchersRepository
+from resources.lib.domain import ROM, Source, AklAddon, AssetInfo, g_assetFactory, ROMLauncherAddonFactory
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ def cmd_add_source(args):
     options = collections.OrderedDict()
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
-        addon_repository = AelAddonRepository(uow)
+        addon_repository = AklAddonRepository(uow)
         source_repository = SourcesRepository(uow)
         
         addons = addon_repository.find_all_scanner_addons()
@@ -52,7 +52,7 @@ def cmd_add_source(args):
         options['STANDALONE_SOURCE'] = kodi.translate(40890)
     
         s = kodi.translate(41107)
-        selected_option: AelAddon = kodi.OrdDictionaryDialog().select(s, options)
+        selected_option: AklAddon = kodi.OrdDictionaryDialog().select(s, options)
 
         if selected_option is None:
             # >> Exits context menu
@@ -266,7 +266,7 @@ def cmd_add_standalone_source(args):
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
         roms_repository = ROMsRepository(uow)
-        addons_repository = AelAddonRepository(uow)
+        addons_repository = AklAddonRepository(uow)
         launchers_repository = LaunchersRepository(uow)
         
         launchers = launchers_repository.find_all()

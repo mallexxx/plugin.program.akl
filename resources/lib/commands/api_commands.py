@@ -28,7 +28,7 @@ from akl import constants
 from resources.lib.commands.mediator import AppMediator
 from resources.lib import globals
 from resources.lib.repositories import UnitOfWork, ROMCollectionRepository, ROMsRepository, SourcesRepository
-from resources.lib.repositories import AelAddonRepository, LaunchersRepository
+from resources.lib.repositories import AklAddonRepository, LaunchersRepository
 from resources.lib.domain import ROM, ROMLauncherAddon
 
 logger = logging.getLogger(__name__)
@@ -49,7 +49,7 @@ def cmd_set_launcher_args(args) -> bool:
     args = None
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
-        addon_repository = AelAddonRepository(uow)
+        addon_repository = AklAddonRepository(uow)
         launchers_repository = LaunchersRepository(uow)
         
         addon = addon_repository.find_by_addon_id(addon_id, constants.AddonType.LAUNCHER)
@@ -194,6 +194,8 @@ def cmd_remove_roms(args) -> bool:
     kodi.notify(kodi.translate(41010).format(source.get_name()))
     
     AppMediator.async_cmd('RENDER_SOURCE_VIEW', {'source_id': source_id})
+    for collection in romcollections:
+        AppMediator.async_cmd('RENDER_ROMCOLLECTION_VIEW', {'romcollection_id': collection.get_id()})
     AppMediator.async_cmd('RENDER_VCATEGORY_VIEWS')
     for romcollection in romcollections:
         AppMediator.async_cmd('RENDER_ROMCOLLECTION_VIEW', {'romcollection_id': romcollection.get_id()})
@@ -335,7 +337,7 @@ def cmd_store_scraped_single_rom(args) -> bool:
     scraped_meta = applied_settings.scrape_metadata_policy != constants.SCRAPE_ACTION_NONE
     scraped_assets = applied_settings.scrape_assets_policy != constants.SCRAPE_ACTION_NONE
     
-    if metadata_is_updated: 
+    if metadata_is_updated:
         AppMediator.async_cmd('RENDER_VCATEGORY_VIEWS')
     
     if scraped_meta and not scraped_assets:

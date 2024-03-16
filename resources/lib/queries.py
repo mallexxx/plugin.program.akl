@@ -389,7 +389,7 @@ DELETE_EXISTING_ROM_TAGS = "DELETE FROM metatags WHERE metadata_id = ?"
 DELETE_TAG = "DELETE FROM tags WHERE id = ?"
 
 #
-# AelAddonRepository -> AKL Adoon objects from SQLite DB
+# AklAddonRepository -> AKL Adoon objects from SQLite DB
 #
 SELECT_ADDON = "SELECT * FROM akl_addon WHERE id = ?"
 SELECT_ADDON_BY_ADDON_ID = "SELECT * FROM akl_addon WHERE addon_id = ? AND addon_type = ?"
@@ -445,7 +445,7 @@ DELETE_ROMCOLLECTION_LAUNCHER = "DELETE FROM romcollection_launchers WHERE romco
 SELECT_LAUNCHER = """
     SELECT l.*,
         a.id AS associated_addon_id,
-        a.name,
+        a.name as addon_name,
         a.addon_id,
         a.version,
         a.addon_type,

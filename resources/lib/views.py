@@ -466,8 +466,8 @@ def vw_misc_set_AEL_Content(AEL_Content_Value):
                      'property "{0}" = "{1}"'.format(constants.AKL_CONTENT_LABEL, constants.AKL_CONTENT_VALUE_ROMS))
         xbmcgui.Window(constants.AKL_CONTENT_WINDOW_ID).setProperty(constants.AKL_CONTENT_LABEL, constants.AKL_CONTENT_VALUE_ROMS)
     elif AEL_Content_Value == constants.AKL_CONTENT_VALUE_NONE:
-        logger.debug('vw_misc_set_AEL_Content() Setting Window({0}) '.format(constants.AKL_CONTENT_WINDOW_ID) +
-                     'property "{0}" = "{1}"'.format(constants.AKL_CONTENT_LABEL, constants.AKL_CONTENT_VALUE_NONE))
+        logger.debug((f'vw_misc_set_AEL_Content() Setting Window({constants.AKL_CONTENT_WINDOW_ID}) '
+                      'property "{constants.AKL_CONTENT_LABEL}" = "{constants.AKL_CONTENT_VALUE_NONE}"'))
         xbmcgui.Window(constants.AKL_CONTENT_WINDOW_ID).setProperty(constants.AKL_CONTENT_LABEL, constants.AKL_CONTENT_VALUE_NONE)
     else:
         logger.error('vw_misc_set_AEL_Content() Invalid AEL_Content_Value "{0}"'.format(AEL_Content_Value))

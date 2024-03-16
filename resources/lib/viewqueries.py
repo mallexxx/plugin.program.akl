@@ -93,8 +93,8 @@ def qry_get_root_items():
         },
         'art': {
             'fanart': listitem_fanart,
-            'icon': globals.g_PATHS.ADDON_CODE_DIR.pjoin('media/theme/Sources_icon.png').getPath(),
-            'poster': globals.g_PATHS.ADDON_CODE_DIR.pjoin('media/theme/Sources_poster.png').getPath()
+            'icon': globals.g_PATHS.ADDON_CODE_DIR.pjoin('media/theme/Launchers_icon.png').getPath(),
+            'poster': globals.g_PATHS.ADDON_CODE_DIR.pjoin('media/theme/Launchers_poster.png').getPath()
         },
         'properties': {
             'obj_type': constants.OBJ_LAUNCHER
@@ -370,8 +370,8 @@ def qry_get_launchers():
                 },
                 'art': {
                     'fanart': listitem_fanart,
-                    'icon': globals.g_PATHS.ADDON_CODE_DIR.pjoin('media/theme/Sources_icon.png').getPath(),
-                    'poster': globals.g_PATHS.ADDON_CODE_DIR.pjoin('media/theme/Sources_poster.png').getPath()
+                    'icon': globals.g_PATHS.ADDON_CODE_DIR.pjoin('media/theme/Launchers_icon.png').getPath(),
+                    'poster': globals.g_PATHS.ADDON_CODE_DIR.pjoin('media/theme/Launchers_poster.png').getPath()
                 },
                 'properties': {
                     'obj_type': constants.OBJ_LAUNCHER

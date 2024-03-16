@@ -30,8 +30,8 @@ from akl import constants
 
 from resources.lib.commands.mediator import AppMediator
 from resources.lib import globals
-from resources.lib.repositories import UnitOfWork, AelAddonRepository, CategoryRepository, ROMCollectionRepository, XmlConfigurationRepository, SourcesRepository
-from resources.lib.domain import Category, ROMCollection, AelAddon
+from resources.lib.repositories import UnitOfWork, AklAddonRepository, CategoryRepository, ROMCollectionRepository, XmlConfigurationRepository, SourcesRepository
+from resources.lib.domain import Category, ROMCollection, AklAddon
 
 logger = logging.getLogger(__name__)
 @AppMediator.register('IMPORT_LAUNCHERS')
@@ -40,7 +40,7 @@ def cmd_execute_import_launchers(args):
 
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
-        addon_repository = AelAddonRepository(uow)
+        addon_repository = AklAddonRepository(uow)
         available_launchers = [*addon_repository.find_all_launcher_addons()]
         
         categories_repository = CategoryRepository(uow)
@@ -288,7 +288,7 @@ def cmd_check_duplicate_asset_dirs(args):
         kodi.dialog_OK(kodi.translate(41147).format(duplicated_asset_srt))
 
 
-def _apply_addon_launcher_for_legacy_launcher(collection: ROMCollection, available_addons: typing.Dict[str, AelAddon]):
+def _apply_addon_launcher_for_legacy_launcher(collection: ROMCollection, available_addons: typing.Dict[str, AklAddon]):
     launcher_type = collection.get_custom_attribute('type')
     logger.debug(f'Migrating launcher of type "{launcher_type}" for romcollection {collection.get_name()}')
     

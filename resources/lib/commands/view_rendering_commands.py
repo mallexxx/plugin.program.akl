@@ -152,7 +152,7 @@ def cmd_render_vcategory(args):
         categories_repository = CategoryRepository(uow)
         romcollections_repository = ROMCollectionRepository(uow)
         roms_repository = ROMsRepository(uow)
-        views_repository = ViewRepository(globals.g_PATHS)
+        views_repository = ViewRepository(globals.g_PATHS)  
         
         vcategory = VirtualCategoryFactory.create(vcategory_id)
         
@@ -591,7 +591,7 @@ def _render_romcollection_listitem(romcollection_obj: ROMCollection) -> dict:
     # --- Do not render row if romcollection finished ---
     if romcollection_obj.is_finished() and \
             (romcollection_obj.get_type() in constants.OBJ_VIRTUAL_TYPES or \
-             settings.getSettingAsBool('display_hide_finished')): 
+             settings.getSettingAsBool('display_hide_finished')):
         return None
 
     romcollection_name = romcollection_obj.get_name()
