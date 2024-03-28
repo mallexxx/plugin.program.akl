@@ -416,6 +416,7 @@ def cmd_execute_ruleset(args):
         roms_in_collection = roms_repository.find_roms_by_romcollection(collection)
         collection_rom_ids = [rom.get_id() for rom in roms_in_collection]
         roms = [*roms_repository.find_roms_by_source(source)]
+        logger.info(f"Processing {len(roms)} ROMs for ruleset")
         counter = 0
         progress_dialog = kodi.ProgressDialog()
         progress_dialog.startProgress(kodi.translate(41185), num_steps=len(roms))
