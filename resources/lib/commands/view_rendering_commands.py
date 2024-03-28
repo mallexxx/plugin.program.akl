@@ -19,6 +19,7 @@ from __future__ import division
 
 import logging
 import typing
+import time
 
 from akl import constants, settings
 from akl.utils import kodi
@@ -68,9 +69,11 @@ def cmd_render_view_data(args):
         romcollections_repository = ROMCollectionRepository(uow)
         roms_repository = ROMsRepository(uow)
         views_repository = ViewRepository(globals.g_PATHS)
+        sources_repository = SourcesRepository(uow)
                 
         if category_id is None or category_id == constants.VCATEGORY_ADDONROOT_ID:
-            _render_root_view(categories_repository, romcollections_repository, roms_repository, views_repository, render_recursive)
+            _render_root_view(categories_repository, romcollections_repository, roms_repository, sources_repository,
+                              views_repository, render_recursive)
         else:
             category = categories_repository.find_category(category_id)
             _render_category_view(category, categories_repository, romcollections_repository, roms_repository, views_repository)
@@ -342,6 +345,7 @@ def _render_root_view(categories_repository: CategoryRepository, romcollections_
         'items': []
     }
     root_items = []
+    start = time.time()
     for root_category in root_categories:
         logger.debug(f'Processing category "{root_category.get_name()}"')
         rendered_item = _render_category_listitem(root_category)
@@ -350,7 +354,10 @@ def _render_root_view(categories_repository: CategoryRepository, romcollections_
         if render_sub_views:
             _render_category_view(root_category, categories_repository, romcollections_repository,
                                   roms_repository, views_repository, render_sub_views)
-
+    end = time.time()
+    logger.debug(f"Rendered all categories in {start - end}ms")
+    
+    start = time.time()
     for root_romcollection in root_romcollections:
         logger.debug(f'Processing romcollection "{root_romcollection.get_name()}"')
         rendered_item = _render_romcollection_listitem(root_romcollection)
@@ -359,16 +366,21 @@ def _render_root_view(categories_repository: CategoryRepository, romcollections_
         if render_sub_views:
             collection_view_data = _render_romcollection_view(root_romcollection, roms_repository)
             views_repository.store_view(root_romcollection.get_id(), root_romcollection.get_type(), collection_view_data)
-
+    end = time.time()
+    logger.debug(f"Rendered all romcollections in {start - end}ms")
+    
     logger.debug('Processing sources')
     sources_view_data = _render_sources_view(sources, roms_repository)
     views_repository.store_sources_view(sources_view_data)
     
+    start = time.time()
     for source in sources:
         logger.debug(f'Processing source "{source.get_name()}"')
         source_view_data = _render_source_view(source, roms_repository)
         views_repository.store_view(source.get_id(), source.get_type(), source_view_data)
-
+    end = time.time()
+    logger.debug(f"Rendered sources in {start - end}ms")
+    
     for rom in root_roms:
         try:
             root_items.append(render_rom_listitem(rom))
@@ -377,13 +389,17 @@ def _render_root_view(categories_repository: CategoryRepository, romcollections_
 
     root_vcategory = VirtualCategoryFactory.create(constants.VCATEGORY_ROOT_ID)
     logger.debug('Processing root virtual category')
+    start = time.time()
     rendered_item = _render_category_listitem(root_vcategory)
     if rendered_item:
         root_items.append(rendered_item)
     if render_sub_views:
         _render_category_view(root_vcategory, categories_repository, romcollections_repository,
                               roms_repository, views_repository, render_sub_views)
-
+    end = time.time()
+    logger.debug(f"Rendered virtual categories in {start - end}ms")
+    
+    start = time.time()
     for vcollection_id in constants.VCOLLECTIONS:
         vcollection = VirtualCollectionFactory.create(vcollection_id)
         logger.debug(f'Processing virtual collection "{vcollection.get_name()}"')
@@ -392,7 +408,9 @@ def _render_root_view(categories_repository: CategoryRepository, romcollections_
             root_items.append(rendered_item)
         collection_view_data = _render_romcollection_view(vcollection, roms_repository)
         views_repository.store_view(vcollection.get_id(), vcollection.get_type(), collection_view_data)
-
+    end = time.time()
+    logger.debug(f"Rendered virtual collections in {start - end}ms")
+    
     logger.debug(f'Storing {len(root_items)} items in root view.')
     root_data['items'] = root_items
     views_repository.store_root_view(root_data)
@@ -401,7 +419,7 @@ def _render_root_view(categories_repository: CategoryRepository, romcollections_
 def _render_category_view(category_obj: Category, categories_repository: CategoryRepository,
                           romcollections_repository: ROMCollectionRepository, roms_repository: ROMsRepository,
                           views_repository: ViewRepository, render_sub_views=False):
-    
+    start = time.time()
     sub_categories = categories_repository.find_categories_by_parent(category_obj.get_id())
     romcollections = romcollections_repository.find_romcollections_by_parent(category_obj.get_id())
     roms = roms_repository.find_roms_by_category(category_obj)
@@ -447,9 +465,12 @@ def _render_category_view(category_obj: Category, categories_repository: Categor
     logger.debug(f'Storing {len(view_items)} items for category "{category_obj.get_name()}" view.')
     view_data['items'] = view_items
     views_repository.store_view(category_obj.get_id(), category_obj.get_type(), view_data)
+    end = time.time()
+    logger.debug(f"Processed category {category_obj.get_name()} in {start - end}ms")
 
 
 def _render_romcollection_view(romcollection_obj: ROMCollection, roms_repository: ROMsRepository) -> dict:
+    start = time.time()
     roms = roms_repository.find_roms_by_romcollection(romcollection_obj)
     view_data = {
         'id': romcollection_obj.get_id(),
@@ -472,6 +493,9 @@ def _render_romcollection_view(romcollection_obj: ROMCollection, roms_repository
         
     logger.debug(f'Found {len(view_items)} items for romcollection "{romcollection_obj.get_name()}" view.')
     view_data['items'] = view_items
+    
+    end = time.time()
+    logger.debug(f"Processed collection {romcollection_obj.get_name()} in {start - end}ms")
     return view_data
 
 

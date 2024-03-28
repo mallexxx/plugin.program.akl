@@ -184,7 +184,7 @@ def cmd_remove_roms(args) -> bool:
         romcollections_repository = ROMCollectionRepository(uow)
         rom_repository = ROMsRepository(uow)
         
-        romcollections = romcollections_repository.find_romcollections_by_source(source_id)
+        romcollections = [*romcollections_repository.find_romcollections_by_source(source_id)]
         source = sources_repository.find(source_id)
         
         for rom_id in rom_ids:
