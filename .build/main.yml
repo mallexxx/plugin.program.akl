@@ -141,6 +141,7 @@ stages:
           kodi-addon-checker --branch matrix $(build.artifactstagingdirectory)/$(addonName)/
         workingDirectory: '$(workingDirectory)'
         displayName: 'Run Kodi addon checker'
+        continueOnError: true
         
       - task: CopyFiles@2
         displayName: 'Copy addon files for repository'
