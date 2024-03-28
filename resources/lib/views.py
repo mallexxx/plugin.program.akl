@@ -234,9 +234,9 @@ def vw_add_category(category_id: str = None, parent_category_id: str = None):
     AppMediator.async_cmd('ADD_CATEGORY', {'category_id': category_id, 'parent_category_id': parent_category_id})
 
 
+@router.route('/categories/edit/<category_id>')
 def vw_edit_category(category_id: str):
     AppMediator.async_cmd('EDIT_CATEGORY', {'category_id': category_id})
-@router.route('/categories/edit/<category_id>')
 
 
 @router.route('/romcollection/add')
