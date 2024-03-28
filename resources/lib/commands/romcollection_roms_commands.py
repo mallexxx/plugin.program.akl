@@ -412,7 +412,9 @@ def cmd_execute_ruleset(args):
         ruleset = repository.find_ruleset(romcollection_id, ruleset_id)
         collection = repository.find_romcollection(romcollection_id)
         source = src_repository.find(ruleset.get_source_id())
-            
+        
+        kodi.notify(kodi.translate(41190).format(collection.get_name(), source.get_name()))
+        
         roms_in_collection = roms_repository.find_roms_by_romcollection(collection)
         collection_rom_ids = [rom.get_id() for rom in roms_in_collection]
         roms = [*roms_repository.find_roms_by_source(source)]
@@ -433,8 +435,57 @@ def cmd_execute_ruleset(args):
             
         progress_dialog.endProgress()
         progress_dialog.close()
+        uow.commit()
         
     AppMediator.async_cmd('EDIT_IMPORT_RULESET', args)
+    AppMediator.async_cmd('RENDER_ROMCOLLECTION_VIEW', {'romcollection_id': romcollection_id})
+    kodi.notify(kodi.translate(41183))
+
+
+@AppMediator.register('EXECUTE_ALL_RULESET')
+def cmd_execute_all_ruleset(args):
+    romcollection_id: str = args['romcollection_id'] if 'romcollection_id' in args else None
+    
+    uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
+    with uow:
+        repository = ROMCollectionRepository(uow)
+        roms_repository = ROMsRepository(uow)
+        src_repository = SourcesRepository(uow)
+    
+        collection = repository.find_romcollection(romcollection_id)
+        rulesets = [*repository.find_import_rules_by_collection(collection)]
+
+        if not rulesets:
+            kodi.notify_warn(kodi.translate(41191))
+            return
+        
+        roms_in_collection = roms_repository.find_roms_by_romcollection(collection)
+        collection_rom_ids = [rom.get_id() for rom in roms_in_collection]
+        
+        for ruleset in rulesets:
+            source = src_repository.find(ruleset.get_source_id())
+            kodi.notify(kodi.translate(41190).format(collection.get_name(), source.get_name()))
+                
+            roms = [*roms_repository.find_roms_by_source(source)]
+            logger.info(f"Processing {len(roms)} ROMs for ruleset")
+            counter = 0
+            progress_dialog = kodi.ProgressDialog()
+            progress_dialog.startProgress(kodi.translate(41185), num_steps=len(roms))
+            for rom in roms:
+                progress_dialog.incrementStep()
+                if rom.get_id() in collection_rom_ids:
+                    continue
+                
+                if not ruleset.applies_to(rom):
+                    continue
+                logger.debug(f"Adding ROM {rom.get_name()} to ROM Collection {collection.get_name()}")
+                repository.add_rom_to_romcollection(romcollection_id, rom.get_id())
+                counter += 1
+                
+            progress_dialog.endProgress()
+            progress_dialog.close()
+        uow.commit()
+        
     AppMediator.async_cmd('RENDER_ROMCOLLECTION_VIEW', {'romcollection_id': romcollection_id})
     kodi.notify(kodi.translate(41183))
 

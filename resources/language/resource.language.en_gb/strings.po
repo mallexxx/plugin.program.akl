@@ -834,6 +834,10 @@ msgctxt "#40921"
 msgid "Add new ruleset"
 msgstr ""
 
+msgctxt "#40922"
+msgid "Import ROMs by rulesets"
+msgstr ""
+
 ############################
 # Headers and texts / notifications / dialogs
 ############################
@@ -1795,6 +1799,14 @@ msgstr ""
 
 msgctxt "#41189"
 msgid "Currently importing: {0}"
+msgstr ""
+
+msgctxt "#41190"
+msgid "Importing ROMs for collection {0} from source {1}"
+msgstr ""
+
+msgctxt "#41191"
+msgid "No rulesets associated.\nGo to Edit and Manage ROMs to create rulesets."
 msgstr ""
 
 ############################

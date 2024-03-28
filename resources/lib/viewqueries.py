@@ -752,6 +752,9 @@ def qry_listitem_context_menu_items(list_item_data, container_data) -> typing.Li
     if is_romcollection:
         commands.append((kodi.translate(40891), _context_menu_url_for(f'/romcollection/view/{item_id}')))
         commands.append((kodi.translate(40892), _context_menu_url_for(f'/romcollection/edit/{item_id}')))
+        commands.append((kodi.translate(40922), _context_menu_url_for('/execute/command/execute_all_rulesets', {
+            'romcollection_id': item_id
+        })))
     
     if is_source:
         if not item_id or len(item_id) == 0:
