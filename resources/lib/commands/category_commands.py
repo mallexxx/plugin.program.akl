@@ -74,7 +74,7 @@ def cmd_add_category(args):
     
         # --- Get new Category name ---
         name = kodi.dialog_keyboard(kodi.translate(41085))
-        if name is None:
+        if not name:
             return
         
         category = Category()
@@ -95,7 +95,7 @@ def cmd_edit_category(args):
     category_id: str = args['category_id'] if 'category_id' in args else None
     
     if category_id is None:
-        logger.warning('cmd_add_category(): No category id supplied.')
+        logger.warning('cmd_edit_category(): No category id supplied.')
         kodi.notify_warn(kodi.translate(40951))
         return
     
@@ -104,11 +104,15 @@ def cmd_edit_category(args):
     with uow:
         repository = CategoryRepository(uow)
         category = repository.find_category(category_id)
+        parent_category = repository.find_category(category.get_parent_id())
+        if parent_category is None:
+            parent_category = repository.find_category(constants.VCATEGORY_ADDONROOT_ID)
         
         options = collections.OrderedDict()
         options['CATEGORY_EDIT_METADATA'] = kodi.translate(40853)
         options['CATEGORY_EDIT_ASSETS'] = kodi.translate(40854)
         options['CATEGORY_EDIT_DEFAULT_ASSETS'] = kodi.translate(40859)
+        options['EDIT_PARENT_CATEGORY'] = kodi.translate(42040).format(parent_category.get_name())
         options['CATEGORY_STATUS'] = f'{kodi.translate(40860)} {kodi.translate(category.get_finished_str_code())}'
         options['EXPORT_CATEGORY_XML'] = kodi.translate(40861)
         options['DELETE_CATEGORY'] = kodi.translate(40862)
@@ -273,6 +277,7 @@ def cmd_category_delete(args):
     AppMediator.async_cmd('CLEANUP_VIEWS')
     AppMediator.sync_cmd('EDIT_CATEGORY', args)
 
+
 # -------------------------------------------------------------------------------------------------
 # Category context menu atomic commands.
 # Only Category context menu functions have debug statemets. This debug messages are to
@@ -294,6 +299,7 @@ def cmd_category_metadata_title(args):
             AppMediator.async_cmd('RENDER_CATEGORY_VIEW', {'category_id': category.get_parent_id()})            
     AppMediator.sync_cmd('CATEGORY_EDIT_METADATA', args)
     
+
 @AppMediator.register('CATEGORY_EDIT_METADATA_RELEASEYEAR')
 def cmd_category_metadata_releaseyear(args):
     category_id = args['category_id'] if 'category_id' in args else None    
@@ -308,6 +314,7 @@ def cmd_category_metadata_releaseyear(args):
             AppMediator.async_cmd('RENDER_CATEGORY_VIEW', {'category_id': category.get_id()})
             AppMediator.async_cmd('RENDER_CATEGORY_VIEW', {'category_id': category.get_parent_id()})
     AppMediator.sync_cmd('CATEGORY_EDIT_METADATA', args)
+
 
 @AppMediator.register('CATEGORY_EDIT_METADATA_GENRE')
 def cmd_category_metadata_genre(args):
@@ -324,6 +331,7 @@ def cmd_category_metadata_genre(args):
             AppMediator.async_cmd('RENDER_CATEGORY_VIEW', {'category_id': category.get_parent_id()})            
     AppMediator.sync_cmd('CATEGORY_EDIT_METADATA', args)
     
+
 @AppMediator.register('CATEGORY_EDIT_METADATA_DEVELOPER')
 def cmd_category_metadata_developer(args):
     category_id = args['category_id'] if 'category_id' in args else None    
@@ -484,3 +492,48 @@ def cmd_category_export_xml(args):
         kodi.notify(kodi.translate(41041).format(category.get_name()))
     
     AppMediator.sync_cmd('CATEGORY_EDIT_METADATA', args)
+
+
+@AppMediator.register('EDIT_PARENT_CATEGORY')
+def cmd_category_change_parent_category(args):
+    category_id = args['category_id'] if 'category_id' in args else None
+    uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
+    with uow:
+        repository = CategoryRepository(uow)
+        
+        category = repository.find_category(category_id)
+        previous_category = repository.find_category(category.get_parent_id())
+        
+        all_categories = repository.find_all_categories()
+        root_category = repository.find_category(constants.VCATEGORY_ADDONROOT_ID)
+        
+        if previous_category is None:
+            previous_category = root_category
+        
+        options = collections.OrderedDict()
+        options[root_category] = root_category.get_name()
+        options.update({category: category.get_name() for category in all_categories})
+
+        title = kodi.translate(42040).format(previous_category.get_name())
+        selected_option = kodi.OrdDictionaryDialog().select(title, options)
+        if selected_option is None:
+            # >> Return recursively to parent menu.
+            logger.debug('cmd_category_change_parent_category(): Selected NONE')
+            AppMediator.sync_cmd('EDIT_CATEGORY', args)
+            return
+        
+        selected_category: Category = selected_option
+        if not kodi.dialog_yesno(kodi.translate(41065).format(category.get_name(), selected_category.get_name())):
+            logger.debug('cmd_category_change_parent_category(): Cancelled')
+            AppMediator.sync_cmd('EDIT_ROMCOLLECTION', args)
+            return
+
+        logger.debug(f'cmd_category_change_parent_category() Moving category#{category_id} to category#{selected_category.get_id()}')
+        repository.update_category_parent(category, selected_category)
+        uow.commit()
+        
+        kodi.notify(kodi.translate(41021))
+        AppMediator.async_cmd('RENDER_CATEGORY_VIEW', {'category_id': category.get_id()})
+        AppMediator.async_cmd('RENDER_CATEGORY_VIEW', {'category_id': selected_category.get_id()})
+        AppMediator.async_cmd('RENDER_CATEGORY_VIEW', {'category_id': previous_category.get_id()})
+    AppMediator.sync_cmd('EDIT_CATEGORY', args)

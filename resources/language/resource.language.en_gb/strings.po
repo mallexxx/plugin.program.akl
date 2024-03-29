@@ -1983,7 +1983,7 @@ msgid "Manage ROMs ..."
 msgstr ""
 
 msgctxt "#42040"
-msgid "Change Category: '{}'"
+msgid "Change parent Category: '{}'"
 msgstr ""
 
 msgctxt "#42041"

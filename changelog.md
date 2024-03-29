@@ -1,4 +1,5 @@
 ## Current
+- Simplified context menu
 - Separated launchers
 - Implemented sources
 - Added extra field to metadata item

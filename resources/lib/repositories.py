@@ -557,11 +557,17 @@ class CategoryRepository(object):
         self.logger = logging.getLogger(__name__)
 
     def find_category(self, category_id: str) -> Category:
+        if not category_id:
+            return None
+        
         if category_id == constants.VCATEGORY_ADDONROOT_ID:
             return Category({'m_name': 'Root'})
         
         self._uow.execute(qry.SELECT_CATEGORY, category_id)
         category_data = self._uow.single_result()
+        
+        if not category_data:
+            return None
                 
         self._uow.execute(qry.SELECT_CATEGORY_ASSETS, category_id)
         assets_result_set = self._uow.result_set()
@@ -729,6 +735,10 @@ class CategoryRepository(object):
         self.logger.info("CategoryRepository.delete_category(): Deleting category '{}'".format(category_id))
         self._uow.execute(qry.DELETE_CATEGORY, category_id)
 
+    def update_category_parent(self, category: Category, parent_obj: Category = None):
+        parent_category_id = parent_obj.get_id() if parent_obj is not None and parent_obj.get_id() != constants.VCATEGORY_ADDONROOT_ID else None
+        self._uow.execute(qry.UPDATE_CATEGORY_PARENT, parent_category_id, category.get_id())
+        
     def add_rom_to_category(self, category_id: str, rom_id: str):
         if category_id is None:
             self._uow.execute(qry.INSERT_ROM_IN_ROOT_CATEGORY, rom_id)

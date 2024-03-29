@@ -66,7 +66,7 @@ INSERT_ROM_IN_CATEGORY = "INSERT INTO roms_in_category (rom_id, category_id) VAL
 INSERT_ROM_IN_ROOT_CATEGORY = "INSERT INTO roms_in_category (rom_id, category_id) VALUES (?,NULL)"
 REMOVE_ROM_FROM_CATEGORY = "DELETE FROM roms_in_category WHERE rom_id = ? AND category_id = ?"
 REMOVE_ROMS_FROM_CATEGORY = "DELETE FROM roms_in_category WHERE category_id = ?"
-
+UPDATE_CATEGORY_PARENT = "UPDATE category SET parent_id = ? WHERE category_id = ?"
 
 #
 # ROMCollectionRepository -> ROM Sets from SQLite DB
