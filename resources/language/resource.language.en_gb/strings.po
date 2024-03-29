@@ -480,6 +480,10 @@ msgctxt "#42513"
 msgid "Collections"
 msgstr "domain"
 
+msgctxt "#42514"
+msgid "Launcher"
+msgstr "domain"
+
 ############################
 # Advanced Enum values
 ############################
@@ -699,12 +703,13 @@ msgid "Edit Category"
 msgstr ""
 
 msgctxt "#40888"
-msgid "Add new Category"
+msgid "Add"
 msgstr ""
 
-msgctxt "#40889"
-msgid "Add new ROM Collection"
-msgstr ""
+# TODO: obsolete
+# msgctxt "#40889"
+# msgid "Add new ROM Collection"
+# msgstr ""
 
 msgctxt "#40890"
 msgid "Standalone ROM"
@@ -836,6 +841,10 @@ msgstr ""
 
 msgctxt "#40922"
 msgid "Import ROMs by rulesets"
+msgstr ""
+
+msgctxt "#40923"
+msgid "Render views"
 msgstr ""
 
 ############################
@@ -1807,6 +1816,10 @@ msgstr ""
 
 msgctxt "#41191"
 msgid "No rulesets associated.\nGo to Edit and Manage ROMs to create rulesets."
+msgstr ""
+
+msgctxt "#41192"
+msgid "What to add?"
 msgstr ""
 
 ############################

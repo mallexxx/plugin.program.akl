@@ -685,8 +685,9 @@ def qry_container_context_menu_items(container_data) -> typing.List[typing.Tuple
     
     commands = []
     if container_type == constants.OBJ_CATEGORY:
-        commands.append((kodi.translate(40893).format(container_name),
-                        _context_menu_url_for('execute/command/render_category_view', {'category_id': container_id})))
+        commands.append((kodi.translate(40923), _context_menu_url_for('execute/command/render_category_view', {
+                        'category_id': container_id,
+                        'name': container_name})))
        
     if container_type == constants.OBJ_SOURCE and is_root:
         commands.append((kodi.translate(40916), _context_menu_url_for('/execute/command/add_source')))
@@ -696,16 +697,20 @@ def qry_container_context_menu_items(container_data) -> typing.List[typing.Tuple
         
     if container_type == constants.OBJ_ROMCOLLECTION:
         commands.append((kodi.translate(40894), _context_menu_url_for(f'/collection/{container_id}/search')))
-        commands.append((kodi.translate(40893).format(container_name),
-                         _context_menu_url_for('execute/command/render_romcollection_view', {'romcollection_id': container_id})))
+        commands.append((kodi.translate(40923), _context_menu_url_for('execute/command/render_romcollection_view', {
+                        'romcollection_id': container_id,
+                        'name': container_name})))
+        
     if container_type == constants.OBJ_CATEGORY_VIRTUAL and not is_root:
-        commands.append((kodi.translate(40893).format(container_name),
-                        _context_menu_url_for('execute/command/render_vcategory_view', {'vcategory_id': container_id})))
-    if container_type == constants.OBJ_COLLECTION_VIRTUAL:
-        commands.append((kodi.translate(40893).format(container_name),
-                        _context_menu_url_for('execute/command/render_vcategory_view', {'vcategory_id': container_parentid})))
+        commands.append((kodi.translate(40923), _context_menu_url_for('execute/command/render_vcategory_view', {
+                        'vcategory_id': container_id,
+                        'name': container_name})))
     
-    commands.append((kodi.translate(40856), _context_menu_url_for('execute/command/render_views')))
+    if container_type == constants.OBJ_COLLECTION_VIRTUAL:
+        commands.append((kodi.translate(40923), _context_menu_url_for('execute/command/render_vcategory_view', {
+                        'vcategory_id': container_parentid,
+                        'name': container_name})))
+    
     commands.append((kodi.translate(40895), 'ActivateWindow(filemanager)'))
     commands.append((kodi.translate(40896), 'Addon.OpenSettings({0})'.format(globals.addon_id)))
 
@@ -746,8 +751,7 @@ def qry_listitem_context_menu_items(list_item_data, container_data) -> typing.Li
     if is_category:
         commands.append((kodi.translate(40886), _context_menu_url_for(f'/categories/view/{item_id}')))
         commands.append((kodi.translate(40887), _context_menu_url_for(f'/categories/edit/{item_id}')))
-        commands.append((kodi.translate(40888), _context_menu_url_for(f'/categories/add/{item_id}/in/{container_id}')))
-        commands.append((kodi.translate(40889), _context_menu_url_for(f'/romcollection/add/{item_id}/in/{container_id}')))
+        commands.append((kodi.translate(40888), _context_menu_url_for(f'/add/{item_id}/in/{container_id}')))
         
     if is_romcollection:
         commands.append((kodi.translate(40891), _context_menu_url_for(f'/romcollection/view/{item_id}')))
@@ -757,22 +761,17 @@ def qry_listitem_context_menu_items(list_item_data, container_data) -> typing.Li
         })))
     
     if is_source:
-        if not item_id or len(item_id) == 0:
-            commands.append((kodi.translate(40916), _context_menu_url_for('/execute/command/add_source')))
         if item_id and len(item_id) > 0:
             commands.append((kodi.translate(40915), _context_menu_url_for(f'/source/edit/{item_id}')))
         commands.append((kodi.translate(42046), _context_menu_url_for('/execute/command/scan_roms')))
         
     if is_launcher:
-        if not item_id or len(item_id) == 0:
-            commands.append((kodi.translate(40917), _context_menu_url_for('/execute/command/add_launcher')))
         if item_id and len(item_id) > 0:
             commands.append((kodi.translate(40918), _context_menu_url_for(f'/launcher/edit/{item_id}')))
             commands.append((kodi.translate(40919), _context_menu_url_for(f'/launcher/delete/{item_id}')))
         
     if not is_category and container_is_category:
-        commands.append((kodi.translate(40888), _context_menu_url_for(f'/categories/add/{container_id}')))
-        commands.append((kodi.translate(40889), _context_menu_url_for(f'/romcollection/add/{container_id}')))
+        commands.append((kodi.translate(40888), _context_menu_url_for(f'/add/{container_id}')))
         
     if is_virtual_category:
         commands.append((kodi.translate(40893).format(item_name), _context_menu_url_for('execute/command/render_vcategory_view', {

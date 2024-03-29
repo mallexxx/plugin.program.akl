@@ -226,25 +226,17 @@ def vw_execute_cmd(cmd: str):
     AppMediator.async_cmd(cmd.capitalize(), cmd_args)
 
 
-@router.route('/categories/add')
-@router.route('/categories/add/<category_id>')
-@router.route('/categories/add/<category_id>/in')
-@router.route('/categories/add/<category_id>/in/<parent_category_id>')
-def vw_add_category(category_id: str = None, parent_category_id: str = None):
-    AppMediator.async_cmd('ADD_CATEGORY', {'category_id': category_id, 'parent_category_id': parent_category_id})
+@router.route('/add')
+@router.route('/add/<category_id>')
+@router.route('/add/<category_id>/in')
+@router.route('/add/<category_id>/in/<parent_category_id>')
+def vw_add(category_id: str = None, parent_category_id: str = None):
+    AppMediator.async_cmd('ADD_ITEM', {'category_id': category_id, 'parent_category_id': parent_category_id})
 
 
 @router.route('/categories/edit/<category_id>')
 def vw_edit_category(category_id: str):
     AppMediator.async_cmd('EDIT_CATEGORY', {'category_id': category_id})
-
-
-@router.route('/romcollection/add')
-@router.route('/romcollection/add/<category_id>')
-@router.route('/romcollection/add/<category_id>/in')
-@router.route('/romcollection/add/<category_id>/in/<parent_category_id>')
-def vw_add_romcollection(category_id: str = None, parent_category_id: str = None):
-    AppMediator.async_cmd('ADD_ROMCOLLECTION', {'category_id': category_id, 'parent_category_id': parent_category_id})
 
 
 @router.route('/romcollection/view/<romcollection_id>')

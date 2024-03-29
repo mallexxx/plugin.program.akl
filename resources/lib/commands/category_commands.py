@@ -31,6 +31,26 @@ from resources.lib.domain import Category, g_assetFactory
 logger = logging.getLogger(__name__)
 
 
+@AppMediator.register('ADD_ITEM')
+def cmd_add_item(args):
+    logger.debug('cmd_add_item() BEGIN')
+    
+    options = collections.OrderedDict()
+    options['ADD_SOURCE'] = kodi.translate(42506)
+    options['ADD_LAUNCHER'] = kodi.translate(42514)
+    options['ADD_CATEGORY'] = kodi.translate(42501)
+    options['ADD_ROMCOLLECTION'] = kodi.translate(42503)
+    
+    selected_option = kodi.OrdDictionaryDialog().select(
+        kodi.translate(41192),
+        options)
+    
+    if selected_option is None:
+        return
+    
+    AppMediator.sync_cmd(selected_option, args)
+
+
 @AppMediator.register('ADD_CATEGORY')
 def cmd_add_category(args):
     logger.debug('cmd_add_category() BEGIN')

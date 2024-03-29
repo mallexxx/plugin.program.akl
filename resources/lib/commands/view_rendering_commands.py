@@ -122,6 +122,16 @@ def cmd_render_virtual_views(args):
 
 @AppMediator.register('RENDER_VCATEGORY_VIEWS')
 def cmd_render_vcategories(args):
+    render_selection = kodi.ListDialog().select(kodi.translate(40923), [
+        kodi.translate(40893).format(args['name']),
+        kodi.translate(40856)
+    ])
+    if render_selection < 0:
+        return
+    if render_selection > 0:
+        AppMediator.sync_cmd('RENDER_VIEWS')
+        return
+    
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     do_notification = not settings.getSettingAsBool("display_hide_rendering_notifications")
     with uow:
@@ -147,6 +157,16 @@ def cmd_render_vcategories(args):
     
 @AppMediator.register('RENDER_VCATEGORY_VIEW')
 def cmd_render_vcategory(args):
+    render_selection = kodi.ListDialog().select(kodi.translate(40923), [
+        kodi.translate(40893).format(args['name']),
+        kodi.translate(40856)
+    ])
+    if render_selection < 0:
+        return
+    if render_selection > 0:
+        AppMediator.sync_cmd('RENDER_VIEWS')
+        return
+    
     vcategory_id = args['vcategory_id'] if 'vcategory_id' in args else None
     do_notification = not settings.getSettingAsBool("display_hide_rendering_notifications")
     
@@ -177,6 +197,16 @@ def cmd_render_vcategory(args):
 
 @AppMediator.register('RENDER_ROMCOLLECTION_VIEW')
 def cmd_render_romcollection_view_data(args):
+    render_selection = kodi.ListDialog().select(kodi.translate(40923), [
+        kodi.translate(40893).format(args['name']),
+        kodi.translate(40856)
+    ])
+    if render_selection < 0:
+        return
+    if render_selection > 0:
+        AppMediator.sync_cmd('RENDER_VIEWS')
+        return
+    
     romcollection_id = args['romcollection_id'] if 'romcollection_id' in args else None
     do_notification = not settings.getSettingAsBool("display_hide_rendering_notifications")
     
@@ -369,18 +399,19 @@ def _render_root_view(categories_repository: CategoryRepository, romcollections_
     end = time.time()
     logger.debug(f"Rendered all romcollections in {end - start}ms")
     
-    logger.debug('Processing sources')
-    sources_view_data = _render_sources_view(sources, roms_repository)
-    views_repository.store_sources_view(sources_view_data)
-    
-    start = time.time()
-    for source in sources:
-        logger.debug(f'Processing source "{source.get_name()}"')
-        source_view_data = _render_source_view(source, roms_repository)
-        views_repository.store_view(source.get_id(), source.get_type(), source_view_data)
-    end = time.time()
-    logger.debug(f"Rendered sources in {end - start}ms")
-    
+    if render_sub_views:
+        logger.debug('Processing sources')
+        sources_view_data = _render_sources_view(sources, roms_repository)
+        views_repository.store_sources_view(sources_view_data)
+        
+        start = time.time()
+        for source in sources:
+            logger.debug(f'Processing source "{source.get_name()}"')
+            source_view_data = _render_source_view(source, roms_repository)
+            views_repository.store_view(source.get_id(), source.get_type(), source_view_data)
+        end = time.time()
+        logger.debug(f"Rendered sources in {end - start}ms")
+        
     for rom in root_roms:
         try:
             root_items.append(render_rom_listitem(rom))
