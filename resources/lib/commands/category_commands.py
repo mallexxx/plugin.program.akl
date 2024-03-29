@@ -512,7 +512,7 @@ def cmd_category_change_parent_category(args):
         
         options = collections.OrderedDict()
         options[root_category] = root_category.get_name()
-        options.update({category: category.get_name() for category in all_categories})
+        options.update({cat: cat.get_name() for cat in all_categories if cat.get_id() != category_id})
 
         title = kodi.translate(42040).format(previous_category.get_name())
         selected_option = kodi.OrdDictionaryDialog().select(title, options)

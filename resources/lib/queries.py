@@ -61,12 +61,12 @@ INSERT_CATEGORY = "INSERT INTO categories (id,name,parent_id,metadata_id) VALUES
 UPDATE_CATEGORY = "UPDATE categories SET name=? WHERE id =?"
 INSERT_CATEGORY_ASSET = "INSERT INTO category_assets (category_id, asset_id) VALUES (?, ?)"
 DELETE_CATEGORY = "DELETE FROM categories WHERE id = ?"
-	
+
 INSERT_ROM_IN_CATEGORY = "INSERT INTO roms_in_category (rom_id, category_id) VALUES (?,?)"
 INSERT_ROM_IN_ROOT_CATEGORY = "INSERT INTO roms_in_category (rom_id, category_id) VALUES (?,NULL)"
 REMOVE_ROM_FROM_CATEGORY = "DELETE FROM roms_in_category WHERE rom_id = ? AND category_id = ?"
 REMOVE_ROMS_FROM_CATEGORY = "DELETE FROM roms_in_category WHERE category_id = ?"
-UPDATE_CATEGORY_PARENT = "UPDATE category SET parent_id = ? WHERE category_id = ?"
+UPDATE_CATEGORY_PARENT = "UPDATE categories SET parent_id = ? WHERE category_id = ?"
 
 #
 # ROMCollectionRepository -> ROM Sets from SQLite DB
