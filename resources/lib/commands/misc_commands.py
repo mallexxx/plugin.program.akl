@@ -362,7 +362,7 @@ def _apply_addon_launcher_for_legacy_launcher(collection: ROMCollection, availab
         return
     
     if launcher_type == constants.OBJ_LAUNCHER_NVGAMESTREAM:
-        launcher_addon =  available_addons['script.akl.nvgamestream'] if 'script.akl.nvgamestream' in available_addons else None 
+        launcher_addon = available_addons['script.akl.nvgamestream'] if 'script.akl.nvgamestream' in available_addons else None 
         if launcher_addon is None: 
             logger.warning(f'Could not find launcher addon supporting type "{launcher_type}"') 
             return
@@ -380,12 +380,12 @@ def _apply_addon_launcher_for_legacy_launcher(collection: ROMCollection, availab
         return
     
     if launcher_type == constants.OBJ_LAUNCHER_STEAM:
-        launcher_addon =  available_addons['script.akl.steam'] if 'script.akl.steam' in available_addons else None  
-        if launcher_addon is None: 
-            logger.warning(f'Could not find launcher addon supporting type "{launcher_type}"') 
+        launcher_addon = available_addons['script.akl.steam'] if 'script.akl.steam' in available_addons else None
+        if launcher_addon is None:
+            logger.warning(f'Could not find launcher addon supporting type "{launcher_type}"')
             return
         non_blocking = collection.get_custom_attribute('non_blocking')
-        settings = { 
-            'args': collection.get_custom_attribute('args') 
+        settings = {
+            'args': collection.get_custom_attribute('args')
         }
         collection.add_launcher(launcher_addon, settings, non_blocking, True)

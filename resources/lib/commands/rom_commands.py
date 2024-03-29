@@ -197,12 +197,13 @@ def cmd_rom_edit_default_assets(args):
         
     AppMediator.sync_cmd('ROM_EDIT_DEFAULT_ASSETS', {'rom_id': rom.get_id(), 'selected_asset': selected_asset_to_edit.id})         
 
+
 #
 # Remove ROMCollection
 #
 @AppMediator.register('DELETE_ROM')
 def cmd_rom_delete(args):
-    rom_id:str = args['rom_id'] if 'rom_id' in args else None
+    rom_id: str = args['rom_id'] if 'rom_id' in args else None
     romcollections = []
     categories = []
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
@@ -215,7 +216,7 @@ def cmd_rom_delete(args):
 
         question = kodi.translate(41056).format(rom.get_name())
         ret = kodi.dialog_yesno(question)
-        if not ret: 
+        if not ret:
             AppMediator.sync_cmd('EDIT_ROM', args)
             return
         
@@ -252,6 +253,7 @@ def cmd_rom_metadata_title(args):
             
     AppMediator.sync_cmd('ROM_EDIT_METADATA', args)
 
+
 @AppMediator.register('ROM_EDIT_METADATA_PLATFORM')
 def cmd_rom_metadata_platform(args):
     rom_id = args['rom_id'] if 'rom_id' in args else None    
@@ -261,7 +263,7 @@ def cmd_rom_metadata_platform(args):
         rom = repository.find_rom(rom_id)
 
         if editors.edit_field_by_list(rom, kodi.translate(40807), platforms.AKL_platform_list,
-                                    rom.get_platform, rom.set_platform):
+                                      rom.get_platform, rom.set_platform):
             repository.update_rom(rom)
             uow.commit()
             AppMediator.async_cmd('RENDER_ROM_VIEWS', {'rom_id': rom.get_id()})
@@ -277,17 +279,18 @@ def cmd_rom_metadata_esrb(args):
         rom = repository.find_rom(rom_id)
 
         if editors.edit_field_by_list(rom, kodi.translate(40804), constants.ESRB_LIST,
-                                    rom.get_esrb_rating, rom.set_esrb_rating):
+                                      rom.get_esrb_rating, rom.set_esrb_rating):
             repository.update_rom(rom)
             uow.commit()
             AppMediator.async_cmd('RENDER_ROM_VIEWS', {'rom_id': rom.get_id()})
             AppMediator.async_cmd('RENDER_VCATEGORY_VIEW', {'vcategory_id': constants.VCATEGORY_ESRB_ID})
                 
     AppMediator.sync_cmd('ROM_EDIT_METADATA', args)
-    
+
+
 @AppMediator.register('ROM_EDIT_METADATA_PEGI')
 def cmd_rom_metadata_pegi(args):
-    rom_id = args['rom_id'] if 'rom_id' in args else None  
+    rom_id = args['rom_id'] if 'rom_id' in args else None
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
         repository = ROMsRepository(uow)
@@ -319,6 +322,7 @@ def cmd_rom_metadata_releaseyear(args):
             
     AppMediator.sync_cmd('ROM_EDIT_METADATA', args)
 
+
 @AppMediator.register('ROM_EDIT_METADATA_GENRE')
 def cmd_rom_metadata_genre(args):
     rom_id = args['rom_id'] if 'rom_id' in args else None 
@@ -334,7 +338,8 @@ def cmd_rom_metadata_genre(args):
             AppMediator.async_cmd('RENDER_VCATEGORY_VIEW', {'vcategory_id': constants.VCATEGORY_GENRE_ID})
                     
     AppMediator.sync_cmd('ROM_EDIT_METADATA', args)
-    
+
+
 @AppMediator.register('ROM_EDIT_METADATA_DEVELOPER')
 def cmd_rom_metadata_developer(args):
     rom_id = args['rom_id'] if 'rom_id' in args else None
@@ -350,6 +355,7 @@ def cmd_rom_metadata_developer(args):
             AppMediator.async_cmd('RENDER_VCATEGORY_VIEW', {'vcategory_id': constants.VCATEGORY_DEVELOPER_ID})
             
     AppMediator.sync_cmd('ROM_EDIT_METADATA', args)
+
 
 @AppMediator.register('ROM_EDIT_METADATA_NPLAYERS')
 def cmd_rom_metadata_nplayers(args):
@@ -391,6 +397,7 @@ def cmd_rom_metadata_nplayers(args):
         kodi.notify(kodi.translate(41025))
         
     AppMediator.sync_cmd('ROM_EDIT_METADATA', args)
+
 
 @AppMediator.register('ROM_EDIT_METADATA_NPLAYERS_ONL')
 def cmd_rom_metadata_nplayers_online(args):
@@ -488,8 +495,7 @@ def cmd_rom_metadata_tags(args):
             if selected_option is None:
                 continue
             
-            if selected_option == 'ROM_ADD_METADATA_TAGS' or \
-                selected_option == 'ROM_CLEAR_METADATA_TAGS':
+            if selected_option == 'ROM_ADD_METADATA_TAGS' or selected_option == 'ROM_CLEAR_METADATA_TAGS':
                 break
             
             if not kodi.dialog_yesno(kodi.translate(41057).format(selected_option)):
@@ -528,7 +534,7 @@ def cmd_rom_metadata_add_tag(args):
         options = collections.OrderedDict()
         options['MANUAL'] = kodi.translate(42025)
         if available_tags is not None and len(available_tags) > 0:
-            options.update({value:key for key, value in available_tags.items()})
+            options.update({ value:key for key, value in available_tags.items() })
         
         selected_option = 'MANUAL'
         did_add_tag = False
@@ -536,7 +542,8 @@ def cmd_rom_metadata_add_tag(args):
         while selected_option is not None:
             selected_option = kodi.OrdDictionaryDialog().select(kodi.translate(41096), options)
                 
-            if selected_option is None: break
+            if selected_option is None:
+                break
             
             if selected_option == 'MANUAL':
                 tag = kodi.dialog_keyboard(kodi.translate(40814))
@@ -598,9 +605,11 @@ def cmd_rom_load_plot(args):
     
     plot_file = kodi.browse(text=kodi.translate(41157), mask='.txt|.dat')
     logger.debug('cmd_rom_load_plot() Dialog().browse returned "{0}"'.format(plot_file))
-    if not plot_file: return
+    if not plot_file:
+        return
     plot_FileName = io.FileName(plot_file)
-    if not plot_FileName.exists(): return
+    if not plot_FileName.exists():
+        return
     
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
@@ -616,7 +625,8 @@ def cmd_rom_load_plot(args):
         AppMediator.async_cmd('RENDER_ROM_VIEWS', {'rom_id': rom.get_id()})
     
     AppMediator.sync_cmd('ROM_EDIT_METADATA', args)
-    
+
+
 # --- Import ROM metadata from NFO file (default location) ---
 @AppMediator.register('ROM_IMPORT_NFO_FILE_DEFAULT')
 def cmd_rom_import_nfo_file(args):
@@ -640,15 +650,18 @@ def cmd_rom_import_nfo_file(args):
     
     AppMediator.sync_cmd('ROM_EDIT_METADATA', args)
 
+
 @AppMediator.register('ROM_IMPORT_NFO_FILE_BROWSE')
 def cmd_rom_browse_import_nfo_file(args):    
     rom_id = args['rom_id'] if 'rom_id' in args else None
     
     NFO_file = kodi.browse(text=kodi.translate(41143), mask='.nfo')
     logger.debug('cmd_rom_browse_import_nfo_file() Dialog().browse returned "{0}"'.format(NFO_file))
-    if not NFO_file: return
+    if not NFO_file:
+        return
     NFO_FileName = io.FileName(NFO_file)
-    if not NFO_FileName.exists(): return
+    if not NFO_FileName.exists():
+        return
     
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
@@ -664,6 +677,7 @@ def cmd_rom_browse_import_nfo_file(args):
     
     AppMediator.sync_cmd('ROM_EDIT_METADATA', args)
 
+
 @AppMediator.register('ROM_SAVE_NFO_FILE_DEFAULT')
 def cmd_rom_save_nfo_file(args):
     rom_id = args['rom_id'] if 'rom_id' in args else None
@@ -677,7 +691,7 @@ def cmd_rom_save_nfo_file(args):
     # >> user, so display nothing to not overwrite error notification.
     try:
         rom.export_to_NFO_file(NFO_FileName)
-    except:
+    except Exception:
         kodi.notify_warn(kodi.translate(41042).format(NFO_FileName.getPath()))
         logger.error("cmd_rom_save_nfo_file() Exception writing'{0}'".format(NFO_FileName.getPath()))
     else:
@@ -710,7 +724,7 @@ def cmd_manage_rom_tags(args):
             
             if selected_option == 'ADD_TAG':
                 tag = kodi.dialog_keyboard(kodi.translate(40814))
-                if tag is not None: 
+                if tag is not None:
                     did_tag_change = True
                     logger.debug(f'cmd_manage_rom_tags() Adding tag "{tag}"')
                     kodi.notify(kodi.translate(41029).format(tag))
