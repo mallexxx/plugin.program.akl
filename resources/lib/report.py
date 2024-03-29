@@ -20,6 +20,8 @@ from __future__ import division
 
 # --- AKL modules ---
 from resources.lib.domain import *
+
+
 #
 # This must be implemented as a list of strings. See AML for more details.
 #
@@ -76,6 +78,7 @@ def report_print_ROM_additional(slist: list, rom: dict):
     # >> 'launch_count' only in Favourite ROMs in "Most played ROMs"
     if 'launch_count' in rom:
         slist.append("[COLOR skyblue]launch_count[/COLOR]: {0}".format(rom['launch_count']))
+
 
 def report_print_Launcher(slist, launcher_dic):
     slist.append("[COLOR violet]id[/COLOR]: '{0}'".format(launcher_dic['id']))

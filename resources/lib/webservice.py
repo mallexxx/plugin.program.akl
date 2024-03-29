@@ -99,7 +99,7 @@ class WebService(threading.Thread):
             server.serve_forever()
         except Exception as error:
 
-            if '10053' not in error: # ignore host diconnected errors
+            if '10053' not in error:  # ignore host diconnected errors
                 logger.fatal('Exception in webservice', exc_info=error)
 
         logger.debug("Webservice thread end")
@@ -135,7 +135,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         '''
         try:
             BaseHTTPRequestHandler.handle(self)
-        except Exception as error:
+        except Exception:
             pass
 
     def do_QUIT(self):
@@ -290,8 +290,6 @@ class RequestHandler(BaseHTTPRequestHandler):
         return None
             
     def handle_posts(self, api_path) -> bool:
-        params = self.get_params()
-        
         data_string = self.rfile.read(int(self.headers['Content-Length']))
         data = json.loads(data_string)
         

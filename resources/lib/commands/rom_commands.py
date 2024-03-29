@@ -234,10 +234,11 @@ def cmd_rom_delete(args):
     
     kodi.notify(kodi.translate(41024).format(rom.get_name()))
 
+
 # --- Atomic commands ---
 @AppMediator.register('ROM_EDIT_METADATA_TITLE')
 def cmd_rom_metadata_title(args):
-    rom_id = args['rom_id'] if 'rom_id' in args else None  
+    rom_id = args['rom_id'] if 'rom_id' in args else None
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
         repository = ROMsRepository(uow)
@@ -301,9 +302,10 @@ def cmd_rom_metadata_pegi(args):
                 
     AppMediator.sync_cmd('ROM_EDIT_METADATA', args)
 
+
 @AppMediator.register('ROM_EDIT_METADATA_RELEASEYEAR')
 def cmd_rom_metadata_releaseyear(args):
-    rom_id = args['rom_id'] if 'rom_id' in args else None   
+    rom_id = args['rom_id'] if 'rom_id' in args else None
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
         repository = ROMsRepository(uow)
@@ -359,7 +361,7 @@ def cmd_rom_metadata_nplayers(args):
         
         default_options = list(constants.NPLAYERS_LIST.keys())
         menu_list = [
-            kodi.translate(42001), 
+            kodi.translate(42001),
             kodi.translate(42022)
         ] + default_options
         selected_option = kodi.ListDialog().select(kodi.translate(41094), menu_list)
@@ -400,9 +402,9 @@ def cmd_rom_metadata_nplayers_online(args):
         
         default_options = list(constants.NPLAYERS_LIST.keys())
         menu_list = [
-                kodi.translate(42001), 
-                kodi.translate(42022)
-            ] + default_options
+            kodi.translate(42001),
+            kodi.translate(42022)
+        ] + default_options
         selected_option = kodi.ListDialog().select(kodi.translate(41095), menu_list)
         
         if selected_option is None or selected_option < 0:
@@ -488,7 +490,7 @@ def cmd_rom_metadata_tags(args):
             
             if selected_option == 'ROM_ADD_METADATA_TAGS' or \
                 selected_option == 'ROM_CLEAR_METADATA_TAGS':
-                break               
+                break
             
             if not kodi.dialog_yesno(kodi.translate(41057).format(selected_option)):
                 continue

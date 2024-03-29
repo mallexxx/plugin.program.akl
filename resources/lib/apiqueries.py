@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 def qry_get_rom(rom_id: str) -> str:
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
-        rom_repository = ROMsRepository(uow)        
+        rom_repository = ROMsRepository(uow)
         rom = rom_repository.find_rom(rom_id)
         
         if rom is None:
@@ -45,7 +45,7 @@ def qry_get_rom(rom_id: str) -> str:
 def qry_get_rom_collection(collection_id: str) -> str:
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
-        collection_repository = ROMCollectionRepository(uow)        
+        collection_repository = ROMCollectionRepository(uow)
         rom_collection = collection_repository.find_romcollection(collection_id)
         
         if rom_collection is None:

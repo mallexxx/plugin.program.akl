@@ -346,7 +346,7 @@ def cmd_remove_romcollection_launchers(args):
     
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
-        romcollection_repository = ROMCollectionRepository(uow)        
+        romcollection_repository = ROMCollectionRepository(uow)
         romcollection = romcollection_repository.find_romcollection(romcollection_id)
     
         launchers = romcollection.get_launchers()
@@ -431,7 +431,7 @@ def cmd_remove_rom_launchers(args):
     
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
-        repository = ROMsRepository(uow)        
+        repository = ROMsRepository(uow)
         rom = repository.find_rom(rom_id)
     
         launchers = rom.get_launchers()

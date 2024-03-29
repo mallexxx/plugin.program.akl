@@ -92,8 +92,8 @@ class AppService(object):
         self.shutdown()
 
     def shutdown(self):
-        logger.debug("Shutting down AKL service")        
-        kodi.set_windowprop('akl_server_state', 'STOPPING')        
+        logger.debug("Shutting down AKL service")
+        kodi.set_windowprop('akl_server_state', 'STOPPING')
         
         self.webservice.stop()
         del self.monitor
@@ -102,7 +102,7 @@ class AppService(object):
         kodi.set_windowprop('akl_server_state', 'STOPPED')
         logger.debug("AKL service stopped")
         
-    def _initial_setup(self, uow:UnitOfWork):
+    def _initial_setup(self, uow: UnitOfWork):
         kodi.notify(kodi.translate(40981))
         uow.create_empty_database(globals.g_PATHS.DATABASE_SCHEMA_PATH)
         logger.info("Database created.")
@@ -144,7 +144,7 @@ class AppService(object):
             return True
         
         min_days_ago = settings.getSettingAsInt('regeneration_days_period')
-        if not min_days_ago or min_days_ago == 0: 
+        if not min_days_ago or min_days_ago == 0:
             logger.info('Automatic scan and view generation disabled.')
             return
         
@@ -158,8 +158,9 @@ class AppService(object):
         if too_long_ago:
             logger.info(f'Triggering automatic scan and view generation. Last scan was {now-then} days ago')
         else:
-            logger.info(f'Skipping automatic scan and view generation. Last scan was {now-then} days ago')        
+            logger.info(f'Skipping automatic scan and view generation. Last scan was {now-then} days ago')
         return too_long_ago
+
 
 class AppMonitor(xbmc.Monitor):
     
@@ -179,7 +180,7 @@ class AppMonitor(xbmc.Monitor):
         data_obj = None
         try:
             data_obj = json.loads(data)
-        except:
+        except Exception:
             logger.error('Failed to load arguments as json')
 
         action_data = {
