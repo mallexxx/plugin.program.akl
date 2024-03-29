@@ -524,7 +524,7 @@ def cmd_romcollection_change_category(args):
         options[root_category] = root_category.get_name()
         options.update({category: category.get_name() for category in all_categories})
 
-        selected_option = kodi.OrdDictionaryDialog().select(kodi.translate(41128), options)
+        selected_option = kodi.OrdDictionaryDialog().select(kodi.translate(41128).format(romcollection.get_name()), options)
         if selected_option is None:
             # >> Return recursively to parent menu.
             logger.debug('cmd_romcollection_change_category(): Selected NONE')
