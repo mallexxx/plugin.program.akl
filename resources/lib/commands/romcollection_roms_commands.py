@@ -68,12 +68,12 @@ def cmd_manage_roms(args):
         logger.debug('ROMCOLLECTION_MANAGE_ROMS: cmd_manage_roms() Selected None. Closing context menu')
         if 'scraper_settings' in args:
             del args['scraper_settings']
-        AppMediator.async_cmd('EDIT_ROMCOLLECTION', args)
+        AppMediator.sync_cmd('EDIT_ROMCOLLECTION', args)
         return
     
     # >> Execute subcommand. May be atomic, maybe a submenu.
     logger.debug('ROMCOLLECTION_MANAGE_ROMS: cmd_manage_roms() Selected {}'.format(selected_option))
-    AppMediator.async_cmd(selected_option, args)
+    AppMediator.sync_cmd(selected_option, args)
 
 
 # --- Choose default ROMs assets/artwork ---
@@ -103,7 +103,7 @@ def cmd_set_roms_default_artwork(args):
         if selected_asset_info is None:
             # >> Return to parent menu.
             logger.debug('Main selected NONE. Returning to parent menu.')
-            AppMediator.async_cmd('ROMCOLLECTION_MANAGE_ROMS', args)
+            AppMediator.sync_cmd('ROMCOLLECTION_MANAGE_ROMS', args)
             return
         
         logger.debug(f'Main select() returned {selected_asset_info.name}')
@@ -125,7 +125,7 @@ def cmd_set_roms_default_artwork(args):
         if new_selected_asset_info is None:
             # >> Return to this method recursively to previous menu.
             logger.debug('Mapable selected NONE. Returning to previous menu.')
-            AppMediator.async_cmd('ROMCOLLECTION_MANAGE_ROMS', args)
+            AppMediator.sync_cmd('ROMCOLLECTION_MANAGE_ROMS', args)
             return
         
         logger.debug(f'Mapable selected {new_selected_asset_info.name}.')
@@ -141,7 +141,7 @@ def cmd_set_roms_default_artwork(args):
         AppMediator.async_cmd('RENDER_ROMCOLLECTION_VIEW', {'romcollection_id': romcollection.get_id()})
         AppMediator.async_cmd('RENDER_CATEGORY_VIEW', {'category_id': romcollection.get_parent_id()})
 
-    AppMediator.async_cmd('SET_ROMS_DEFAULT_ARTWORK', {
+    AppMediator.sync_cmd('SET_ROMS_DEFAULT_ARTWORK', {
         'romcollection_id': romcollection.get_id(),
         'selected_asset': selected_asset_info.id})
 
@@ -172,16 +172,16 @@ def cmd_import_roms(args):
     if selected_option is None:
         # >> Exits context menu
         logger.debug('IMPORT_ROMS: Selected None. Closing context menu')
-        AppMediator.async_cmd('ROMCOLLECTION_MANAGE_ROMS', args)
+        AppMediator.sync_cmd('ROMCOLLECTION_MANAGE_ROMS', args)
         return
     
     if selected_option == 'NEW_IMPORT_RULESET':
-        AppMediator.async_cmd(selected_option, args)
+        AppMediator.sync_cmd(selected_option, args)
         return
     
     logger.debug(f'IMPORT_ROMS: Selected set {selected_option}')
     args['ruleset_id'] = selected_option
-    AppMediator.async_cmd('EDIT_IMPORT_RULESET', args)
+    AppMediator.sync_cmd('EDIT_IMPORT_RULESET', args)
 
 
 @AppMediator.register('NEW_IMPORT_RULESET')
@@ -197,7 +197,7 @@ def cmd_new_import_ruleset(args):
         if selected_source is None:
             # >> Exits context menu
             logger.debug('NEW_IMPORT_RULESET: No source selected. Closing context menu')
-            AppMediator.async_cmd('IMPORT_ROMS', args)
+            AppMediator.sync_cmd('IMPORT_ROMS', args)
             return
         
         logger.debug(f'NEW_IMPORT_RULESET: Selected source {selected_source.get_id()}')
@@ -209,7 +209,7 @@ def cmd_new_import_ruleset(args):
         uow.commit()
         
     args['ruleset_id'] = ruleset.get_ruleset_id()
-    AppMediator.async_cmd('EDIT_IMPORT_RULESET', args)
+    AppMediator.sync_cmd('EDIT_IMPORT_RULESET', args)
 
 
 @AppMediator.register('EDIT_IMPORT_RULESET')
@@ -310,7 +310,7 @@ def cmd_add_rule_to_ruleset(args):
     entity_data = rule.get_data_dic()
     entity_data = wizard.runWizard(entity_data)
     if entity_data is None:
-        AppMediator.async_cmd('EDIT_IMPORT_RULESET', args)
+        AppMediator.sync_cmd('EDIT_IMPORT_RULESET', args)
         return
         
     rule.import_data_dic(entity_data)
@@ -323,7 +323,7 @@ def cmd_add_rule_to_ruleset(args):
         repository.update_ruleset_in_romcollection(romcollection_id, ruleset)
         uow.commit()
 
-    AppMediator.async_cmd('EDIT_IMPORT_RULESET', args)
+    AppMediator.sync_cmd('EDIT_IMPORT_RULESET', args)
     kodi.notify(kodi.translate(41180))
 
 
@@ -374,14 +374,14 @@ def cmd_edit_rule(args):
             entity_data = rule.get_data_dic()
             entity_data = wizard.runWizard(entity_data)
             if entity_data is None:
-                AppMediator.async_cmd('EDIT_IMPORT_RULESET', args)
+                AppMediator.sync_cmd('EDIT_IMPORT_RULESET', args)
                 return
                 
             rule.import_data_dic(entity_data)
             repository.update_ruleset_in_romcollection(romcollection_id, ruleset)
             uow.commit()
 
-    AppMediator.async_cmd('EDIT_IMPORT_RULESET', args)
+    AppMediator.sync_cmd('EDIT_IMPORT_RULESET', args)
     kodi.notify(kodi.translate(41180))
 
 
@@ -437,13 +437,13 @@ def cmd_execute_ruleset(args):
         progress_dialog.close()
         uow.commit()
         
-    AppMediator.async_cmd('EDIT_IMPORT_RULESET', args)
     AppMediator.async_cmd('RENDER_ROMCOLLECTION_VIEW', {'romcollection_id': romcollection_id})
     kodi.notify(kodi.translate(41183))
+    AppMediator.sync_cmd('EDIT_IMPORT_RULESET', args)
 
 
-@AppMediator.register('EXECUTE_ALL_RULESET')
-def cmd_execute_all_ruleset(args):
+@AppMediator.register('EXECUTE_ALL_RULESETS')
+def cmd_execute_all_rulesets(args):
     romcollection_id: str = args['romcollection_id'] if 'romcollection_id' in args else None
     
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
