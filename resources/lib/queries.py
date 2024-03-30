@@ -81,7 +81,7 @@ SELECT_ROMCOLLECTIONS_BY_SOURCE = """
     SELECT rs.* FROM vw_romcollections AS rs
     WHERE rs.id IN (
         SELECT rr.romcollection_id FROM roms_in_romcollection AS rr
-        INNER JOIN roms ON rr.rom_id = r.id
+        INNER JOIN roms AS r ON rr.rom_id = r.id
         WHERE r.scanned_by_id = ?
     )
 """
@@ -111,7 +111,7 @@ SELECT_ROMCOLLECTION_ASSETS_BY_SOURCE = """
     SELECT ra.* FROM vw_romcollection_assets AS ra
     WHERE ra.romcollection_id IN (
         SELECT DISTINCT(rr.romcollection_id) FROM roms_in_romcollection AS rr
-        INNER JOIN roms ON rr.rom_id = r.id
+        INNER JOIN roms AS r ON rr.rom_id = r.id
         WHERE r.scanned_by_id = ?
     )
 """
@@ -146,34 +146,34 @@ SELECT_ROMCOLLECTION_ASSET_MAPPINGS_BY_SOURCE = """
     INNER JOIN romcollections AS rc ON mm.metadata_id = rc.metadata_id
     WHERE rc.id IN (
         SELECT DISTINCT(rr.romcollection)_id FROM roms_in_romcollection AS rr
-        INNER JOIN roms ON rr.rom_id = r.id
+        INNER JOIN roms AS r ON rr.rom_id = r.id
         WHERE r.scanned_by_id = ?
     )
 """
 SELECT_SPECIFIC_ROMCOLLECTION_ROM_ASSET_MAPPINGS = """
     SELECT am.*, rm.romcollection_id FROM assetmappings AS am 
-    INNER JOIN romcollection_roms_assetmappings AS rm ON rm.assetmapping_id = am.id 
+    INNER JOIN romcollection_roms_assetmappings AS rm ON rm.assetmapping_id = am.id
     AND rm.romcollection_id = ?
     """
 SELECT_ROMCOLLECTION_ROM_ASSET_MAPPINGS = """
     SELECT am.*, rm.romcollection_id FROM assetmappings AS am 
-    INNER JOIN romcollection_roms_assetmappings AS rm ON rm.assetmapping_id = am.id 
+    INNER JOIN romcollection_roms_assetmappings AS rm ON rm.assetmapping_id = am.id
     INNER JOIN romcollections AS rc ON rm.romcollection_id = rc.id
     """
 SELECT_ROOT_ROMCOLLECTION_ROM_ASSET_MAPPINGS = """
-                                    SELECT am.*, rm.romcollection_id FROM assetmappings AS am 
-                                    INNER JOIN romcollection_roms_assetmappings AS rm ON rm.assetmapping_id = am.id 
-                                    INNER JOIN romcollections AS rc ON rm.romcollection_id = rc.id
-                                    WHERE parent_id IS NULL
-                                    """
+    SELECT am.*, rm.romcollection_id FROM assetmappings AS am
+    INNER JOIN romcollection_roms_assetmappings AS rm ON rm.assetmapping_id = am.id
+    INNER JOIN romcollections AS rc ON rm.romcollection_id = rc.id
+    WHERE parent_id IS NULL
+    """
 SELECT_ROMCOLLECTION_ROM_ASSET_MAPPINGS_BY_PARENT = """
-    SELECT am.*, rm.romcollection_id FROM assetmappings AS am 
-    INNER JOIN romcollection_roms_assetmappings AS rm ON rm.assetmapping_id = am.id 
+    SELECT am.*, rm.romcollection_id FROM assetmappings AS am
+    INNER JOIN romcollection_roms_assetmappings AS rm ON rm.assetmapping_id = am.id
     INNER JOIN romcollections AS rc ON rm.romcollection_id = rc.id
     WHERE parent_id = ?
     """
 SELECT_ROMCOLLECTION_ROM_ASSET_MAPPINGS_BY_ROM = """
-    SELECT am.*, rm.romcollection_id FROM assetmappings AS am 
+    SELECT am.*, rm.romcollection_id FROM assetmappings AS am
     INNER JOIN romcollection_roms_assetmappings AS rm ON rm.assetmapping_id = am.id 
     INNER JOIN romcollections AS rc ON rm.romcollection_id = rc.id
     INNER JOIN roms_in_romcollection AS rr ON rr.romcollection_id = rc.id WHERE rr.rom_id = ?
@@ -184,7 +184,7 @@ SELECT_ROMCOLLECTION_ROM_ASSET_MAPPINGS_BY_SOURCE = """
     INNER JOIN romcollections AS rc ON rm.romcollection_id = rc.id
     WHERE rc.id IN (
         SELECT DISTINCT(rr.romcollection)_id FROM roms_in_romcollection AS rr
-        INNER JOIN roms ON rr.rom_id = r.id
+        INNER JOIN roms AS r ON rr.rom_id = r.id
         WHERE r.scanned_by_id = ?
     )
 """
@@ -205,7 +205,7 @@ SELECT_ROMCOLLECTION_LAUNCHERS_BY_SOURCE = """
     SELECT rl.* FROM vw_romcollection_launchers AS rl
     WHERE rl.romcollection_id IN (
         SELECT DISTINCT(rr.romcollection_id) FROM roms_in_romcollection AS rr
-        INNER JOIN roms ON rr.rom_id = r.id
+        INNER JOIN roms AS r ON rr.rom_id = r.id
         WHERE r.scanned_by_id = ?
     )
     """
@@ -247,15 +247,26 @@ SELECT_ROM_ASSETS = "SELECT * FROM vw_rom_assets WHERE rom_id = ?"
 SELECT_ROM_ASSETPATHS = "SELECT * FROM vw_rom_asset_paths WHERE rom_id = ?"
 SELECT_ROM_TAGS = "SELECT * FROM vw_rom_tags WHERE rom_id = ?"
 SELECT_ROM_ASSET_MAPPINGS = """
-    SELECT am.*, mm.metadata_id FROM assetmappings AS am 
+    SELECT am.*, mm.metadata_id FROM assetmappings AS am
     INNER JOIN metadata_assetmappings AS mm ON mm.assetmapping_id = am.id
     INNER JOIN roms AS r ON mm.metadata_id = r.metadata_id
     AND r.id = ?
     """
-
-SELECT_ROMS_BY_SET = "SELECT r.* FROM vw_roms AS r INNER JOIN roms_in_romcollection AS rs ON rs.rom_id = r.id AND rs.romcollection_id = ?"
-SELECT_ROM_ASSETS_BY_SET = "SELECT ra.* FROM vw_rom_assets AS ra INNER JOIN roms_in_romcollection AS rs ON rs.rom_id = ra.rom_id AND rs.romcollection_id = ?"
-SELECT_ROM_ASSETPATHS_BY_SET = "SELECT rap.* FROM vw_rom_asset_paths AS rap INNER JOIN roms_in_romcollection AS rs ON rs.rom_id = rap.rom_id AND rs.romcollection_id = ?"
+SELECT_ROMS_BY_SET = """
+    SELECT r.* FROM vw_roms AS r
+    INNER JOIN roms_in_romcollection AS rs
+    ON rs.rom_id = r.id AND rs.romcollection_id = ?
+    """
+SELECT_ROM_ASSETS_BY_SET = """
+    SELECT ra.* FROM vw_rom_assets AS ra
+    INNER JOIN roms_in_romcollection AS rs
+    ON rs.rom_id = ra.rom_id AND rs.romcollection_id = ?
+    """
+SELECT_ROM_ASSETPATHS_BY_SET = """
+    SELECT rap.* FROM vw_rom_asset_paths AS rap
+    INNER JOIN roms_in_romcollection AS rs
+    ON rs.rom_id = rap.rom_id AND rs.romcollection_id = ?
+    """
 SELECT_ROM_TAGS_BY_SET = "SELECT rt.* FROM vw_rom_tags AS rt INNER JOIN roms_in_romcollection AS rs ON rs.rom_id = rt.rom_id AND rs.romcollection_id = ?"
 SELECT_ROM_ASSET_MAPPINGS_BY_SET = """
     SELECT am.*, mm.metadata_id FROM assetmappings AS am 
@@ -265,7 +276,11 @@ SELECT_ROM_ASSET_MAPPINGS_BY_SET = """
     AND rs.romcollection_id = ?
 """
 
-SELECT_ROMS_BY_CATEGORY = "SELECT r.* FROM vw_roms AS r INNER JOIN roms_in_category AS rc ON rc.rom_id = r.id AND rc.category_id = ?"
+SELECT_ROMS_BY_CATEGORY = """
+    SELECT r.* FROM vw_roms AS r
+    INNER JOIN roms_in_category AS rc
+    ON rc.rom_id = r.id AND rc.category_id = ?
+"""
 SELECT_ROM_ASSETS_BY_CATEGORY = "SELECT ra.* FROM vw_rom_assets AS ra INNER JOIN roms_in_category AS rc ON rc.rom_id = ra.rom_id AND rc.category_id = ?"
 SELECT_ROM_ASSETPATHS_BY_CATEGORY = "SELECT rap.* FROM vw_rom_asset_paths AS rap INNER JOIN roms_in_category AS rc ON rc.rom_id = rap.rom_id AND rc.category_id = ?"
 SELECT_ROM_TAGS_BY_CATEGORY = "SELECT rt.* FROM vw_rom_tags AS rt INNER JOIN roms_in_category AS rc ON rc.rom_id = rt.rom_id AND rc.category_id = ?"
@@ -328,16 +343,28 @@ INSERT_ROM = """
     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
     """
 
-SELECT_MY_FAVOURITES = "SELECT * FROM vw_roms WHERE is_favourite = 1"                                
-SELECT_RECENTLY_PLAYED_ROMS = "SELECT * FROM vw_roms WHERE last_launch_timestamp IS NOT NULL ORDER BY last_launch_timestamp DESC LIMIT 100"
-SELECT_MOST_PLAYED_ROMS = "SELECT * FROM vw_roms WHERE launch_count > 0 ORDER BY launch_count DESC LIMIT 100"
-SELECT_FAVOURITES_ROM_ASSETS = "SELECT ra.* FROM vw_rom_assets AS ra INNER JOIN roms AS r ON r.id = ra.rom_id WHERE r.is_favourite = 1"
+SELECT_MY_FAVOURITES = "SELECT * FROM vw_roms WHERE is_favourite = 1"
+SELECT_RECENTLY_PLAYED_ROMS = """
+    SELECT * FROM vw_roms 
+    WHERE last_launch_timestamp IS NOT NULL 
+    ORDER BY last_launch_timestamp DESC LIMIT 100
+    """
+SELECT_MOST_PLAYED_ROMS = """
+    SELECT * FROM vw_roms
+    WHERE launch_count > 0
+    ORDER BY launch_count DESC LIMIT 100
+    """
+SELECT_FAVOURITES_ROM_ASSETS = """
+    SELECT ra.* FROM vw_rom_assets AS ra
+    INNER JOIN roms AS r ON r.id = ra.rom_id
+    WHERE r.is_favourite = 1
+    """
 SELECT_RECENTLY_PLAYED_ROM_ASSETS = """
-    SELECT ra.* FROM vw_rom_assets AS ra INNER JOIN roms AS r ON r.id = ra.rom_id 
+    SELECT ra.* FROM vw_rom_assets AS ra INNER JOIN roms AS r ON r.id = ra.rom_id
     WHERE r.last_launch_timestamp IS NOT NULL ORDER BY last_launch_timestamp DESC LIMIT 100
     """
 SELECT_MOST_PLAYED_ROM_ASSETS = """
-    SELECT ra.* FROM vw_rom_assets AS ra INNER JOIN roms AS r ON r.id = ra.rom_id 
+    SELECT ra.* FROM vw_rom_assets AS ra INNER JOIN roms AS r ON r.id = ra.rom_id
     WHERE r.launch_count > 0 ORDER BY launch_count DESC LIMIT 100
     """
 
@@ -350,7 +377,10 @@ SELECT_BY_ESRB = "SELECT * FROM vw_roms WHERE esrb = ?"
 SELECT_BY_PEGI = "SELECT * FROM vw_roms WHERE pegi = ?"
 SELECT_BY_RATING = "SELECT * FROM vw_roms WHERE m_rating = ?"
                                 
-SELECT_BY_TITLE_ASSETS = "SELECT ra.* FROM vw_rom_assets AS ra INNER JOIN vw_roms AS r ON r.id = ra.rom_id WHERE UPPER(r.m_name) LIKE ? || '%'"
+SELECT_BY_TITLE_ASSETS = """
+    SELECT ra.* FROM vw_rom_assets AS ra INNER JOIN vw_roms AS r
+    ON r.id = ra.rom_id WHERE UPPER(r.m_name) LIKE ? || '%'
+    """
 SELECT_BY_GENRE_ASSETS = "SELECT ra.* FROM vw_rom_assets AS ra INNER JOIN vw_roms AS r ON r.id = ra.rom_id WHERE r.m_genre = ?"
 SELECT_BY_DEVELOPER_ASSETS = "SELECT ra.* FROM vw_rom_assets AS ra INNER JOIN vw_roms AS r ON r.id = ra.rom_id WHERE r.m_developer = ?"
 SELECT_BY_YEAR_ASSETS = "SELECT ra.* FROM vw_rom_assets AS ra INNER JOIN vw_roms AS r ON r.id = ra.rom_id WHERE r.m_year = ?"
@@ -373,13 +403,24 @@ DELETE_ROM = "DELETE FROM roms WHERE id = ?"
 DELETE_ROMS_BY_COLLECTION = "DELETE FROM roms WHERE id IN (SELECT rc.rom_id FROM roms_in_romcollection AS rc WHERE rc.romcollection_id = ?)"
 
 SELECT_ROM_SCANNED_DATA = "SELECT s.* FROM scanned_roms_data AS s WHERE s.rom_id = ?"
-SELECT_ROM_SCANNED_DATA_BY_SET = "SELECT s.* FROM scanned_roms_data AS s INNER JOIN roms_in_romcollection AS rs ON rs.rom_id = s.rom_id AND rs.romcollection_id = ?"
-SELECT_ROM_SCANNED_DATA_BY_CATEGORY = "SELECT s.* FROM scanned_roms_data AS s INNER JOIN roms_in_category AS rc ON rc.rom_id = s.rom_id AND rc.category_id = ?"
-SELECT_ROM_SCANNED_DATA_BY_SOURCE = "SELECT s.* FROM scanned_roms_data AS s INNER JOIN roms AS r ON r.id = s.rom_id AND r.scanned_by_id = ?"
-SELECT_ROM_SCANNED_DATA_BY_ROOT_CATEGORY = "SELECT s.* FROM scanned_roms_data AS s INNER JOIN roms_in_category AS rc ON rc.rom_id = s.rom_id AND rc.category_id IS NULL"
+SELECT_ROM_SCANNED_DATA_BY_SET = """
+    SELECT s.* FROM scanned_roms_data AS s INNER JOIN roms_in_romcollection AS rs
+    ON rs.rom_id = s.rom_id AND rs.romcollection_id = ?
+    """
+SELECT_ROM_SCANNED_DATA_BY_CATEGORY = """
+    SELECT s.* FROM scanned_roms_data AS s INNER JOIN roms_in_category AS rc
+    ON rc.rom_id = s.rom_id AND rc.category_id = ?
+    """
+SELECT_ROM_SCANNED_DATA_BY_SOURCE = """
+    SELECT s.* FROM scanned_roms_data AS s INNER JOIN roms AS r ON r.id = s.rom_id AND r.scanned_by_id = ?
+    """
+SELECT_ROM_SCANNED_DATA_BY_ROOT_CATEGORY = """
+    SELECT s.* FROM scanned_roms_data AS s INNER JOIN roms_in_category AS rc
+    ON rc.rom_id = s.rom_id AND rc.category_id IS NULL
+    """
 SELECT_STANDALONE_ROM_SCANNED_DATA = """
     SELECT s.* FROM scanned_roms_data AS s INNER JOIN roms AS r ON r.id = s.rom_id AND r.scanned_by_id = ''
-"""    
+"""
 DELETE_SCANNED_DATA = "DELETE FROM scanned_roms_data WHERE rom_id = ?"
 
 SELECT_TAGS = "SELECT * FROM tags"
@@ -398,7 +439,9 @@ SELECT_LAUNCHER_ADDONS = "SELECT * FROM akl_addon WHERE addon_type = 'LAUNCHER' 
 SELECT_SCANNER_ADDONS = "SELECT * FROM akl_addon WHERE addon_type = 'SCANNER' ORDER BY name"
 SELECT_SCRAPER_ADDONS = "SELECT * FROM akl_addon WHERE addon_type = 'SCRAPER' ORDER BY name"
 INSERT_ADDON = "INSERT INTO akl_addon(id, name, addon_id, version, addon_type, extra_settings) VALUES(?,?,?,?,?,?)"
-UPDATE_ADDON = "UPDATE akl_addon SET name = ?, addon_id = ?, version = ?, addon_type = ?, extra_settings = ? WHERE id = ?"
+UPDATE_ADDON = """
+    UPDATE akl_addon SET name = ?, addon_id = ?, version = ?, addon_type = ?, extra_settings = ? WHERE id = ?
+    """
 
 # Source
 SELECT_SOURCE = "SELECT * FROM vw_sources WHERE id = ?"
