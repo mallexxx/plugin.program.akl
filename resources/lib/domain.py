@@ -679,7 +679,7 @@ class ScraperAddon(ROMAddon):
         super(ScraperAddon, self).__init__(addon, entity_data)
     
     def get_name(self):
-        if not self.entity_data['name']:
+        if 'name' not in self.entity_data or not self.entity_data['name']:
             return super().get_addon_name()
         return self.entity_data["name"]
     
