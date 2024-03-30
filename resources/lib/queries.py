@@ -145,7 +145,7 @@ SELECT_ROMCOLLECTION_ASSET_MAPPINGS_BY_SOURCE = """
     INNER JOIN metadata_assetmappings AS mm ON mm.assetmapping_id = am.id
     INNER JOIN romcollections AS rc ON mm.metadata_id = rc.metadata_id
     WHERE rc.id IN (
-        SELECT DISTINCT(rr.romcollection)_id FROM roms_in_romcollection AS rr
+        SELECT DISTINCT(rr.romcollection_id) FROM roms_in_romcollection AS rr
         INNER JOIN roms AS r ON rr.rom_id = r.id
         WHERE r.scanned_by_id = ?
     )
@@ -183,7 +183,7 @@ SELECT_ROMCOLLECTION_ROM_ASSET_MAPPINGS_BY_SOURCE = """
     INNER JOIN romcollection_roms_assetmappings AS rm ON rm.assetmapping_id = am.id
     INNER JOIN romcollections AS rc ON rm.romcollection_id = rc.id
     WHERE rc.id IN (
-        SELECT DISTINCT(rr.romcollection)_id FROM roms_in_romcollection AS rr
+        SELECT DISTINCT(rr.romcollection_id) FROM roms_in_romcollection AS rr
         INNER JOIN roms AS r ON rr.rom_id = r.id
         WHERE r.scanned_by_id = ?
     )
