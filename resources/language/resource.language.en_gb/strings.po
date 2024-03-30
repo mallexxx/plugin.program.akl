@@ -2166,6 +2166,10 @@ msgctxt "#42090"
 msgid "Create new launcher..."
 msgstr ""
 
+msgctxt "#42091"
+msgid "ROM '{}' status is now {}"
+msgstr ""
+
 ############################
 # Context menu item descriptions
 ############################

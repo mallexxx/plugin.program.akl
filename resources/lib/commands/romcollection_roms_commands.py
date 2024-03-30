@@ -381,8 +381,8 @@ def cmd_edit_rule(args):
             repository.update_ruleset_in_romcollection(romcollection_id, ruleset)
             uow.commit()
 
-    AppMediator.sync_cmd('EDIT_IMPORT_RULESET', args)
     kodi.notify(kodi.translate(41180))
+    AppMediator.sync_cmd('EDIT_IMPORT_RULESET', args)
 
 
 def _select_source_for_rules(uow: UnitOfWork):
