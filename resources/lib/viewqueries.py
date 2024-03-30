@@ -763,7 +763,9 @@ def qry_listitem_context_menu_items(list_item_data, container_data) -> typing.Li
     if is_source:
         if item_id and len(item_id) > 0:
             commands.append((kodi.translate(40915), _context_menu_url_for(f'/source/edit/{item_id}')))
-        commands.append((kodi.translate(42046), _context_menu_url_for('/execute/command/scan_roms')))
+        commands.append((kodi.translate(42046), _context_menu_url_for('/execute/command/scan_roms', {
+            'source_id': item_id
+        })))
         
     if is_launcher:
         if item_id and len(item_id) > 0:
