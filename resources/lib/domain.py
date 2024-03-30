@@ -817,20 +817,34 @@ class Rule(EntityABC):
         operator = self.get_operator()
         entity_property = self.get_property()
         property_value = self.get_value()
-        
         actual = rom.get_custom_attribute(entity_property)
+        
         if operator == RuleOperator.Equals:
+            if isinstance(actual, str):
+                return actual.casefold() == property_value.casefold()
             return actual == property_value
+        
         if operator == RuleOperator.NotEquals:
+            if isinstance(actual, str):
+                return actual.casefold() != property_value.casefold()
             return actual != property_value
+        
         if operator == RuleOperator.Contains:
+            if isinstance(actual, str):
+                return property_value.casefold() in actual.casefold()
             return property_value in actual
+        
         if operator == RuleOperator.DoesNotContain:
+            if isinstance(actual, str):
+                return property_value.casefold() not in actual.casefold()
             return property_value not in actual
+        
         if operator == RuleOperator.MoreThan:
             return property_value > actual
+        
         if operator == RuleOperator.LessThan:
             return property_value < actual
+        
         return False
 
 
@@ -2679,9 +2693,9 @@ class VirtualCollectionFactory(object):
         return None
 
     @staticmethod
-    def create_by_category(vcategory_id:str, collection_value:str) -> VirtualCollection:
+    def create_by_category(vcategory_id: str, collection_value: str) -> VirtualCollection:
 
-        default_entity_data = _get_default_ROMCollection_data_model()    
+        default_entity_data = _get_default_ROMCollection_data_model()
         return VirtualCollection(dict(default_entity_data, **{
             'id' : f'{vcategory_id}_{collection_value}',
             'parent_id': vcategory_id,
@@ -2690,7 +2704,11 @@ class VirtualCollectionFactory(object):
             'collection_value': collection_value,
             'finished': settings.getSettingAsBool('display_hide_vcategories')
         }), [
-            Asset({'id' : '', 'asset_type' : constants.ASSET_FANART_ID, 'filepath' : globals.g_PATHS.FANART_FILE_PATH.getPath()})
+            Asset({
+                'id': '',
+                'asset_type': constants.ASSET_FANART_ID,
+                'filepath': globals.g_PATHS.FANART_FILE_PATH.getPath()
+            })
         ])
 
 class VirtualCategoryFactory(object):
