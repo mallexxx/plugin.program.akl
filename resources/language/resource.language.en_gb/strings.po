@@ -712,7 +712,7 @@ msgstr ""
 # msgstr ""
 
 msgctxt "#40890"
-msgid "Standalone ROM"
+msgid "Standalone ROM / application"
 msgstr ""
 
 msgctxt "#40891"
@@ -858,9 +858,10 @@ msgctxt "#40951"
 msgid "Invalid parameters supplied."
 msgstr ""
 
-msgctxt "#40952"
-msgid "File is directly executable/launchable"
-msgstr ""
+# TODO: Obsolete
+# msgctxt "#40952"
+# msgid "File is directly executable/launchable"
+# msgstr ""
 
 msgctxt "#40953"
 msgid "Select file to execute (Skip if not available)"

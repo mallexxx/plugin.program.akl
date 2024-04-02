@@ -266,10 +266,6 @@ def cmd_add_standalone_source(args):
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
         roms_repository = ROMsRepository(uow)
-        addons_repository = AklAddonRepository(uow)
-        launchers_repository = LaunchersRepository(uow)
-        
-        launchers = launchers_repository.find_all()
 
         file_path = kodi.dialog_get_file(kodi.translate(40953))
         if file_path is not None:
@@ -290,28 +286,6 @@ def cmd_add_standalone_source(args):
         if file_path:
             rom_obj.set_scanned_data_element("file", file_path)
     
-        options = collections.OrderedDict()
-        options["LAUNCH_DIRECTLY"] = kodi.translate(40952)
-        for launcher in launchers:
-            options[launcher] = launcher.get_name()
-    
-        s = kodi.translate(41106)
-        selected_option = kodi.OrdDictionaryDialog().select(s, options)
-        
-        if selected_option == "LAUNCH_DIRECTLY":
-            addon_id = "script.akl.defaults"
-            addon = addons_repository.find_by_addon_id(addon_id, constants.AddonType.LAUNCHER)
-            launcher = ROMLauncherAddonFactory.create(addon, None)
-            launcher.set_settings({
-                "name": f"Standalone File Launcher: {rom_name}",
-                "application": file_path,
-                "args": "",
-                "secname": path.getBase()
-            })
-            launchers_repository.insert_launcher(launcher)
-            selected_option = launcher
-        
-        rom_obj.add_launcher(selected_option, is_default=True)
         roms_repository.insert_rom(rom_obj)
         uow.commit()
         
