@@ -69,7 +69,7 @@ CREATE VIEW IF NOT EXISTS vw_categories AS SELECT
     (SELECT COUNT(*) FROM categories AS sc WHERE sc.parent_id = c.id) AS num_categories,
     (SELECT COUNT(*) FROM romcollections AS sr WHERE sr.parent_id = c.id) AS num_collections,
     (SELECT COUNT(*) FROM roms AS rms INNER JOIN roms_in_category AS rc ON rms.id = rc.rom_id AND rc.category_id = c.id) as num_roms,
-    (SELECT MAX(rms.changed_on) FROM roms AS rms INNER JOIN roms_in_category AS rc ON rms.id = rc.rom_id AND rc.category_id = c.id) as last_change_on
+    (SELECT MAX(rms.updated_on) FROM roms AS rms INNER JOIN roms_in_category AS rc ON rms.id = rc.rom_id AND rc.category_id = c.id) as last_change_on
 FROM categories AS c 
     INNER JOIN metadata AS m ON c.metadata_id = m.id;
 
@@ -87,8 +87,8 @@ CREATE VIEW IF NOT EXISTS vw_sources AS SELECT
     a.version,
     a.addon_type,
     a.extra_settings,
-    (SELECT COUNT(*) FROM roms AS rms WHERE rms.scanned_by_id = s.id) as num_roms
-    (SELECT MAX(rms.changed_on) FROM roms AS rms WHERE rms.scanned_by_id = s.id) as last_change_on
+    (SELECT COUNT(*) FROM roms AS rms WHERE rms.scanned_by_id = s.id) as num_roms,
+    (SELECT MAX(rms.updated_on) FROM roms AS rms WHERE rms.scanned_by_id = s.id) as last_change_on
 FROM sources AS s
     INNER JOIN akl_addon AS a ON s.akl_addon_id = a.id;
 
@@ -107,7 +107,7 @@ CREATE VIEW IF NOT EXISTS vw_romcollections AS SELECT
     r.platform AS platform,
     r.box_size AS box_size,
     (SELECT COUNT(*) FROM roms AS rms INNER JOIN roms_in_romcollection AS rrs ON rms.id = rrs.rom_id AND rrs.romcollection_id = r.id) as num_roms,
-    (SELECT MAX(rms.changed_on) FROM roms AS rms INNER JOIN roms_in_romcollection AS rrs ON rms.id = rrs.rom_id AND rrs.romcollection_id = r.id) as last_change_on
+    (SELECT MAX(rms.updated_on) FROM roms AS rms INNER JOIN roms_in_romcollection AS rrs ON rms.id = rrs.rom_id AND rrs.romcollection_id = r.id) as last_change_on
 FROM romcollections AS r 
     INNER JOIN metadata AS m ON r.metadata_id = m.id;
 
