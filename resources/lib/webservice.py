@@ -188,7 +188,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         '''Send headers and reponse
         '''
         try:
-            logger.debug('akl.webservice: Processing path "{}"'.format(self.path))
+            logger.debug(f'akl.webservice: Processing path "{self.path}"')
             api_path = self.path.lower()
             if headers_only:
                 self.send_response(200)
@@ -203,7 +203,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                     self.send_header('Content-type', 'application/json')
                     self.end_headers()
                 else:
-                    logger.warning('Not handeld: {}'.format(self.path))
+                    logger.warning(f'Not handled: {self.path}')
                     raise Exception("UnknownRequest")
             else:
                 logger.warning(self.path)

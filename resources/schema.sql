@@ -74,6 +74,8 @@ CREATE TABLE IF NOT EXISTS roms(
     is_favourite INTEGER DEFAULT 0 NOT NULL,
     launch_count INTEGER DEFAULT 0 NOT NULL,
     last_launch_timestamp TIMESTAMP,
+    created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     metadata_id TEXT,
     scanned_by_id TEXT NULL,
     FOREIGN KEY (metadata_id) REFERENCES metadata (id) 
@@ -281,7 +283,9 @@ CREATE VIEW IF NOT EXISTS vw_categories AS SELECT
     m.extra AS extra,
     m.finished AS finished,
     (SELECT COUNT(*) FROM categories AS sc WHERE sc.parent_id = c.id) AS num_categories,
-    (SELECT COUNT(*) FROM romcollections AS sr WHERE sr.parent_id = c.id) AS num_collections
+    (SELECT COUNT(*) FROM romcollections AS sr WHERE sr.parent_id = c.id) AS num_collections,
+    (SELECT COUNT(*) FROM roms AS rms INNER JOIN roms_in_category AS rc ON rms.id = rc.rom_id AND rc.category_id = c.id) as num_roms,
+    (SELECT MAX(rms.changed_on) FROM roms AS rms INNER JOIN roms_in_category AS rc ON rms.id = rc.rom_id AND rc.category_id = c.id) as last_change_on,
 FROM categories AS c 
     INNER JOIN metadata AS m ON c.metadata_id = m.id;
 
@@ -300,6 +304,7 @@ CREATE VIEW IF NOT EXISTS vw_sources AS SELECT
     a.addon_type,
     a.extra_settings,
     (SELECT COUNT(*) FROM roms AS rms WHERE rms.scanned_by_id = s.id) as num_roms
+    (SELECT MAX(rms.changed_on) FROM roms AS rms WHERE rms.scanned_by_id = s.id) as last_change_on,
 FROM sources AS s
     INNER JOIN akl_addon AS a ON s.akl_addon_id = a.id;
 
@@ -317,7 +322,8 @@ CREATE VIEW IF NOT EXISTS vw_romcollections AS SELECT
     m.finished AS finished,
     r.platform AS platform,
     r.box_size AS box_size,
-    (SELECT COUNT(*) FROM roms AS rms INNER JOIN roms_in_romcollection AS rrs ON rms.id = rrs.rom_id AND rrs.romcollection_id = r.id) as num_roms
+    (SELECT COUNT(*) FROM roms AS rms INNER JOIN roms_in_romcollection AS rrs ON rms.id = rrs.rom_id AND rrs.romcollection_id = r.id) as num_roms,
+    (SELECT MAX(rms.changed_on) FROM roms AS rms INNER JOIN roms_in_romcollection AS rrs ON rms.id = rrs.rom_id AND rrs.romcollection_id = r.id) as last_change_on,
 FROM romcollections AS r 
     INNER JOIN metadata AS m ON r.metadata_id = m.id;
     
@@ -346,6 +352,8 @@ CREATE VIEW IF NOT EXISTS vw_roms AS SELECT
     r.is_favourite,
     r.launch_count,
     r.last_launch_timestamp,
+    r.created_on,
+    r.updated_on,
     (
         SELECT group_concat(t.tag) AS rom_tags
         FROM tags AS t 

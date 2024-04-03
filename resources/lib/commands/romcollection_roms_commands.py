@@ -490,7 +490,7 @@ def cmd_execute_all_rulesets(args):
     kodi.notify(kodi.translate(41183))
 
 
-# --- Empty     Launcher ROMs ---
+# --- Empty ROMs in colleciton ---
 @AppMediator.register('CLEAR_ROMS')
 def cmd_clear_roms(args):
     romcollection_id: str = args['romcollection_id'] if 'romcollection_id' in args else None

@@ -547,6 +547,9 @@ class Source(ROMAddon):
     def has_roms(self) -> bool:
         return self.num_roms() > 0
         
+    def get_last_change_timestamp(self) -> datetime:
+        return datetime.datetime(self.entity_data['last_change_on']) if 'last_change_on' in self.entity_data else datetime.datetime.today()
+    
     def get_assets_root_path(self) -> io.FileName:
         return self._get_directory_filename_from_field('assets_path')
     
@@ -1261,6 +1264,9 @@ class Category(MetaDataItemABC):
     def has_items(self) -> bool:
         return self.num_romcollections() > 0 or self.num_categories() > 0
 
+    def get_last_change_timestamp(self) -> datetime:
+        return datetime.datetime(self.entity_data['last_change_on']) if 'last_change_on' in self.entity_data else datetime.datetime.today()
+
     def get_asset_ids_list(self):
         return constants.CATEGORY_ASSET_ID_LIST
     
@@ -1445,6 +1451,9 @@ class ROMCollection(MetaDataItemABC):
     def set_box_sizing(self, box_size):
         self.entity_data['box_size'] = box_size
 
+    def get_last_change_timestamp(self) -> datetime:
+        return datetime.datetime(self.entity_data['last_change_on']) if 'last_change_on' in self.entity_data else datetime.datetime.today()
+    
     def get_asset_ids_list(self):
         return constants.LAUNCHER_ASSET_ID_LIST
 

@@ -1277,7 +1277,7 @@ class ROMsRepository(object):
         self._uow.execute(qry.SELECT_ROM_TAGS_BY_ROOT_CATEGORY)
         tags_data_set = self._uow.result_set()
 
-        return self._process_roms_data(result_set, assets_result_set, asset_paths_result_set, asset_mappings_result_set, 
+        return self._process_roms_data(result_set, assets_result_set, asset_paths_result_set, asset_mappings_result_set,
                                        scanned_data_result_set, tags_data_set)
  
     def find_roms_by_category(self, category: Category) -> typing.Iterator[ROM]:
@@ -1318,7 +1318,7 @@ class ROMsRepository(object):
                 result_set = self._uow.result_set()
                 self._uow.execute(rom_assets_query, query_param)
                 assets_result_set = self._uow.result_set()
-            else: 
+            else:
                 self._uow.execute(roms_query)
                 result_set = self._uow.result_set()
                 self._uow.execute(rom_assets_query)
