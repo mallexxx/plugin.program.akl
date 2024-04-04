@@ -28,9 +28,8 @@ from akl.utils import kodi, io
 
 from resources.lib.commands.mediator import AppMediator
 from resources.lib import globals, editors
-from resources.lib.repositories import UnitOfWork, SourcesRepository, ROMsRepository, ROMsJsonFileRepository
-from resources.lib.repositories import AklAddonRepository, LaunchersRepository
-from resources.lib.domain import ROM, Source, AklAddon, AssetInfo, g_assetFactory, ROMLauncherAddonFactory
+from resources.lib.repositories import UnitOfWork, SourcesRepository, ROMsRepository, ROMsJsonFileRepository, AklAddonRepository
+from resources.lib.domain import ROM, Source, AklAddon, AssetInfo, g_assetFactory
 
 logger = logging.getLogger(__name__)
 

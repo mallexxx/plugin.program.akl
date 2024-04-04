@@ -682,12 +682,7 @@ def qry_container_context_menu_items(container_data) -> typing.List[typing.Tuple
     container_parentid = container_data['parent_id'] if 'parent_id' in container_data else ''
     
     is_root: bool = container_data['id'] == ''
-    
     commands = []
-    if container_type == constants.OBJ_CATEGORY:
-        commands.append((kodi.translate(40923), _context_menu_url_for('execute/command/render_category_view', {
-                        'category_id': container_id,
-                        'name': container_name})))
        
     if container_type == constants.OBJ_SOURCE and is_root:
         commands.append((kodi.translate(40916), _context_menu_url_for('/execute/command/add_source')))
@@ -699,6 +694,16 @@ def qry_container_context_menu_items(container_data) -> typing.List[typing.Tuple
         commands.append((kodi.translate(40894), _context_menu_url_for(f'/collection/{container_id}/search')))
         commands.append((kodi.translate(40923), _context_menu_url_for('execute/command/render_romcollection_view', {
                         'romcollection_id': container_id,
+                        'name': container_name})))
+    
+    if container_type == constants.OBJ_CATEGORY:
+        commands.append((kodi.translate(40923), _context_menu_url_for('execute/command/render_category_view', {
+                        'category_id': container_id,
+                        'name': container_name})))
+        
+    if container_type == constants.OBJ_SOURCE:
+        commands.append((kodi.translate(40923), _context_menu_url_for('execute/command/render_source_view', {
+                        'source_id': container_id,
                         'name': container_name})))
         
     if container_type == constants.OBJ_CATEGORY_VIRTUAL and not is_root:

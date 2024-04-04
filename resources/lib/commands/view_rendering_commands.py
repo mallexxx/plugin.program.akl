@@ -68,6 +68,17 @@ def cmd_render_views_data(args):
 
 @AppMediator.register('RENDER_CATEGORY_VIEW')
 def cmd_render_view_data(args):
+    if 'name' in args:
+        render_selection = kodi.ListDialog().select(kodi.translate(40923), [
+            kodi.translate(40893).format(args['name']),
+            kodi.translate(40856)
+        ])
+        if render_selection is None:
+            return
+        if render_selection > 0:
+            AppMediator.sync_cmd('RENDER_VIEWS', args)
+            return
+        
     kodi.notify(kodi.translate(40967))
     category_id = args['category_id'] if 'category_id' in args else None
     render_recursive = args['render_recursive'] if 'render_recursive' in args else False
@@ -136,17 +147,6 @@ def cmd_render_virtual_views(args):
 
 @AppMediator.register('RENDER_VCATEGORY_VIEWS')
 def cmd_render_vcategories(args):
-    if 'name' in args:
-        render_selection = kodi.ListDialog().select(kodi.translate(40923), [
-            kodi.translate(40893).format(args['name']),
-            kodi.translate(40856)
-        ])
-        if render_selection < 0:
-            return
-        if render_selection > 0:
-            AppMediator.sync_cmd('RENDER_VIEWS')
-            return
-        
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     do_notification = not settings.getSettingAsBool("display_hide_rendering_notifications")
     with uow:
@@ -178,7 +178,7 @@ def cmd_render_vcategory(args):
             kodi.translate(40893).format(args['name']),
             kodi.translate(40856)
         ])
-        if render_selection < 0:
+        if render_selection is None:
             return
         if render_selection > 0:
             AppMediator.sync_cmd('RENDER_VIEWS')
@@ -220,14 +220,13 @@ def cmd_render_romcollection_view_data(args):
             kodi.translate(40893).format(args['name']),
             kodi.translate(40856)
         ])
-        if render_selection < 0:
+        if render_selection is None:
             return
         if render_selection > 0:
-            AppMediator.sync_cmd('RENDER_VIEWS')
+            AppMediator.sync_cmd('RENDER_VIEWS', args)
             return
         
     romcollection_id = args['romcollection_id'] if 'romcollection_id' in args else None
-    force = args['force'] if 'force' in args else False
     do_notification = not settings.getSettingAsBool("display_hide_rendering_notifications")
     
     if do_notification:
@@ -272,6 +271,17 @@ def cmd_render_sources_view_data(args):
 
 @AppMediator.register('RENDER_SOURCE_VIEW')
 def cmd_render_source_view_data(args):
+    if 'name' in args:
+        render_selection = kodi.ListDialog().select(kodi.translate(40923), [
+            kodi.translate(40893).format(args['name']),
+            kodi.translate(40856)
+        ])
+        if render_selection is None:
+            return
+        if render_selection > 0:
+            AppMediator.sync_cmd('RENDER_VIEWS', args)
+            return
+     
     source_id = args['source_id'] if 'source_id' in args else None
     do_notification = not settings.getSettingAsBool("display_hide_rendering_notifications")
     
@@ -295,6 +305,17 @@ def cmd_render_source_view_data(args):
 
 @AppMediator.register('RENDER_VCOLLECTION_VIEW')
 def cmd_render_vcollection(args):
+    if 'name' in args:
+        render_selection = kodi.ListDialog().select(kodi.translate(40923), [
+            kodi.translate(40893).format(args['name']),
+            kodi.translate(40856)
+        ])
+        if render_selection is None:
+            return
+        if render_selection > 0:
+            AppMediator.sync_cmd('RENDER_VIEWS', args)
+            return
+        
     vcollection_id = args['vcollection_id'] if 'vcollection_id' in args else None
     do_notification = not settings.getSettingAsBool("display_hide_rendering_notifications")
     

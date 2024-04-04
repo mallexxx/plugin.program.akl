@@ -450,9 +450,9 @@ def vw_misc_set_AEL_Content(AEL_Content_Value):
         xbmcgui.Window(constants.AKL_CONTENT_WINDOW_ID).setProperty(constants.AKL_CONTENT_LABEL, constants.AKL_CONTENT_VALUE_LAUNCHERS)
         
     elif AEL_Content_Value == constants.AKL_CONTENT_VALUE_CATEGORY:
-        logger.debug('vw_misc_set_AEL_Content() Setting Window({0}) '.format(constants.AKL_CONTENT_WINDOW_ID) +
-                     'property "{0}" = "{1}"'.format(constants.AKL_CONTENT_LABEL, constants.AKL_CONTENT_VALUE_CATEGORY))
-        xbmcgui.Window(constants.AKL_CONTENT_WINDOW_ID).setProperty(constants.AKL_CONTENT_LABEL, constants.AKL_CONTENT_VALUE_CATEGORY)        
+        logger.debug((f'vw_misc_set_AEL_Content() Setting Window({constants.AKL_CONTENT_WINDOW_ID}) '
+                     f'property "{constants.AKL_CONTENT_LABEL}" = "{constants.AKL_CONTENT_VALUE_CATEGORY}"'))
+        xbmcgui.Window(constants.AKL_CONTENT_WINDOW_ID).setProperty(constants.AKL_CONTENT_LABEL, constants.AKL_CONTENT_VALUE_CATEGORY)
     elif AEL_Content_Value == constants.AKL_CONTENT_VALUE_ROMS:
         logger.debug('vw_misc_set_AEL_Content() Setting Window({0}) '.format(constants.AKL_CONTENT_WINDOW_ID) +
                      'property "{0}" = "{1}"'.format(constants.AKL_CONTENT_LABEL, constants.AKL_CONTENT_VALUE_ROMS))
