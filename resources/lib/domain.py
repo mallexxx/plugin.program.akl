@@ -548,7 +548,10 @@ class Source(ROMAddon):
         return self.num_roms() > 0
         
     def get_last_change_timestamp(self) -> datetime:
-        return datetime.datetime(self.entity_data['last_change_on']) if 'last_change_on' in self.entity_data else datetime.datetime.today()
+        if 'last_change_on' not in self.entity_data or self.entity_data['last_change_on'] is None:
+            return datetime.datetime.today()
+        
+        return datetime.datetime(self.entity_data['last_change_on'])
     
     def get_assets_root_path(self) -> io.FileName:
         return self._get_directory_filename_from_field('assets_path')
@@ -1274,7 +1277,10 @@ class Category(MetaDataItemABC):
         return self.num_romcollections() > 0 or self.num_categories() > 0
 
     def get_last_change_timestamp(self) -> datetime:
-        return datetime.datetime(self.entity_data['last_change_on']) if 'last_change_on' in self.entity_data else datetime.datetime.today()
+        if 'last_change_on' not in self.entity_data or self.entity_data['last_change_on'] is None:
+            return datetime.datetime.today()
+        
+        return datetime.datetime(self.entity_data['last_change_on'])
 
     def get_asset_ids_list(self):
         return constants.CATEGORY_ASSET_ID_LIST
