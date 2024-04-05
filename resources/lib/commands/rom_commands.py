@@ -392,7 +392,7 @@ def cmd_rom_metadata_nplayers(args):
             rom.set_number_of_players(constants.NPLAYERS_LIST[np_key])
                 
         repository.update_rom(rom)
-        uow.commit()    
+        uow.commit()
         AppMediator.async_cmd('RENDER_ROM_VIEWS', {'rom_id': rom.get_id()})
         AppMediator.async_cmd('RENDER_VCATEGORY_VIEW', {'vcategory_id': constants.VCATEGORY_NPLAYERS_ID})
         kodi.notify(kodi.translate(41025))
@@ -434,7 +434,7 @@ def cmd_rom_metadata_nplayers_online(args):
             rom.set_number_of_players_online(constants.NPLAYERS_LIST[np_key])
                 
         repository.update_rom(rom)
-        uow.commit()    
+        uow.commit()
         AppMediator.async_cmd('RENDER_ROM_VIEWS', {'rom_id': rom.get_id()})
         AppMediator.async_cmd('RENDER_VCATEGORY_VIEW', {'vcategory_id': constants.VCATEGORY_NPLAYERS_ID})
         kodi.notify(kodi.translate(41026))
@@ -461,7 +461,7 @@ def cmd_rom_metadata_rating(args):
 
 @AppMediator.register('ROM_EDIT_METADATA_PLOT')
 def cmd_rom_metadata_plot(args):
-    rom_id = args['rom_id'] if 'rom_id' in args else None  
+    rom_id = args['rom_id'] if 'rom_id' in args else None
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
         repository = ROMsRepository(uow)
@@ -476,7 +476,7 @@ def cmd_rom_metadata_plot(args):
 
 @AppMediator.register('ROM_EDIT_METADATA_TAGS')
 def cmd_rom_metadata_tags(args):
-    rom_id = args['rom_id'] if 'rom_id' in args else None  
+    rom_id = args['rom_id'] if 'rom_id' in args else None
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
         repository = ROMsRepository(uow)
@@ -513,7 +513,7 @@ def cmd_rom_metadata_tags(args):
             kodi.notify(kodi.translate(41028))
             repository.update_rom(rom)
             uow.commit()
-            AppMediator.async_cmd('RENDER_ROM_VIEWS', {'rom_id': rom.get_id()})   
+            AppMediator.async_cmd('RENDER_ROM_VIEWS', {'rom_id': rom.get_id()})
 
         if selected_option is None:
             # >> Return recursively to parent menu.
@@ -527,7 +527,7 @@ def cmd_rom_metadata_tags(args):
 
 @AppMediator.register('ROM_ADD_METADATA_TAGS')
 def cmd_rom_metadata_add_tag(args):
-    rom_id = args['rom_id'] if 'rom_id' in args else None  
+    rom_id = args['rom_id'] if 'rom_id' in args else None
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
         repository = ROMsRepository(uow)
@@ -589,7 +589,7 @@ def cmd_rom_metadata_clear_tags(args):
 
 @AppMediator.register('ROM_EDIT_METADATA_BOXSIZE')
 def cmd_rom_metadata_boxsize(args):
-    rom_id = args['rom_id'] if 'rom_id' in args else None  
+    rom_id = args['rom_id'] if 'rom_id' in args else None
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
         repository = ROMsRepository(uow)
@@ -599,12 +599,12 @@ def cmd_rom_metadata_boxsize(args):
                                       rom.get_box_sizing, rom.set_box_sizing):
             repository.update_rom(rom)
             uow.commit()
-            AppMediator.async_cmd('RENDER_ROM_VIEWS', {'rom_id': rom.get_id()})        
+            AppMediator.async_cmd('RENDER_ROM_VIEWS', {'rom_id': rom.get_id()})
     AppMediator.sync_cmd('ROM_EDIT_METADATA', args)
 
 
 @AppMediator.register('ROM_LOAD_PLOT')
-def cmd_rom_load_plot(args):    
+def cmd_rom_load_plot(args):
     rom_id = args['rom_id'] if 'rom_id' in args else None
     
     plot_file = kodi.browse(text=kodi.translate(41157), mask='.txt|.dat')
@@ -639,10 +639,10 @@ def cmd_rom_status(args):
         repository = ROMsRepository(uow)
         rom = repository.find_rom(rom_id)
         rom.change_finished_status()
-        kodi.dialog_OK(kodi.translate(42091).format(rom.get_name(), kodi.translate(rom.get_finished_str_code())))
         repository.update_rom(rom)
         uow.commit()
-        
+    
+    kodi.dialog_OK(kodi.translate(42091).format(rom.get_name(), kodi.translate(rom.get_finished_str_code())))
     AppMediator.async_cmd('RENDER_ROM_VIEWS', {'rom_id': rom.get_id()})
     AppMediator.sync_cmd('EDIT_ROM', args)
 

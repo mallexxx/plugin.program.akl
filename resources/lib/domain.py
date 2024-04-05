@@ -824,29 +824,31 @@ class Rule(EntityABC):
         entity_property = self.get_property()
         property_value = self.get_value()
         actual = rom.get_custom_attribute(entity_property)
-        logger.debug(f'[Rule] operator: {operator}, property: {entity_property}, value: {property_value}, actual value: {actual}')
+        
+        if actual is not None:
+            property_value = type(actual)(property_value)
+            
+        logger.debug((f'[Rule] operator: {operator}, property: {entity_property}, '
+                      f'value: {property_value} ({type(property_value)}), '
+                      f'actual value: {actual} ({type(actual)})'))
         
         if operator == RuleOperator.Equals:
             if isinstance(actual, str):
-                logger.debug("[Rule] treated as string type")
                 return actual.casefold() == property_value.casefold()
             return actual == property_value
         
         if operator == RuleOperator.NotEquals:
             if isinstance(actual, str):
-                logger.debug("[Rule] treated as string type")
                 return actual.casefold() != property_value.casefold()
             return actual != property_value
         
         if operator == RuleOperator.Contains:
             if isinstance(actual, str):
-                logger.debug("[Rule] treated as string type")
                 return property_value.casefold() in actual.casefold()
             return property_value in actual
         
         if operator == RuleOperator.DoesNotContain:
             if isinstance(actual, str):
-                logger.debug("[Rule] treated as string type")
                 return property_value.casefold() not in actual.casefold()
             return property_value not in actual
         
@@ -948,11 +950,9 @@ class RuleSet(object):
         
         for rule in self.rules:
             if rule.applies_to(rom):
-                logger.debug(f"[Rule] is applicable for ROM {rom.get_name()}")
                 if set_operator == RuleSetOperator.OR:
                     return True
             else:
-                logger.debug(f"[Rule] is not applicable for ROM {rom.get_name()}")
                 if set_operator == RuleSetOperator.AND:
                     return False
                 
@@ -1065,17 +1065,19 @@ class MetaDataItemABC(EntityABC):
 
     # --- Finished status stuff -------------------------------------------------------------------
     def is_finished(self):
-        return 'finished' in self.entity_data and self.entity_data['finished']
+        return self.entity_data['finished'] if 'finished' in self.entity_data else False
 
     def get_finished_str_code(self):
         finished = self.is_finished()
-        finished_display = 42014 if finished is True else 42015
+        finished_display = 42014 if finished else 42015
 
         return finished_display
 
     def change_finished_status(self):
         finished = self.entity_data['finished']
+        logger.debug(f"STATE IS {finished}")
         finished = False if finished else True
+        logger.debug(f"CHANGED STATE TO {finished}")
         self.entity_data['finished'] = finished
 
     # --- Assets/artwork --------------------------------------------------------------------------

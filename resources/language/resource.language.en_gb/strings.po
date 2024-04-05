@@ -1784,7 +1784,7 @@ msgid "Choose action for rule"
 msgstr ""
 
 msgctxt "#41183"
-msgid "ROMs imported"
+msgid "{0} ROMs imported"
 msgstr ""
 
 msgctxt "#41184"

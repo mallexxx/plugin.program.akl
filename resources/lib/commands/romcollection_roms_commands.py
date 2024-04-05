@@ -432,12 +432,15 @@ def cmd_execute_ruleset(args):
         for rom in roms:
             progress_dialog.incrementStep()
             if rom.get_id() in collection_rom_ids:
+                logger.debug(f"ROM {rom.get_name()} already in collection.Skipping")
                 continue
             
             if not ruleset.applies_to(rom):
                 continue
+            
             logger.debug(f"Adding ROM {rom.get_name()} to ROM Collection {collection.get_name()}")
             repository.add_rom_to_romcollection(romcollection_id, rom.get_id())
+            collection_rom_ids.append(rom.get_id())
             counter += 1
             
         progress_dialog.endProgress()
@@ -445,7 +448,7 @@ def cmd_execute_ruleset(args):
         uow.commit()
         
     AppMediator.async_cmd('RENDER_ROMCOLLECTION_VIEW', {'romcollection_id': romcollection_id})
-    kodi.notify(kodi.translate(41183))
+    kodi.notify(kodi.translate(41183).format(counter))
     AppMediator.sync_cmd('EDIT_IMPORT_RULESET', args)
 
 
@@ -469,32 +472,37 @@ def cmd_execute_all_rulesets(args):
         roms_in_collection = roms_repository.find_roms_by_romcollection(collection)
         collection_rom_ids = [rom.get_id() for rom in roms_in_collection]
         
+        counter = 0
         for ruleset in rulesets:
             source = src_repository.find(ruleset.get_source_id())
             kodi.notify(kodi.translate(41190).format(collection.get_name(), source.get_name()))
                 
             roms = [*roms_repository.find_roms_by_source(source)]
             logger.info(f"Processing {len(roms)} ROMs for ruleset")
-            counter = 0
+            set_counter = 0
             progress_dialog = kodi.ProgressDialog()
             progress_dialog.startProgress(kodi.translate(41185), num_steps=len(roms))
             for rom in roms:
                 progress_dialog.incrementStep()
                 if rom.get_id() in collection_rom_ids:
+                    logger.debug(f"ROM {rom.get_name()} already in collection.Skipping")
                     continue
                 
                 if not ruleset.applies_to(rom):
                     continue
+                
                 logger.debug(f"Adding ROM {rom.get_name()} to ROM Collection {collection.get_name()}")
                 repository.add_rom_to_romcollection(romcollection_id, rom.get_id())
-                counter += 1
+                collection_rom_ids.append(rom.get_id())
+                set_counter += 1
                 
             progress_dialog.endProgress()
             progress_dialog.close()
+        counter += set_counter
         uow.commit()
         
     AppMediator.async_cmd('RENDER_ROMCOLLECTION_VIEW', {'romcollection_id': romcollection_id})
-    kodi.notify(kodi.translate(41183))
+    kodi.notify(kodi.translate(41183).format(counter))
 
 
 # --- Empty ROMs in colleciton ---
