@@ -213,7 +213,7 @@ SELECT_ROMCOLLECTION_LAUNCHERS_BY_SOURCE = """
 SELECT_IMPORT_RULES_BY_COLLECTION = """
     SELECT r.*, rs.*, s.name AS source_name
     FROM import_rule AS r
-        RIGHT JOIN collection_source_ruleset AS rs
+        INNER JOIN collection_source_ruleset AS rs
             ON r.ruleset_id = rs.ruleset_id
         INNER JOIN sources AS s
             ON rs.source_id = s.id
