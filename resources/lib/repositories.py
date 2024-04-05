@@ -1002,7 +1002,7 @@ class ROMCollectionRepository(object):
             yield ROMCollection(romcollection_data, assets, asset_mappings, rom_asset_mappings, launchers)
         
     def find_import_rules_by_collection(self, romcollection: ROMCollection) -> typing.Iterator[RuleSet]:
-        self._uow.execute(qry.SELECT_IMPORT_RULES_BY_COLLECTION, romcollection.get_id())
+        self._uow.execute(qry.SELECT_IMPORT_RULES_BY_COLLECTION, romcollection.get_id(), romcollection.get_id())
         result_set = self._uow.result_set()
         rulesets = {}
         for rule_data in result_set:
@@ -1014,7 +1014,7 @@ class ROMCollectionRepository(object):
             yield RuleSet(entity_data)
     
     def find_ruleset(self, romcollection_id, ruleset_id):
-        self._uow.execute(qry.SELECT_IMPORT_RULE_BY_COLLECTION, romcollection_id, ruleset_id)
+        self._uow.execute(qry.SELECT_IMPORT_RULE_BY_COLLECTION, romcollection_id, ruleset_id, romcollection_id, ruleset_id)
         result_set = self._uow.result_set()
 
         entity_data = result_set[0]
@@ -1136,7 +1136,7 @@ class ROMCollectionRepository(object):
     def remove_rom_from_romcollection(self, romcollection_id: str, rom_id: str):
         self._uow.execute(qry.REMOVE_ROM_FROM_ROMCOLLECTION, rom_id, romcollection_id)
         
-    def remove_all_roms_in_launcher(self, romcollection_id: str):
+    def remove_all_roms_in_collection(self, romcollection_id: str):
         self._uow.execute(qry.REMOVE_ROMS_FROM_ROMCOLLECTION, romcollection_id)
         
     def delete_romcollection(self, romcollection_id: str):
@@ -1171,6 +1171,9 @@ class ROMCollectionRepository(object):
 
     def delete_rule_from_ruleset(self, ruleset: RuleSet, rule: Rule):
         self._uow.execute(qry.DELETE_RULE_FROM_RULESET, rule.get_id(), ruleset.get_ruleset_id())
+    
+    def delete_ruleset(self, ruleset: RuleSet):
+        self._uow.execute(qry.DELETE_RULESET, ruleset.get_ruleset_id())
     
     def _insert_asset(self, asset: Asset, romcollection_obj: ROMCollection):
         asset_db_id = text.misc_generate_random_SID()

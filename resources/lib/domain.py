@@ -821,24 +821,29 @@ class Rule(EntityABC):
         entity_property = self.get_property()
         property_value = self.get_value()
         actual = rom.get_custom_attribute(entity_property)
+        logger.debug(f'[Rule] operator: {operator}, property: {entity_property}, value: {property_value}, actual value: {actual}')
         
         if operator == RuleOperator.Equals:
             if isinstance(actual, str):
+                logger.debug("[Rule] treated as string type")
                 return actual.casefold() == property_value.casefold()
             return actual == property_value
         
         if operator == RuleOperator.NotEquals:
             if isinstance(actual, str):
+                logger.debug("[Rule] treated as string type")
                 return actual.casefold() != property_value.casefold()
             return actual != property_value
         
         if operator == RuleOperator.Contains:
             if isinstance(actual, str):
+                logger.debug("[Rule] treated as string type")
                 return property_value.casefold() in actual.casefold()
             return property_value in actual
         
         if operator == RuleOperator.DoesNotContain:
             if isinstance(actual, str):
+                logger.debug("[Rule] treated as string type")
                 return property_value.casefold() not in actual.casefold()
             return property_value not in actual
         
@@ -870,6 +875,8 @@ class RuleSet(object):
         
         if 'rules' in self.entity_data:
             for rule_data in self.entity_data['rules']:
+                if 'ruleset_id' not in rule_data or not rule_data['ruleset_id']:
+                    rule_data['ruleset_id'] = self.entity_data['ruleset_id']
                 if rule_data['rule_id']:
                     self.rules.append(Rule(rule_data))
          
@@ -938,9 +945,11 @@ class RuleSet(object):
         
         for rule in self.rules:
             if rule.applies_to(rom):
+                logger.debug(f"[Rule] is applicable for ROM {rom.get_name()}")
                 if set_operator == RuleSetOperator.OR:
                     return True
             else:
+                logger.debug(f"[Rule] is not applicable for ROM {rom.get_name()}")
                 if set_operator == RuleSetOperator.AND:
                     return False
                 
@@ -1452,7 +1461,10 @@ class ROMCollection(MetaDataItemABC):
         self.entity_data['box_size'] = box_size
 
     def get_last_change_timestamp(self) -> datetime:
-        return datetime.datetime(self.entity_data['last_change_on']) if 'last_change_on' in self.entity_data else datetime.datetime.today()
+        if 'last_change_on' not in self.entity_data or self.entity_data['last_change_on'] is None:
+            return datetime.datetime.today()
+        
+        return datetime.datetime(self.entity_data['last_change_on'])
     
     def get_asset_ids_list(self):
         return constants.LAUNCHER_ASSET_ID_LIST

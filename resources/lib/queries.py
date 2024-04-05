@@ -211,22 +211,36 @@ SELECT_ROMCOLLECTION_LAUNCHERS_BY_SOURCE = """
     """
 
 SELECT_IMPORT_RULES_BY_COLLECTION = """
-    SELECT r.*, rs.*, s.name AS source_name
-    FROM import_rule AS r
-        INNER JOIN collection_source_ruleset AS rs
-            ON r.ruleset_id = rs.ruleset_id
-        INNER JOIN sources AS s
-            ON rs.source_id = s.id
-    WHERE rs.collection_id = ?
+    SELECT rs.*, r.rule_id AS rule_id, r.property AS property, r.value AS value, r.operator AS operator, s.name AS source_name
+        FROM collection_source_ruleset AS rs
+            JOIN import_rule AS r
+                ON r.ruleset_id = rs.ruleset_id
+            INNER JOIN sources AS s
+                ON rs.source_id = s.id
+        WHERE rs.collection_id = ?
+    UNION ALL
+    SELECT rs.*, NULL AS rule_id, NULL AS property, NULL AS value, NULL AS operator, s.name AS source_name
+        FROM collection_source_ruleset AS rs
+            INNER JOIN sources AS s
+                ON rs.source_id = s.id
+        WHERE rs.collection_id = ?
     """
 SELECT_IMPORT_RULE_BY_COLLECTION = """
-    SELECT r.*, rs.*, s.name AS source_name
-    FROM import_rule AS r
-        RIGHT JOIN collection_source_ruleset AS rs
-            ON r.ruleset_id = rs.ruleset_id
-        INNER JOIN sources AS s
-            ON rs.source_id = s.id
-    WHERE rs.collection_id = ? AND rs.ruleset_id = ?
+    SELECT rs.*, r.rule_id AS rule_id, r.property AS property, r.value AS value, r.operator AS operator, s.name AS source_name
+        FROM collection_source_ruleset AS rs
+            JOIN import_rule AS r
+                ON r.ruleset_id = rs.ruleset_id
+            INNER JOIN sources AS s
+                ON rs.source_id = s.id
+        WHERE rs.collection_id = ?
+        AND rs.ruleset_id = ?
+    UNION ALL
+    SELECT rs.*, NULL AS rule_id, NULL AS property, NULL AS value, NULL AS operator, s.name AS source_name
+        FROM collection_source_ruleset AS rs
+            INNER JOIN sources AS s
+                ON rs.source_id = s.id
+        WHERE rs.collection_id = ?
+        AND rs.ruleset_id = ?
     """
 INSERT_RULESET_FOR_ROMCOLLECTION = """
     INSERT INTO collection_source_ruleset (ruleset_id, source_id, collection_id, set_operator) VALUES (?,?,?,?)
@@ -234,6 +248,7 @@ INSERT_RULESET_FOR_ROMCOLLECTION = """
 UPDATE_RULESET_FOR_ROMCOLLECTION = """
     UPDATE collection_source_ruleset SET source_id=?, collection_id=?, set_operator=? WHERE ruleset_id=?
     """
+DELETE_RULESET = "DELETE FROM collection_source_ruleset WHERE ruleset_id = ?"
 INSERT_RULE = "INSERT INTO import_rule (rule_id,ruleset_id,property,value,operator) VALUES (?,?,?,?,?)"
 UPDATE_RULE = "UPDATE import_rule SET property=?, value=?, operator=? WHERE rule_id=?"
 DELETE_RULE_FROM_RULESET = "DELETE FROM import_rule WHERE rule_id = ? AND ruleset_id = ?"

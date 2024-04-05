@@ -239,6 +239,7 @@ def cmd_edit_import_ruleset(args):
         if ruleset.has_rules():
             options["REMOVE_ALL_RULES"] = kodi.get_listitem(kodi.translate(41173), kodi.translate(41189).format(
                                                             ruleset.get_rules_shortdescription()))
+        options["REMOVE_RULESET"] = kodi.get_listitem(kodi.translate(41193), label2='')
 
         s = kodi.translate(41184)
         selected_option = kodi.OrdDictionaryDialog().select(s, options, use_details=True)
@@ -247,7 +248,6 @@ def cmd_edit_import_ruleset(args):
             logger.debug('EDIT_IMPORT_RULESET: No action selected. Closing context menu')
             args.pop('ruleset_id')
             next_command = 'IMPORT_ROMS'
-            return
         
         elif selected_option == 'SET_RULESET_SOURCE':
             source = _select_source_for_rules(uow)
@@ -272,6 +272,13 @@ def cmd_edit_import_ruleset(args):
                 kodi.notify(kodi.translate(41176))
             next_command = 'EDIT_IMPORT_RULESET'
                     
+        elif selected_option == 'REMOVE_RULESET':
+            if kodi.dialog_yesno(kodi.translate(41194)):
+                repository.delete_ruleset(ruleset)
+                uow.commit()
+                kodi.notify(kodi.translate(41195))
+            next_command = 'IMPORT_ROMS'
+            
         elif selected_option == 'EXECUTE_RULESET' or selected_option == 'ADD_RULE_TO_RULESET':
             next_command = selected_option
             
@@ -517,13 +524,7 @@ def cmd_clear_roms(args):
         # --- If there is a No-Intro XML DAT configured remove it ---
         # TODO fix
         # romcollection.reset_nointro_xmldata()
-
-        # Confirm if the user wants to remove the ROMs also when linked to other collections.
-        delete_completely = kodi.dialog_yesno(kodi.translate(41064))
-        if not delete_completely:
-            collection_repository.remove_all_roms_in_launcher(romcollection_id)
-        else:
-            roms_repository.delete_roms_by_romcollection(romcollection_id)
+        collection_repository.remove_all_roms_in_collection(romcollection_id)
         uow.commit()
         
     AppMediator.async_cmd('RENDER_ROMCOLLECTION_VIEW', {'romcollection_id': romcollection_id})

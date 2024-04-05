@@ -1823,6 +1823,18 @@ msgctxt "#41192"
 msgid "What to add?"
 msgstr ""
 
+msgctxt "#41193"
+msgid "Remove ruleset"
+msgstr ""
+
+msgctxt "#41194"
+msgid "This action will remove this ruleset.\nAre you sure to continue?"
+msgstr ""
+
+msgctxt "#41195"
+msgid "Ruleset removed"
+msgstr ""
+
 ############################
 # List/Action options
 ############################
