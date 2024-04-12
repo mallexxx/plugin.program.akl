@@ -349,6 +349,7 @@ CREATE VIEW IF NOT EXISTS vw_roms AS SELECT
     m.extra AS extra,
     m.finished,
     r.rom_status,
+    (SELECT COUNT(*) FROM roms_in_romcollection AS rr WHERE rr.rom_id = r.id) AS collections_count,
     r.is_favourite,
     r.launch_count,
     r.last_launch_timestamp,

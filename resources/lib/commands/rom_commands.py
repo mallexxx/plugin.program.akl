@@ -64,6 +64,9 @@ def cmd_edit_rom(args):
         options['EDIT_ROM_LAUNCHERS'] = kodi.translate(42016)
     else:
         options['ADD_ROM_LAUNCHER'] = kodi.translate(42017)
+    if rom.amount_of_associated_collections() > 0:
+        options['REMOVE_ROM_FROM_COLLECTION'] = kodi.translate(42092)
+        
     options['DELETE_ROM'] = kodi.translate(42018)
     options['SCRAPE_ROM'] = kodi.translate(40855)
 
@@ -198,9 +201,37 @@ def cmd_rom_edit_default_assets(args):
     AppMediator.sync_cmd('ROM_EDIT_DEFAULT_ASSETS', {'rom_id': rom.get_id(), 'selected_asset': selected_asset_to_edit.id})         
 
 
-#
-# Remove ROMCollection
-#
+@AppMediator.register('REMOVE_ROM_FROM_COLLECTION')
+def cmd_rom_remove(args):
+    rom_id: str = args['rom_id'] if 'rom_id' in args else None
+    uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
+    
+    with uow:
+        roms_repository = ROMsRepository(uow)
+        romcollections_repository = ROMCollectionRepository(uow)
+        
+        rom = roms_repository.find_rom(rom_id)
+        romcollections = romcollections_repository.find_romcollections_by_rom(rom_id)
+        
+        options = collections.OrderedDict()
+        for collection in romcollections:
+            options[collection] = collection.get_name()
+
+        s = kodi.translate(40866)
+        selected_option = kodi.OrdDictionaryDialog().select(s, options)
+        if selected_option is None:
+            AppMediator.sync_cmd('EDIT_ROM', args)
+            return
+        
+        romcollections_repository.remove_rom_from_romcollection(selected_option.get_id(), rom.get_id())
+        uow.commit()
+        
+    AppMediator.async_cmd('RENDER_ROMCOLLECTION_VIEW', {'romcollection_id': selected_option.get_id()})
+    
+    kodi.notify(kodi.translate(41196).format(rom.get_name(), selected_option.get_name()))
+    AppMediator.sync_cmd('EDIT_ROM', args)
+
+
 @AppMediator.register('DELETE_ROM')
 def cmd_rom_delete(args):
     rom_id: str = args['rom_id'] if 'rom_id' in args else None

@@ -1924,6 +1924,9 @@ class ROM(MetaDataItemABC):
     def set_box_sizing(self, box_size):
         self.entity_data['box_size'] = box_size
 
+    def amount_of_associated_collections(self) -> int:
+        return self.entity_data['collections_count'] if 'collections_count' in self.entity_data else 0
+
     def has_launchers(self) -> bool:
         return len(self.launchers_data) > 0
 

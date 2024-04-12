@@ -1835,6 +1835,10 @@ msgctxt "#41195"
 msgid "Ruleset removed"
 msgstr ""
 
+msgctxt "#41196"
+msgid "Removed ROM {0} from {1}"
+msgstr ""
+
 ############################
 # List/Action options
 ############################
@@ -2181,6 +2185,10 @@ msgstr ""
 
 msgctxt "#42091"
 msgid "ROM '{}' status is now {}"
+msgstr ""
+
+msgctxt "#42092"
+msgid "Remove ROM from collection"
 msgstr ""
 
 ############################
