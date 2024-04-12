@@ -1648,7 +1648,7 @@ msgid "No NFO file available"
 msgstr ""
 
 msgctxt "#41149"
-msgid "Assets directories not set: {0}.\nAsset scanner will be disabled for this/those."
+msgid "Source assets directories not set: {0}.\nAsset scanner will be disabled for this/those."
 msgstr ""
 
 msgctxt "#41150"

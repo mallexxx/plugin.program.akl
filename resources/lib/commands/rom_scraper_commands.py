@@ -32,6 +32,7 @@ from resources.lib.domain import ROMCollection, Source, ScraperAddon, g_assetFac
 
 logger = logging.getLogger(__name__)
 
+
 # -------------------------------------------------------------------------------------------------
 # Start scraping
 # -------------------------------------------------------------------------------------------------
@@ -42,7 +43,7 @@ def cmd_scrape_romcollection(args):
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
         collection_repository = ROMCollectionRepository(uow)
-        collection = collection_repository.find_romcollection(romcollection_id)   
+        collection = collection_repository.find_romcollection(romcollection_id)
     
         scraper_settings: ScraperSettings = ScraperSettings.from_addon_settings()
         
@@ -379,7 +380,7 @@ def cmd_scrape_rom_assets(args):
 # Scraper settings configuration
 # -------------------------------------------------------------------------------------------------
 @AppMediator.register('SCRAPER_METADATA_POLICY')
-def cmd_configure_scraper_metadata_policy(args):    
+def cmd_configure_scraper_metadata_policy(args):
     scraper_settings: ScraperSettings = args['scraper_settings'] if 'scraper_settings' in args else ScraperSettings.from_addon_settings()
     
     options = collections.OrderedDict()
@@ -402,7 +403,7 @@ def cmd_configure_scraper_metadata_policy(args):
 
 
 @AppMediator.register('SCRAPER_ASSET_POLICY')
-def cmd_configure_scraper_asset_policy(args):  
+def cmd_configure_scraper_asset_policy(args):
     scraper_settings: ScraperSettings = args['scraper_settings'] if 'scraper_settings' in args else ScraperSettings.from_addon_settings()
       
     options = collections.OrderedDict()
@@ -529,7 +530,7 @@ def cmd_configure_scraper_assets_to_scrape(args):
 
 
 @AppMediator.register('SCRAPER_OVERWRITE_META_MODE')
-def cmd_configure_scraper_overwrite_meta_mode(args):  
+def cmd_configure_scraper_overwrite_meta_mode(args):
     scraper_settings: ScraperSettings = args['scraper_settings'] if 'scraper_settings' in args else ScraperSettings.from_addon_settings()
     scraper_settings.overwrite_existing_meta = not scraper_settings.overwrite_existing_meta
     args['scraper_settings'] = scraper_settings
@@ -537,7 +538,7 @@ def cmd_configure_scraper_overwrite_meta_mode(args):
 
     
 @AppMediator.register('SCRAPER_OVERWRITE_ASSETS_MODE')
-def cmd_configure_scraper_overwrite_assets_mode(args):  
+def cmd_configure_scraper_overwrite_assets_mode(args):
     scraper_settings: ScraperSettings = args['scraper_settings'] if 'scraper_settings' in args else ScraperSettings.from_addon_settings()
     scraper_settings.overwrite_existing_assets = not scraper_settings.overwrite_existing_assets
     args['scraper_settings'] = scraper_settings
@@ -545,7 +546,7 @@ def cmd_configure_scraper_overwrite_assets_mode(args):
 
 
 @AppMediator.register('SCRAPER_IGNORE_TITLES_MODE')
-def cmd_configure_scraper_ignore_mode(args):  
+def cmd_configure_scraper_ignore_mode(args):
     scraper_settings: ScraperSettings = args['scraper_settings'] if 'scraper_settings' in args else ScraperSettings.from_addon_settings()
     scraper_settings.ignore_scrap_title = not scraper_settings.ignore_scrap_title
     args['scraper_settings'] = scraper_settings
@@ -569,7 +570,7 @@ def _select_scraper(uow: UnitOfWork, title: str, scraper_settings: ScraperSettin
 
 
 def _check_collection_unset_asset_dirs(source: Source, scraper_settings: ScraperSettings) -> bool:
-    logger.debug('_check_launcher_unset_asset_dirs() BEGIN ...')
+    logger.debug(f'_check_launcher_unset_asset_dirs() Source: {source.get_name()} ...')
     
     unconfigured_name_list = []
     enabled_asset_list = []
