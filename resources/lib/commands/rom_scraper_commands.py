@@ -137,6 +137,7 @@ def cmd_scrape_roms_in_collection_or_source(args):
     scraper_id: str = args['scraper_id'] if 'scraper_id' in args else None
     scraper_settings: ScraperSettings = args['scraper_settings'] if 'scraper_settings' in args else ScraperSettings.from_addon_settings()
 
+    logger.info(f'cmd_scrape_roms_in_collection_or_source(): SourceID {source_id}, CollectionID {romcollection_id}')
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
         addon_repository = AklAddonRepository(uow)
@@ -151,7 +152,7 @@ def cmd_scrape_roms_in_collection_or_source(args):
         assets_to_scrape = g_assetFactory.get_asset_list_by_IDs(scraper_settings.asset_IDs_to_scrape)
         metadata_to_scrape = [constants.METADATA_DESCRIPTIONS[meta_id] for meta_id in scraper_settings.metadata_IDs_to_scrape]
 
-        options = collections.OrderedDict()        
+        options = collections.OrderedDict()
         options['SCRAPER_METADATA_POLICY'] = kodi.translate(41115).format(kodi.translate(scraper_settings.scrape_metadata_policy))
         options['SCRAPER_ASSET_POLICY'] = kodi.translate(41116).format(kodi.translate(scraper_settings.scrape_assets_policy))
         options['SCRAPER_SEARCH_TERM_MODE'] = kodi.translate(41117).format(kodi.translate(scraper_settings.search_term_mode))

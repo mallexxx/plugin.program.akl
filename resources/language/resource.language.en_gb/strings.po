@@ -1839,6 +1839,10 @@ msgctxt "#41196"
 msgid "Removed ROM {0} from {1}"
 msgstr ""
 
+msgctxt "#41197"
+msgid "From which ROM collection"
+msgstr ""
+
 ############################
 # List/Action options
 ############################

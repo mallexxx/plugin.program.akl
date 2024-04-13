@@ -1810,7 +1810,13 @@ class SourcesRepository(object):
         
         for result_set in result_sets:
             addon = AklAddon(result_set.copy())
-            yield Source(result_set, addon)
+            self._uow.execute(qry.SELECT_SOURCE_ASSET_PATHS, result_set['id'])
+            asset_paths_result_set = self._uow.result_set()
+            asset_paths = []
+            for asset_paths_data in asset_paths_result_set:
+                asset_paths.append(AssetPath(asset_paths_data))
+            
+            yield Source(result_set, addon, asset_paths)
 
     def find_romcollection_ids_by_source(self, source_id):
         self._uow.execute(qry.SELECT_ROMCOLLECTION_IDS_BY_SOURCE, source_id)

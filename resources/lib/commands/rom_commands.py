@@ -217,7 +217,7 @@ def cmd_rom_remove(args):
         for collection in romcollections:
             options[collection] = collection.get_name()
 
-        s = kodi.translate(40866)
+        s = kodi.translate(41197)
         selected_option = kodi.OrdDictionaryDialog().select(s, options)
         if selected_option is None:
             AppMediator.sync_cmd('EDIT_ROM', args)

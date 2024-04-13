@@ -500,4 +500,5 @@ INSERT INTO akl_migrations (migration_file, applied_version, execution_date, app
      ('1.4.0_003.sql','1.4.0',CURRENT_TIMESTAMP,1),
      ('1.5.0_001.sql','1.5.0',CURRENT_TIMESTAMP,1),
      ('1.5.0_002.sql','1.5.0',CURRENT_TIMESTAMP,1),
-     ('1.5.0_003.sql','1.5.0',CURRENT_TIMESTAMP,1);
+     ('1.5.0_003.sql','1.5.0',CURRENT_TIMESTAMP,1),
+     ('1.5.0_004.sql','1.5.0',CURRENT_TIMESTAMP,1);
