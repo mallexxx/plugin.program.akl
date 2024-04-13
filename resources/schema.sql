@@ -493,4 +493,11 @@ INSERT INTO tags (id, tag) VALUES
     ('bf62ca2ffb0347559b1a52ec70b0b189', '1080');
 
 INSERT INTO akl_migrations (migration_file, applied_version, execution_date, applied)
-     VALUES('1.2.0.sql','1.4.0',CURRENT_TIMESTAMP,1);
+     VALUES
+     ('1.2.0.sql','1.4.0',CURRENT_TIMESTAMP,1),
+     ('1.4.0_001.sql','1.4.0',CURRENT_TIMESTAMP,1),
+     ('1.4.0_002.sql','1.4.0',CURRENT_TIMESTAMP,1),
+     ('1.4.0_003.sql','1.4.0',CURRENT_TIMESTAMP,1),
+     ('1.5.0_001.sql','1.5.0',CURRENT_TIMESTAMP,1),
+     ('1.5.0_002.sql','1.5.0',CURRENT_TIMESTAMP,1),
+     ('1.5.0_003.sql','1.5.0',CURRENT_TIMESTAMP,1);
