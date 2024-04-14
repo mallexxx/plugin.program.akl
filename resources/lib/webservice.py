@@ -261,7 +261,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         id = params.get('id')
         
         if 'romcollection/roms/' in api_path:
-            return apiqueries.qry_get_roms(id)
+            return apiqueries.qry_get_roms_by_romcollection(id)
         if 'romcollection/' in api_path:
             return apiqueries.qry_get_rom_collection(id)
         

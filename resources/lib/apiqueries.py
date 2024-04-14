@@ -75,6 +75,26 @@ def qry_get_roms(source_id: str) -> str:
         return json.dumps(data)
 
 
+def qry_get_roms_by_romcollection(collection_id: str) -> str:
+    uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
+    with uow:
+        collection_repository = ROMCollectionRepository(uow)
+        rom_repository = ROMsRepository(uow)
+        
+        collection = collection_repository.find_romcollection(collection_id)
+        roms = rom_repository.find_roms_by_romcollection(collection)
+        
+        if roms is None:
+            return None
+        
+        data = []
+        for rom in roms:
+            rom_dto = rom.create_dto()
+            data.append(rom_dto.get_data_dic())
+            
+        return json.dumps(data)
+
+
 def qry_get_launcher_settings(launcher_id: str) -> str:
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
