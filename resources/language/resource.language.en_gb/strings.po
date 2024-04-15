@@ -2152,7 +2152,7 @@ msgid "Edit source scanner"
 msgstr ""
 
 msgctxt "#42082"
-msgid "Import ROMs"
+msgid "Import ROMs Rules"
 msgstr ""
 
 msgctxt "#42083"

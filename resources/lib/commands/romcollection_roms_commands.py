@@ -26,7 +26,7 @@ from akl.utils import kodi
 from resources.lib.commands.mediator import AppMediator
 from resources.lib import globals
 from resources.lib.repositories import UnitOfWork, ROMCollectionRepository, ROMsRepository, SourcesRepository
-from resources.lib.domain import g_assetFactory, RuleSet, Rule, ROM, RuleOperator
+from resources.lib.domain import g_assetFactory, RuleSet, Rule, ROM, RuleOperator, Source
 
 logger = logging.getLogger(__name__)
 
@@ -222,7 +222,7 @@ def cmd_edit_import_ruleset(args):
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
         repository = ROMCollectionRepository(uow)
-        ruleset = repository.find_ruleset(romcollection_id, ruleset_id)
+        ruleset = repository.find_ruleset(ruleset_id)
         
         options = collections.OrderedDict()
         options["EXECUTE_RULESET"] = kodi.get_listitem(kodi.translate(42089), "",
@@ -324,7 +324,7 @@ def cmd_add_rule_to_ruleset(args):
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
         repository = ROMCollectionRepository(uow)
-        ruleset = repository.find_ruleset(romcollection_id, ruleset_id)
+        ruleset = repository.find_ruleset(ruleset_id)
         
         ruleset.add_rule(rule)
         repository.update_ruleset_in_romcollection(romcollection_id, ruleset)
@@ -366,7 +366,7 @@ def cmd_edit_rule(args):
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
         repository = ROMCollectionRepository(uow)
-        ruleset = repository.find_ruleset(romcollection_id, ruleset_id)
+        ruleset = repository.find_ruleset(ruleset_id)
         
         rule = ruleset.get_rule(rule_id)
         if rule is None:
@@ -399,7 +399,13 @@ def _select_source_for_rules(uow: UnitOfWork):
     options = collections.OrderedDict()
     for source in sources:
         options[source] = source.get_name()
-
+    
+    # All
+    empty_source = Source()
+    empty_source.set_id(None)
+    empty_source.set_name(kodi.translate(42508))
+    options[empty_source] = kodi.translate(42508)
+    
     s = kodi.translate(41172)
     selected_option = kodi.OrdDictionaryDialog().select(s, options)
     return selected_option
@@ -416,35 +422,41 @@ def cmd_execute_ruleset(args):
         roms_repository = ROMsRepository(uow)
         src_repository = SourcesRepository(uow)
     
-        ruleset = repository.find_ruleset(romcollection_id, ruleset_id)
+        ruleset = repository.find_ruleset(ruleset_id)
         collection = repository.find_romcollection(romcollection_id)
-        source = src_repository.find(ruleset.get_source_id())
         
-        kodi.notify(kodi.translate(41190).format(collection.get_name(), source.get_name()))
+        sources = []
+        if ruleset.get_source_id() is None:
+            sources = src_repository.find_all()
+        else:
+            sources.append(src_repository.find(ruleset.get_source_id()))
         
-        roms_in_collection = roms_repository.find_roms_by_romcollection(collection)
-        collection_rom_ids = [rom.get_id() for rom in roms_in_collection]
-        roms = [*roms_repository.find_roms_by_source(source)]
-        logger.info(f"Processing {len(roms)} ROMs for ruleset")
-        counter = 0
-        progress_dialog = kodi.ProgressDialog()
-        progress_dialog.startProgress(kodi.translate(41185), num_steps=len(roms))
-        for rom in roms:
-            progress_dialog.incrementStep()
-            if rom.get_id() in collection_rom_ids:
-                logger.debug(f"ROM {rom.get_name()} already in collection.Skipping")
-                continue
+        for source in sources:    
+            kodi.notify(kodi.translate(41190).format(collection.get_name(), source.get_name()))
             
-            if not ruleset.applies_to(rom):
-                continue
-            
-            logger.debug(f"Adding ROM {rom.get_name()} to ROM Collection {collection.get_name()}")
-            repository.add_rom_to_romcollection(romcollection_id, rom.get_id())
-            collection_rom_ids.append(rom.get_id())
-            counter += 1
-            
-        progress_dialog.endProgress()
-        progress_dialog.close()
+            roms_in_collection = roms_repository.find_roms_by_romcollection(collection)
+            collection_rom_ids = [rom.get_id() for rom in roms_in_collection]
+            roms = [*roms_repository.find_roms_by_source(source)]
+            logger.info(f"Processing {len(roms)} ROMs for ruleset")
+            counter = 0
+            progress_dialog = kodi.ProgressDialog()
+            progress_dialog.startProgress(kodi.translate(41185), num_steps=len(roms))
+            for rom in roms:
+                progress_dialog.incrementStep()
+                if rom.get_id() in collection_rom_ids:
+                    logger.debug(f"ROM {rom.get_name()} already in collection.Skipping")
+                    continue
+                
+                if not ruleset.applies_to(rom):
+                    continue
+                
+                logger.debug(f"Adding ROM {rom.get_name()} to ROM Collection {collection.get_name()}")
+                repository.add_rom_to_romcollection(romcollection_id, rom.get_id())
+                collection_rom_ids.append(rom.get_id())
+                counter += 1
+                
+            progress_dialog.endProgress()
+            progress_dialog.close()
         uow.commit()
         
     AppMediator.async_cmd('RENDER_ROMCOLLECTION_VIEW', {'romcollection_id': romcollection_id})
@@ -474,30 +486,36 @@ def cmd_execute_all_rulesets(args):
         
         counter = 0
         for ruleset in rulesets:
-            source = src_repository.find(ruleset.get_source_id())
-            kodi.notify(kodi.translate(41190).format(collection.get_name(), source.get_name()))
-                
-            roms = [*roms_repository.find_roms_by_source(source)]
-            logger.info(f"Processing {len(roms)} ROMs for ruleset")
-            set_counter = 0
-            progress_dialog = kodi.ProgressDialog()
-            progress_dialog.startProgress(kodi.translate(41185), num_steps=len(roms))
-            for rom in roms:
-                progress_dialog.incrementStep()
-                if rom.get_id() in collection_rom_ids:
-                    logger.debug(f"ROM {rom.get_name()} already in collection.Skipping")
-                    continue
-                
-                if not ruleset.applies_to(rom):
-                    continue
-                
-                logger.debug(f"Adding ROM {rom.get_name()} to ROM Collection {collection.get_name()}")
-                repository.add_rom_to_romcollection(romcollection_id, rom.get_id())
-                collection_rom_ids.append(rom.get_id())
-                set_counter += 1
-                
-            progress_dialog.endProgress()
-            progress_dialog.close()
+            sources = []
+            if ruleset.get_source_id() is None:
+                sources = src_repository.find_all()
+            else:
+                sources.append(src_repository.find(ruleset.get_source_id()))
+            
+            for source in sources:
+                kodi.notify(kodi.translate(41190).format(collection.get_name(), source.get_name()))
+                    
+                roms = [*roms_repository.find_roms_by_source(source)]
+                logger.info(f"Processing {len(roms)} ROMs for ruleset")
+                set_counter = 0
+                progress_dialog = kodi.ProgressDialog()
+                progress_dialog.startProgress(kodi.translate(41185), num_steps=len(roms))
+                for rom in roms:
+                    progress_dialog.incrementStep()
+                    if rom.get_id() in collection_rom_ids:
+                        logger.debug(f"ROM {rom.get_name()} already in collection.Skipping")
+                        continue
+                    
+                    if not ruleset.applies_to(rom):
+                        continue
+                    
+                    logger.debug(f"Adding ROM {rom.get_name()} to ROM Collection {collection.get_name()}")
+                    repository.add_rom_to_romcollection(romcollection_id, rom.get_id())
+                    collection_rom_ids.append(rom.get_id())
+                    set_counter += 1
+                    
+                progress_dialog.endProgress()
+                progress_dialog.close()
         counter += set_counter
         uow.commit()
         

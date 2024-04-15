@@ -202,7 +202,8 @@ SELECT_ROMCOLLECTION_LAUNCHERS_BY_ROM = """
     WHERE rr.rom_id = ?
     """
 SELECT_ROMCOLLECTION_LAUNCHERS_BY_SOURCE = """
-    SELECT rl.* FROM vw_romcollection_launchers AS rl
+    SELECT rl.* 
+    FROM vw_romcollection_launchers AS rl
     WHERE rl.romcollection_id IN (
         SELECT DISTINCT(rr.romcollection_id) FROM roms_in_romcollection AS rr
         INNER JOIN roms AS r ON rr.rom_id = r.id
@@ -210,38 +211,37 @@ SELECT_ROMCOLLECTION_LAUNCHERS_BY_SOURCE = """
     )
     """
 
+SELECT_IMPORT_RULESETS_BY_COLLECTION = """
+    SELECT rs.*, s.name AS source_name 
+    FROM collection_source_ruleset AS rs
+    INNER JOIN sources AS s
+        ON rs.source_id = s.id
+    WHERE rs.collection_id = ?
+    UNION ALL
+    SELECT rs.*, NULL AS source_name FROM collection_source_ruleset AS rs
+    WHERE rs.source_id IS NULL
+    AND rs.collection_id = ?
+    """
+SELECT_IMPORT_RULESET = """
+    SELECT rs.*, s.name AS source_name
+    FROM collection_source_ruleset AS rs
+    INNER JOIN sources AS s
+        ON s.id = rs.source_id
+    WHERE rs.ruleset_id = ?
+    UNION ALL
+    SELECT rs.*, NULL AS source_name
+    FROM collection_source_ruleset AS rs
+    WHERE rs.ruleset_id = ?
+        AND rs.source_id IS NULL
+    """
 SELECT_IMPORT_RULES_BY_COLLECTION = """
-    SELECT rs.*, r.rule_id AS rule_id, r.property AS property, r.value AS value, r.operator AS operator, s.name AS source_name
-        FROM collection_source_ruleset AS rs
-            JOIN import_rule AS r
-                ON r.ruleset_id = rs.ruleset_id
-            INNER JOIN sources AS s
-                ON rs.source_id = s.id
-        WHERE rs.collection_id = ?
-    UNION ALL
-    SELECT rs.*, NULL AS rule_id, NULL AS property, NULL AS value, NULL AS operator, s.name AS source_name
-        FROM collection_source_ruleset AS rs
-            INNER JOIN sources AS s
-                ON rs.source_id = s.id
-        WHERE rs.collection_id = ?
+    SELECT r.*
+    FROM import_rule AS r
+    INNER JOIN collection_source_ruleset AS rs
+        ON r.ruleset_id = rs.ruleset_id
+    WHERE rs.collection_id = ?
     """
-SELECT_IMPORT_RULE_BY_COLLECTION = """
-    SELECT rs.*, r.rule_id AS rule_id, r.property AS property, r.value AS value, r.operator AS operator, s.name AS source_name
-        FROM collection_source_ruleset AS rs
-            JOIN import_rule AS r
-                ON r.ruleset_id = rs.ruleset_id
-            INNER JOIN sources AS s
-                ON rs.source_id = s.id
-        WHERE rs.collection_id = ?
-        AND rs.ruleset_id = ?
-    UNION ALL
-    SELECT rs.*, NULL AS rule_id, NULL AS property, NULL AS value, NULL AS operator, s.name AS source_name
-        FROM collection_source_ruleset AS rs
-            INNER JOIN sources AS s
-                ON rs.source_id = s.id
-        WHERE rs.collection_id = ?
-        AND rs.ruleset_id = ?
-    """
+SELECT_IMPORT_RULES_BY_RULESET = "SELECT r.* FROM import_rule AS r WHERE r.ruleset_id = ?"
 INSERT_RULESET_FOR_ROMCOLLECTION = """
     INSERT INTO collection_source_ruleset (ruleset_id, source_id, collection_id, set_operator) VALUES (?,?,?,?)
     """

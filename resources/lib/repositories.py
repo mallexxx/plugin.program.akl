@@ -1002,23 +1002,27 @@ class ROMCollectionRepository(object):
             yield ROMCollection(romcollection_data, assets, asset_mappings, rom_asset_mappings, launchers)
         
     def find_import_rules_by_collection(self, romcollection: ROMCollection) -> typing.Iterator[RuleSet]:
-        self._uow.execute(qry.SELECT_IMPORT_RULES_BY_COLLECTION, romcollection.get_id(), romcollection.get_id())
+        self._uow.execute(qry.SELECT_IMPORT_RULESETS_BY_COLLECTION, romcollection.get_id(), romcollection.get_id())
         result_set = self._uow.result_set()
-        rulesets = {}
-        for rule_data in result_set:
-            rulesets.setdefault(rule_data["ruleset_id"], []).append(rule_data)
         
-        for ruleset_data in rulesets.values():
-            entity_data = ruleset_data[0]
-            entity_data['rules'] = ruleset_data
+        self._uow.execute(qry.SELECT_IMPORT_RULES_BY_COLLECTION, romcollection.get_id())
+        rules_result_set = self._uow.result_set()
+        
+        for entity_data in result_set:
+            rules = []
+            for rules_data in filter(lambda rl: rl['ruleset_id'] == entity_data['ruleset_id'], rules_result_set):
+                rules.append(Asset(rules_data))
+            
+            entity_data['rules'] = rules
             yield RuleSet(entity_data)
     
-    def find_ruleset(self, romcollection_id, ruleset_id):
-        self._uow.execute(qry.SELECT_IMPORT_RULE_BY_COLLECTION, romcollection_id, ruleset_id, romcollection_id, ruleset_id)
-        result_set = self._uow.result_set()
-
-        entity_data = result_set[0]
-        entity_data['rules'] = result_set
+    def find_ruleset(self, ruleset_id):
+        self._uow.execute(qry.SELECT_IMPORT_RULESET, ruleset_id, ruleset_id)
+        entity_data = self._uow.single_result()
+        
+        self._uow.execute(qry.SELECT_IMPORT_RULES_BY_RULESET, ruleset_id)
+        rule_data = self._uow.result_set()
+        entity_data['rules'] = rule_data
             
         return RuleSet(entity_data)
     

@@ -868,8 +868,8 @@ class RuleSet(object):
         if entity_data is None:
             entity_data = {
                 'ruleset_id': text.misc_generate_random_SID(),
-                'source_id': '',
-                'source_name': '',
+                'source_id': None,
+                'source_name': None,
                 'collection_id': '',
                 'set_operator': None,
                 'rules': []
@@ -892,7 +892,7 @@ class RuleSet(object):
         return self.entity_data['source_id'] if 'source_id' in self.entity_data else None
     
     def get_source_name(self):
-        return self.entity_data['source_name'] if 'source_name' in self.entity_data else "Unknown"
+        return self.entity_data['source_name'] if 'source_name' in self.entity_data else kodi.translate(42508)
     
     def get_rules_description(self):
         if len(self.rules) == 0:
@@ -923,6 +923,11 @@ class RuleSet(object):
         self.rules.append(rule)
     
     def apply_source(self, source: Source):
+        if source is None:
+            self.entity_data['source_id'] = None
+            self.entity_data['source_name'] = None
+            return
+        
         self.entity_data['source_id'] = source.get_id()
         self.entity_data['source_name'] = source.get_name()
     
