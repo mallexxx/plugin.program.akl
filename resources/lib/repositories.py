@@ -1011,7 +1011,7 @@ class ROMCollectionRepository(object):
         for entity_data in result_set:
             rules = []
             for rules_data in filter(lambda rl: rl['ruleset_id'] == entity_data['ruleset_id'], rules_result_set):
-                rules.append(Asset(rules_data))
+                rules.append(rules_data)
             
             entity_data['rules'] = rules
             yield RuleSet(entity_data)
