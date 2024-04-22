@@ -82,7 +82,7 @@ def cmd_render_view_data(args):
     kodi.notify(kodi.translate(40967))
     category_id = args['category_id'] if 'category_id' in args else None
     render_recursive = args['render_recursive'] if 'render_recursive' in args else False
-    force = args['force'] if 'force' in args else False
+    force =  True
     changed_since_date = args['changed_since_date'] if 'changed_since_date' in args else None
     if changed_since_date is None:
         changed_since_date = datetime.combine(datetime.today() - timedelta(days=7), datetime.min.time())
