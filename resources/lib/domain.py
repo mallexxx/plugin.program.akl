@@ -892,7 +892,9 @@ class RuleSet(object):
         return self.entity_data['source_id'] if 'source_id' in self.entity_data else None
     
     def get_source_name(self):
-        return self.entity_data['source_name'] if 'source_name' in self.entity_data else kodi.translate(42508)
+        if 'source_name' not in self.entity_data or self.entity_data['source_name'] is None:
+            return kodi.translate(42508)
+        return self.entity_data['source_name']
     
     def get_rules_description(self):
         if len(self.rules) == 0:
