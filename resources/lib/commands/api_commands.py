@@ -314,7 +314,9 @@ def cmd_store_scraped_single_rom(args) -> bool:
         logger.debug('========================== Applied scraper settings ==========================')
         logger.debug('Metadata IDs:         {}'.format(', '.join(applied_settings.metadata_IDs_to_scrape)))
         logger.debug('Asset IDs:            {}'.format(', '.join(applied_settings.asset_IDs_to_scrape)))
-        logger.debug('Overwrite existing:   {}'.format('Yes' if applied_settings.overwrite_existing else 'No'))
+        logger.debug('Overwrite existing:')
+        logger.debug(' - Metadata           {}'.format('Yes' if applied_settings.overwrite_existing_meta else 'No'))
+        logger.debug(' - Assets             {}'.format('Yes' if applied_settings.overwrite_existing_assets else 'No'))
         logger.debug('Metadata updated:     {}'.format('Yes' if metadata_is_updated else 'No'))
         logger.debug('Assets updated:       {}'.format('Yes' if assets_are_updated else 'No'))
 
