@@ -38,21 +38,15 @@ class AppService(object):
 
     def run(self):
         kodi.set_windowprop('akl_server_state', 'STARTING')
+        os_name = io.is_which_os()
 
         # --- Some debug stuff for development ---
         logger.info('------------ Called Advanced Kodi Launcher : Service ------------')
         logger.debug(f'sys.platform   "{sys.platform}"')
-        if io.is_android():
-            logger.debug('OS             "Android"')
-        if io.is_windows():
-            logger.debug('OS             "Windows"')
-        if io.is_osx():
-            logger.debug('OS             "OSX"')
-        if io.is_linux():
-            logger.debug('OS             "Linux"')
+        logger.debug(f'OS             "{os_name}"')
         logger.debug('Python version "' + sys.version.replace('\n', '') + '"')
-        logger.debug(f'addon.id         "{globals.addon_id}"')
-        logger.debug(f'addon.version    "{globals.addon_version}"')
+        logger.debug(f'addon.id       "{globals.addon_id}"')
+        logger.debug(f'addon.version  "{globals.addon_version}"')
         logger.debug("Starting AKL service")
 
         uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
@@ -92,8 +86,8 @@ class AppService(object):
         self.shutdown()
 
     def shutdown(self):
-        logger.debug("Shutting down AKL service")        
-        kodi.set_windowprop('akl_server_state', 'STOPPING')        
+        logger.debug("Shutting down AKL service")
+        kodi.set_windowprop('akl_server_state', 'STOPPING')
         
         self.webservice.stop()
         del self.monitor
@@ -102,16 +96,17 @@ class AppService(object):
         kodi.set_windowprop('akl_server_state', 'STOPPED')
         logger.debug("AKL service stopped")
         
-    def _initial_setup(self, uow:UnitOfWork):
+    def _initial_setup(self, uow: UnitOfWork):
         kodi.notify(kodi.translate(40981))
         uow.create_empty_database(globals.g_PATHS.DATABASE_SCHEMA_PATH)
         logger.info("Database created.")
         
         self._perform_scans()
 
-    def _do_version_upgrade(self, uow:UnitOfWork, db_version:LooseVersion):
+    def _do_version_upgrade(self, uow: UnitOfWork, db_version: LooseVersion):
         migrations_files_to_execute = uow.get_migration_files(db_version)
         if len(migrations_files_to_execute) == 0:
+            logger.debug('No migrations to execute')
             return
         
         migrations_executed = uow.get_migrations_history()
@@ -120,7 +115,9 @@ class AppService(object):
 
         logger.info(f"Found {len(new_migration_files_to_execute)} migration files to process.")
         if len(new_migration_files_to_execute) == 0:
+            logger.debug('No new migrations to execute')
             return
+        
         version_to_store = LooseVersion(globals.addon_version)
         file_version = uow.get_version_from_migration_file(new_migration_files_to_execute[-1])
         if file_version > version_to_store:
@@ -131,8 +128,13 @@ class AppService(object):
     def _perform_scans(self):
         # SCAN FOR ADDONS
         self._execute_service_actions({'action': 'SCAN_FOR_ADDONS', 'data': None})
+        
         # REBUILD VIEWS
-        self._execute_service_actions({'action': 'RENDER_VIEWS', 'data': None})
+        modification_time = self._get_modification_timestamp()
+        self._execute_service_actions({'action': 'RENDER_VIEWS', 'data': {
+            'force': False,
+            'changed_since_date': modification_time
+        }})
         # Write to scan indicator
         globals.g_PATHS.SCAN_INDICATOR_FILE.writeAll(f'last scan all on {datetime.now()} ')
 
@@ -141,13 +143,11 @@ class AppService(object):
             return True
         
         min_days_ago = settings.getSettingAsInt('regeneration_days_period')
-        if not min_days_ago or min_days_ago == 0: 
+        if not min_days_ago or min_days_ago == 0:
             logger.info('Automatic scan and view generation disabled.')
             return
         
-        modification_timestamp = globals.g_PATHS.SCAN_INDICATOR_FILE.stat().st_mtime
-        modification_time = datetime.fromtimestamp(modification_timestamp)
-        
+        modification_time = self._get_modification_timestamp()
         then = modification_time.toordinal()
         now = datetime.now().toordinal()
         too_long_ago = (now - then) >= min_days_ago
@@ -155,8 +155,15 @@ class AppService(object):
         if too_long_ago:
             logger.info(f'Triggering automatic scan and view generation. Last scan was {now-then} days ago')
         else:
-            logger.info(f'Skipping automatic scan and view generation. Last scan was {now-then} days ago')        
+            logger.info(f'Skipping automatic scan and view generation. Last scan was {now-then} days ago')
         return too_long_ago
+
+    def _get_modification_timestamp(self):
+        modification_timestamp = globals.g_PATHS.SCAN_INDICATOR_FILE.stat().st_mtime
+        modification_time = datetime.fromtimestamp(modification_timestamp)
+        
+        return modification_time
+        
 
 class AppMonitor(xbmc.Monitor):
     
@@ -176,7 +183,7 @@ class AppMonitor(xbmc.Monitor):
         data_obj = None
         try:
             data_obj = json.loads(data)
-        except:
+        except Exception:
             logger.error('Failed to load arguments as json')
 
         action_data = {

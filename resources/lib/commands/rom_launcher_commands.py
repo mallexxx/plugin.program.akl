@@ -25,9 +25,9 @@ from akl import settings, constants
 
 from resources.lib.commands.mediator import AppMediator
 from resources.lib import globals
-from resources.lib.repositories import UnitOfWork, AelAddonRepository, LaunchersRepository
+from resources.lib.repositories import UnitOfWork, AklAddonRepository, LaunchersRepository
 from resources.lib.repositories import ROMCollectionRepository, ROMsRepository, SourcesRepository
-from resources.lib.domain import AelAddon, ROMLauncherAddon, ROMLauncherAddonFactory
+from resources.lib.domain import AklAddon, ROMLauncherAddon, ROMLauncherAddonFactory
 
 logger = logging.getLogger(__name__)
 
@@ -40,14 +40,14 @@ def cmd_add_launcher(args):
     options = collections.OrderedDict()
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
-        repository = AelAddonRepository(uow)
+        repository = AklAddonRepository(uow)
         addons = repository.find_all_launcher_addons()
 
         for addon in addons:
             options[addon] = addon.get_name()
     
     s = kodi.translate(41106)
-    selected_option: AelAddon = kodi.OrdDictionaryDialog().select(s, options)
+    selected_option: AklAddon = kodi.OrdDictionaryDialog().select(s, options)
     
     if selected_option is None:
         # >> Exits context menu
@@ -233,18 +233,9 @@ def cmd_add_rom_launchers(args):
         is_default = kodi.dialog_yesno(kodi.translate(41171).format(selected_option.get_name()))
         
         rom.add_launcher(launcher, is_default)
-        rom_repository.update_rom(rom)    
+        rom_repository.update_rom(rom)
         logger.info(f'Added launcher#{selected_option.get_id()} to ROM {rom.get_id()}')
         uow.commit()
-
-        repository = AelAddonRepository(uow)
-        addons = repository.find_all_launcher_addons()
-
-        for addon in addons:
-            options[addon] = addon.get_name()
-    
-    s = kodi.translate(41106)
-    selected_option: AelAddon = kodi.OrdDictionaryDialog().select(s, options)
     
     kodi.notify(kodi.translate(41109).format(selected_option.get_name()))
     AppMediator.sync_cmd('EDIT_ROM_LAUNCHERS', args)
@@ -355,7 +346,7 @@ def cmd_remove_romcollection_launchers(args):
     
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
-        romcollection_repository = ROMCollectionRepository(uow)        
+        romcollection_repository = ROMCollectionRepository(uow)
         romcollection = romcollection_repository.find_romcollection(romcollection_id)
     
         launchers = romcollection.get_launchers()
@@ -440,7 +431,7 @@ def cmd_remove_rom_launchers(args):
     
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
-        repository = ROMsRepository(uow)        
+        repository = ROMsRepository(uow)
         rom = repository.find_rom(rom_id)
     
         launchers = rom.get_launchers()
@@ -598,7 +589,7 @@ def cmd_execute_rom_with_launcher(args):
         rom_repository = ROMsRepository(uow)
         romcollection_repository = ROMCollectionRepository(uow)
         source_repository = SourcesRepository(uow)
-        addon_repository = AelAddonRepository(uow)
+        addon_repository = AklAddonRepository(uow)
 
         rom = rom_repository.find_rom(rom_id)
         logger.info(f'Executing ROM {rom.get_name()}')

@@ -299,3 +299,5 @@ Artwork directory  ADDON_DATA_DIR/asset-launchers/
 
  * User will have to reorganise artwork directories to take full advantage of AEL
    capabilities after importing AL `launchers.xml`.
+
+Font used: Agency FB

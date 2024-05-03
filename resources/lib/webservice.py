@@ -99,7 +99,7 @@ class WebService(threading.Thread):
             server.serve_forever()
         except Exception as error:
 
-            if '10053' not in error: # ignore host diconnected errors
+            if '10053' not in error:  # ignore host diconnected errors
                 logger.fatal('Exception in webservice', exc_info=error)
 
         logger.debug("Webservice thread end")
@@ -135,7 +135,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         '''
         try:
             BaseHTTPRequestHandler.handle(self)
-        except Exception as error:
+        except Exception:
             pass
 
     def do_QUIT(self):
@@ -188,7 +188,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         '''Send headers and reponse
         '''
         try:
-            logger.debug('akl.webservice: Processing path "{}"'.format(self.path))
+            logger.debug(f'akl.webservice: Processing path "{self.path}"')
             api_path = self.path.lower()
             if headers_only:
                 self.send_response(200)
@@ -203,7 +203,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                     self.send_header('Content-type', 'application/json')
                     self.end_headers()
                 else:
-                    logger.warning('Not handeld: {}'.format(self.path))
+                    logger.warning(f'Not handled: {self.path}')
                     raise Exception("UnknownRequest")
             else:
                 logger.warning(self.path)
@@ -261,7 +261,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         id = params.get('id')
         
         if 'romcollection/roms/' in api_path:
-            return apiqueries.qry_get_roms(id)
+            return apiqueries.qry_get_roms_by_romcollection(id)
         if 'romcollection/' in api_path:
             return apiqueries.qry_get_rom_collection(id)
         
@@ -290,8 +290,6 @@ class RequestHandler(BaseHTTPRequestHandler):
         return None
             
     def handle_posts(self, api_path) -> bool:
-        params = self.get_params()
-        
         data_string = self.rfile.read(int(self.headers['Content-Length']))
         data = json.loads(data_string)
         

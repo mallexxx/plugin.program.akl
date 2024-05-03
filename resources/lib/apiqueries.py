@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 def qry_get_rom(rom_id: str) -> str:
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
-        rom_repository = ROMsRepository(uow)        
+        rom_repository = ROMsRepository(uow)
         rom = rom_repository.find_rom(rom_id)
         
         if rom is None:
@@ -45,7 +45,7 @@ def qry_get_rom(rom_id: str) -> str:
 def qry_get_rom_collection(collection_id: str) -> str:
     uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
     with uow:
-        collection_repository = ROMCollectionRepository(uow)        
+        collection_repository = ROMCollectionRepository(uow)
         rom_collection = collection_repository.find_romcollection(collection_id)
         
         if rom_collection is None:
@@ -72,7 +72,27 @@ def qry_get_roms(source_id: str) -> str:
             rom_dto = rom.create_dto()
             data.append(rom_dto.get_data_dic())
             
-        return json.dumps(data)    
+        return json.dumps(data)
+
+
+def qry_get_roms_by_romcollection(collection_id: str) -> str:
+    uow = UnitOfWork(globals.g_PATHS.DATABASE_FILE_PATH)
+    with uow:
+        collection_repository = ROMCollectionRepository(uow)
+        rom_repository = ROMsRepository(uow)
+        
+        collection = collection_repository.find_romcollection(collection_id)
+        roms = rom_repository.find_roms_by_romcollection(collection)
+        
+        if roms is None:
+            return None
+        
+        data = []
+        for rom in roms:
+            rom_dto = rom.create_dto()
+            data.append(rom_dto.get_data_dic())
+            
+        return json.dumps(data)
 
 
 def qry_get_launcher_settings(launcher_id: str) -> str:
@@ -82,7 +102,9 @@ def qry_get_launcher_settings(launcher_id: str) -> str:
         launcher = repository.find(launcher_id)
         
         if launcher is not None:
-            return launcher.get_settings_str()
+            settings = launcher.get_settings()
+            settings['name'] = launcher.get_name()
+            return json.dumps(settings)
         
     return None
     
@@ -97,7 +119,9 @@ def qry_get_collection_launcher_settings(collection_id: str, launcher_id: str) -
             return None
         
         launcher = rom_collection.get_launcher(launcher_id)
-        return launcher.get_settings_str()
+        settings = launcher.get_settings()
+        settings['name'] = launcher.get_name()
+        return json.dumps(settings)
 
 
 def qry_get_source_scanner_settings(source_id: str) -> str:
@@ -125,5 +149,6 @@ def qry_get_source_launchers(source_id: str) -> str:
         launchers = source.get_launchers()
         for launcher in launchers:
             launchers_data[launcher.get_id()] = launcher.get_settings()
+            launchers_data[launcher.get_id()]['name'] = launcher.get_name()
             
         return json.dumps(launchers_data)

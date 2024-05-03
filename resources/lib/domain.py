@@ -155,7 +155,7 @@ class EntityABC(object):
 
 
 # Addons that can be used as AKL plugin (launchers, scrapers)
-class AelAddon(EntityABC):
+class AklAddon(EntityABC):
     
     def __init__(self, addon_dic=None):
         if addon_dic is None:
@@ -170,7 +170,7 @@ class AelAddon(EntityABC):
         if 'id' not in addon_dic:
             addon_dic['id'] = text.misc_generate_random_SID()
             
-        super(AelAddon, self).__init__(addon_dic)
+        super(AklAddon, self).__init__(addon_dic)
     
     def get_id(self) -> str:
         return self.entity_data['id'] 
@@ -350,23 +350,13 @@ class RomAssetMapping(AssetMapping):
 class ROMAddon(EntityABC):
     __metaclass__ = abc.ABCMeta
     
-    def __init__(self, addon: AelAddon, entity_data: dict):
+    def __init__(self, addon: AklAddon, entity_data: dict):
         self.addon = addon
         super(ROMAddon, self).__init__(entity_data)
-        
-    def get_name(self):
-        secondary_name = self.get_secondary_name()
-        if secondary_name:
-            return '{} ({})'.format(self.addon.get_name(), secondary_name)
-        return self.addon.get_name()
-    
+            
     def get_addon_name(self):
         return self.addon.get_name()
     
-    def get_secondary_name(self):
-        settings = self.get_settings()
-        return settings['secname'] if 'secname' in settings else None
-            
     def get_settings_str(self) -> str:
         return self.entity_data['settings'] if 'settings' in self.entity_data else None
     
@@ -392,7 +382,7 @@ class ROMAddon(EntityABC):
         if new_name:
             self.entity_data['name'] = new_name
     
-    def get_addon(self) -> AelAddon:
+    def get_addon(self) -> AklAddon:
         return self.addon
 
 
@@ -401,7 +391,7 @@ class ROMLauncherAddon(ROMAddon):
       
     def __init__(self,
                  entity_data: dict = None,
-                 addon: AelAddon = None):
+                 addon: AklAddon = None):
         
         if entity_data is None:
             entity_data = {
@@ -412,6 +402,9 @@ class ROMLauncherAddon(ROMAddon):
         super(ROMLauncherAddon, self).__init__(addon, entity_data)
         
     def get_name(self):
+        if not self.entity_data['name']:
+            return super().get_addon_name()
+        
         return self.entity_data["name"]
         
     def is_default(self) -> bool:
@@ -483,34 +476,26 @@ class RetroplayerLauncherAddon(ROMLauncherAddon):
         kodi.play_item(rom.get_name(), rom_file_path.getPath(), 'game', game_info)
         logger.debug('Retroyplayer call finished')
    
-    def configure(self, romcollection: ROMCollection):
+    def configure(self, args: dict):
         post_data = {
-            'romcollection_id': romcollection.get_id(),
             'akl_addon_id': self.get_id(),
             'addon_id': self.addon.get_addon_id(),
+            'entity_type': args['entity_type'] if 'entity_type' in args else '',
+            'entity_id': args['entity_id'] if 'entity_id' in args else '',
             'settings': {}
-        }        
-        is_stored = api.client_post_launcher_settings(globals.WEBSERVER_HOST, settings.getSettingAsInt('webserver_port'), post_data)
+        }
+        is_stored = api.client_post_launcher_settings(globals.WEBSERVER_HOST, 
+                                                      settings.getSettingAsInt('webserver_port'),
+                                                      post_data)
         if not is_stored:
             kodi.notify_error(kodi.translate(40958))
-            
-    def configure_for_rom(self, rom: ROM):
-        post_data = {
-            'rom_id': rom.get_id(),
-            'akl_addon_id': self.get_id(),
-            'addon_id': self.addon.get_addon_id(),
-            'settings': {}
-        }        
-        is_stored = api.client_post_launcher_settings(globals.WEBSERVER_HOST, settings.getSettingAsInt('webserver_port'), post_data)
-        if not is_stored:
-            kodi.notify_error(kodi.translate(40958))
-     
+
 
 class Source(ROMAddon):
     
     def __init__(self,
                  entity_data: dict = None,
-                 addon: AelAddon = None,
+                 addon: AklAddon = None,
                  asset_paths_data: typing.List[AssetPath] = [],
                  launchers_data: typing.List[ROMLauncherAddon] = []):
         
@@ -534,6 +519,8 @@ class Source(ROMAddon):
         super(Source, self).__init__(addon, entity_data)
     
     def get_name(self):
+        if not self.entity_data['name']:
+            return super().get_addon_name()
         return self.entity_data["name"]
     
     def set_name(self, name):
@@ -560,6 +547,12 @@ class Source(ROMAddon):
     def has_roms(self) -> bool:
         return self.num_roms() > 0
         
+    def get_last_change_timestamp(self) -> datetime:
+        if 'last_change_on' not in self.entity_data or not self.entity_data['last_change_on']:
+            return datetime.datetime.today()
+        
+        return datetime.datetime.fromisoformat(self.entity_data['last_change_on'])
+    
     def get_assets_root_path(self) -> io.FileName:
         return self._get_directory_filename_from_field('assets_path')
     
@@ -685,11 +678,16 @@ class Source(ROMAddon):
 
 class ScraperAddon(ROMAddon):
     
-    def __init__(self, addon: AelAddon, scraper_settings: ScraperSettings):
+    def __init__(self, addon: AklAddon, scraper_settings: ScraperSettings):
         entity_data = {
             'settings': json.dumps(scraper_settings.get_data_dic())
         }
         super(ScraperAddon, self).__init__(addon, entity_data)
+    
+    def get_name(self):
+        if 'name' not in self.entity_data or not self.entity_data['name']:
+            return super().get_addon_name()
+        return self.entity_data["name"]
     
     def settings_are_applicable(self) -> bool:
         settings = self.get_scraper_settings()
@@ -825,20 +823,41 @@ class Rule(EntityABC):
         operator = self.get_operator()
         entity_property = self.get_property()
         property_value = self.get_value()
-        
         actual = rom.get_custom_attribute(entity_property)
+        
+        if actual is not None:
+            property_value = type(actual)(property_value)
+            
+        logger.debug((f'[Rule] operator: {operator}, property: {entity_property}, '
+                      f'value: {property_value} ({type(property_value)}), '
+                      f'actual value: {actual} ({type(actual)})'))
+        
         if operator == RuleOperator.Equals:
+            if isinstance(actual, str):
+                return actual.casefold() == property_value.casefold()
             return actual == property_value
+        
         if operator == RuleOperator.NotEquals:
+            if isinstance(actual, str):
+                return actual.casefold() != property_value.casefold()
             return actual != property_value
+        
         if operator == RuleOperator.Contains:
+            if isinstance(actual, str):
+                return property_value.casefold() in actual.casefold()
             return property_value in actual
+        
         if operator == RuleOperator.DoesNotContain:
+            if isinstance(actual, str):
+                return property_value.casefold() not in actual.casefold()
             return property_value not in actual
+        
         if operator == RuleOperator.MoreThan:
             return property_value > actual
+        
         if operator == RuleOperator.LessThan:
             return property_value < actual
+        
         return False
 
 
@@ -849,8 +868,8 @@ class RuleSet(object):
         if entity_data is None:
             entity_data = {
                 'ruleset_id': text.misc_generate_random_SID(),
-                'source_id': '',
-                'source_name': '',
+                'source_id': None,
+                'source_name': None,
                 'collection_id': '',
                 'set_operator': None,
                 'rules': []
@@ -861,6 +880,8 @@ class RuleSet(object):
         
         if 'rules' in self.entity_data:
             for rule_data in self.entity_data['rules']:
+                if 'ruleset_id' not in rule_data or not rule_data['ruleset_id']:
+                    rule_data['ruleset_id'] = self.entity_data['ruleset_id']
                 if rule_data['rule_id']:
                     self.rules.append(Rule(rule_data))
          
@@ -871,7 +892,9 @@ class RuleSet(object):
         return self.entity_data['source_id'] if 'source_id' in self.entity_data else None
     
     def get_source_name(self):
-        return self.entity_data['source_name'] if 'source_name' in self.entity_data else "Unknown"
+        if 'source_name' not in self.entity_data or self.entity_data['source_name'] is None:
+            return kodi.translate(42508)
+        return self.entity_data['source_name']
     
     def get_rules_description(self):
         if len(self.rules) == 0:
@@ -902,6 +925,11 @@ class RuleSet(object):
         self.rules.append(rule)
     
     def apply_source(self, source: Source):
+        if source is None:
+            self.entity_data['source_id'] = None
+            self.entity_data['source_name'] = None
+            return
+        
         self.entity_data['source_id'] = source.get_id()
         self.entity_data['source_name'] = source.get_name()
     
@@ -1044,17 +1072,19 @@ class MetaDataItemABC(EntityABC):
 
     # --- Finished status stuff -------------------------------------------------------------------
     def is_finished(self):
-        return 'finished' in self.entity_data and self.entity_data['finished']
+        return self.entity_data['finished'] if 'finished' in self.entity_data else False
 
     def get_finished_str_code(self):
         finished = self.is_finished()
-        finished_display = 42014 if finished is True else 42015
+        finished_display = 42014 if finished else 42015
 
         return finished_display
 
     def change_finished_status(self):
         finished = self.entity_data['finished']
+        logger.debug(f"STATE IS {finished}")
         finished = False if finished else True
+        logger.debug(f"CHANGED STATE TO {finished}")
         self.entity_data['finished'] = finished
 
     # --- Assets/artwork --------------------------------------------------------------------------
@@ -1255,6 +1285,12 @@ class Category(MetaDataItemABC):
     def has_items(self) -> bool:
         return self.num_romcollections() > 0 or self.num_categories() > 0
 
+    def get_last_change_timestamp(self) -> datetime:
+        if 'last_change_on' not in self.entity_data or not self.entity_data['last_change_on']:
+            return datetime.datetime.today()
+        
+        return datetime.datetime.fromisoformat(self.entity_data['last_change_on'])
+
     def get_asset_ids_list(self):
         return constants.CATEGORY_ASSET_ID_LIST
     
@@ -1439,6 +1475,12 @@ class ROMCollection(MetaDataItemABC):
     def set_box_sizing(self, box_size):
         self.entity_data['box_size'] = box_size
 
+    def get_last_change_timestamp(self) -> datetime:
+        if 'last_change_on' not in self.entity_data or not self.entity_data['last_change_on']:
+            return datetime.datetime.today()
+        
+        return datetime.datetime.fromisoformat(self.entity_data['last_change_on'])
+    
     def get_asset_ids_list(self):
         return constants.LAUNCHER_ASSET_ID_LIST
 
@@ -1889,6 +1931,9 @@ class ROM(MetaDataItemABC):
     def set_box_sizing(self, box_size):
         self.entity_data['box_size'] = box_size
 
+    def amount_of_associated_collections(self) -> int:
+        return self.entity_data['collections_count'] if 'collections_count' in self.entity_data else 0
+
     def has_launchers(self) -> bool:
         return len(self.launchers_data) > 0
 
@@ -2085,61 +2130,61 @@ class ROM(MetaDataItemABC):
 
         if constants.META_TITLE_ID in metadata_to_update \
             and api_rom_obj.get_name() \
-            and (overwrite_existing_metadata or \
+            and (overwrite_existing_metadata or
                  _is_empty_or_default(self.get_name(), constants.DEFAULT_META_TITLE)):
             self.set_name(api_rom_obj.get_name())
 
         if constants.META_PLOT_ID in metadata_to_update \
             and api_rom_obj.get_plot() \
-            and (overwrite_existing_metadata or \
+            and (overwrite_existing_metadata or
                  _is_empty_or_default(self.get_plot(), constants.DEFAULT_META_PLOT)):
             self.set_plot(api_rom_obj.get_plot())
     
         if constants.META_YEAR_ID in metadata_to_update \
             and api_rom_obj.get_releaseyear() \
-            and (overwrite_existing_metadata or \
+            and (overwrite_existing_metadata or
                  _is_empty_or_default(self.get_releaseyear(), constants.DEFAULT_META_YEAR)):
             self.set_releaseyear(api_rom_obj.get_releaseyear())
         
         if constants.META_GENRE_ID in metadata_to_update \
             and api_rom_obj.get_genre() \
-            and (overwrite_existing_metadata or \
+            and (overwrite_existing_metadata or
                  _is_empty_or_default(self.get_genre(), constants.DEFAULT_META_GENRE)):
             self.set_genre(api_rom_obj.get_genre())
         
         if constants.META_DEVELOPER_ID in metadata_to_update \
             and api_rom_obj.get_developer() \
-            and (overwrite_existing_metadata or \
+            and (overwrite_existing_metadata or
                  _is_empty_or_default(self.get_developer(), constants.DEFAULT_META_DEVELOPER)):         
             self.set_developer(api_rom_obj.get_developer())
         
         if constants.META_NPLAYERS_ID in metadata_to_update \
             and api_rom_obj.get_number_of_players() \
-            and (overwrite_existing_metadata or \
+            and (overwrite_existing_metadata or
                  _is_empty_or_default(self.get_number_of_players(), constants.DEFAULT_META_NPLAYERS)):
             self.set_number_of_players(api_rom_obj.get_number_of_players())
         
         if constants.META_NPLAYERS_ONLINE_ID in metadata_to_update \
             and api_rom_obj.get_number_of_players_online() \
-            and (overwrite_existing_metadata or \
+            and (overwrite_existing_metadata or
                  _is_empty_or_default(self.get_number_of_players_online(), constants.DEFAULT_META_NPLAYERS)):
             self.set_number_of_players_online(api_rom_obj.get_number_of_players_online())
         
         if constants.META_ESRB_ID in metadata_to_update\
                 and api_rom_obj.get_esrb_rating() \
-                and (overwrite_existing_metadata or \
+                and (overwrite_existing_metadata or
                      _is_empty_or_default(self.get_esrb_rating(), constants.DEFAULT_META_ESRB)):
             self.set_esrb_rating(api_rom_obj.get_esrb_rating())
         
         if constants.META_PEGI_ID in metadata_to_update\
                 and api_rom_obj.get_pegi_rating() \
-                and (overwrite_existing_metadata or \
+                and (overwrite_existing_metadata or
                      _is_empty_or_default(self.get_pegi_rating(), constants.DEFAULT_META_PEGI)):       
             self.set_pegi_rating(api_rom_obj.get_pegi_rating())
         
         if constants.META_RATING_ID in metadata_to_update \
                 and api_rom_obj.get_rating() \
-                and (overwrite_existing_metadata or \
+                and (overwrite_existing_metadata or
                      _is_empty_or_default(self.get_rating(), constants.DEFAULT_META_RATING)):            
             self.set_rating(api_rom_obj.get_rating())
         
@@ -2180,7 +2225,6 @@ class ROM(MetaDataItemABC):
             # metadata_updated = True
      
     def apply_source_asset_paths(self, source: Source):
-        self.set_assets_root_path(source.get_assets_root_path())
         self.asset_paths = {}
         for assetpath in source.get_asset_paths():
             self.asset_paths[assetpath.get_asset_info_id()] = assetpath
@@ -2688,9 +2732,9 @@ class VirtualCollectionFactory(object):
         return None
 
     @staticmethod
-    def create_by_category(vcategory_id:str, collection_value:str) -> VirtualCollection:
+    def create_by_category(vcategory_id: str, collection_value: str) -> VirtualCollection:
 
-        default_entity_data = _get_default_ROMCollection_data_model()    
+        default_entity_data = _get_default_ROMCollection_data_model()
         return VirtualCollection(dict(default_entity_data, **{
             'id' : f'{vcategory_id}_{collection_value}',
             'parent_id': vcategory_id,
@@ -2699,7 +2743,11 @@ class VirtualCollectionFactory(object):
             'collection_value': collection_value,
             'finished': settings.getSettingAsBool('display_hide_vcategories')
         }), [
-            Asset({'id' : '', 'asset_type' : constants.ASSET_FANART_ID, 'filepath' : globals.g_PATHS.FANART_FILE_PATH.getPath()})
+            Asset({
+                'id': '',
+                'asset_type': constants.ASSET_FANART_ID,
+                'filepath': globals.g_PATHS.FANART_FILE_PATH.getPath()
+            })
         ])
 
 class VirtualCategoryFactory(object):
@@ -2822,7 +2870,7 @@ class VirtualCategoryFactory(object):
 class ROMLauncherAddonFactory(object):
 
     @staticmethod
-    def create(addon: AelAddon, data: dict) -> ROMLauncherAddon:
+    def create(addon: AklAddon, data: dict) -> ROMLauncherAddon:
         if addon.get_addon_id() == constants.RETROPLAYER_LAUNCHER_APP_NAME:
             return RetroplayerLauncherAddon(data, addon)
                     

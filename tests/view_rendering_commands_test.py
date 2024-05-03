@@ -83,7 +83,7 @@ class Test_View_Rendering_Commands(unittest.TestCase):
         Test_View_Rendering_Commands.CREATED_VIEWS = []
         
         # act
-        target.cmd_render_views_data(None)
+        target.cmd_render_views_data({'force':True})
         
         # assert
         self.assertIsNotNone(Test_View_Rendering_Commands.CREATED_VIEWS)

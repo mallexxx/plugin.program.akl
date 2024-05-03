@@ -71,7 +71,7 @@ class AKL_Paths(object):
         # --- Artwork and NFO for Categories and Launchers ---
         self.DEFAULT_CAT_ASSET_DIR = self.ADDON_DATA_DIR.pjoin('asset-categories')
         self.DEFAULT_COL_ASSET_DIR = self.ADDON_DATA_DIR.pjoin('asset-collections')
-        self.DEFAULT_LAUN_ASSET_DIR = self.ADDON_DATA_DIR.pjoin('asset-launchers')
+        self.DEFAULT_ROM_ASSET_DIR = self.ADDON_DATA_DIR.pjoin('asset-roms')
         self.DEFAULT_FAV_ASSET_DIR = self.ADDON_DATA_DIR.pjoin('asset-favourites')
         
         # --- Rendered views (normal and virtuals/generated) ---
@@ -111,6 +111,7 @@ class AKL_Paths(object):
             self.VIEWS_DIR.makedirs()
 
         return self
+
 
 router: routing.Plugin = routing.Plugin()
 g_PATHS: AKL_Paths
