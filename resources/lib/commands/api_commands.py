@@ -229,7 +229,7 @@ def cmd_store_scraped_roms(args) -> bool:
             romcollection = romcollection_repository.find_romcollection(entity_id)
             existing_roms = rom_repository.find_roms_by_romcollection(romcollection)
             entity_name = romcollection.get_name()
-            
+        
         existing_roms_by_id = {rom.get_id(): rom for rom in existing_roms}
 
         metadata_is_updated = applied_settings.scrape_metadata_policy != constants.SCRAPE_ACTION_NONE
