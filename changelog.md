@@ -11,6 +11,7 @@
 - Added 'edit platform' to ROMs
 - Changed platform can be applied to all ROMs in a collection
 - AKL webservice port number can be changed through settings
+- Fix with missing auto_scan.txt
 
 ## Previous
 - Custom skin view for View ROM
