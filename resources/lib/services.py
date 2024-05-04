@@ -148,9 +148,12 @@ class AppService(object):
             return
         
         modification_time = self._get_modification_timestamp()
-        then = modification_time.toordinal()
-        now = datetime.now().toordinal()
-        too_long_ago = (now - then) >= min_days_ago
+        if modification_time is not None:
+            then = modification_time.toordinal()
+            now = datetime.now().toordinal()
+            too_long_ago = (now - then) >= min_days_ago
+        else:
+            too_long_ago = True
         
         if too_long_ago:
             logger.info(f'Triggering automatic scan and view generation. Last scan was {now-then} days ago')
@@ -159,6 +162,8 @@ class AppService(object):
         return too_long_ago
 
     def _get_modification_timestamp(self):
+        if not globals.g_PATHS.SCAN_INDICATOR_FILE.exists():
+            return None
         modification_timestamp = globals.g_PATHS.SCAN_INDICATOR_FILE.stat().st_mtime
         modification_time = datetime.fromtimestamp(modification_timestamp)
         
